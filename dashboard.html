@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IBuild System - Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 260px;
+            height: 100vh;
+            background: #0f172a;
+            color: white;
+            padding: 25px 18px;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 10px 0 30px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .logo h1 {
+            font-size: 25px;
+        }
+
+        .logo span {
+            color: #3b82f6;
+        }
+
+        .logo p {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        .menu {
+            margin-top: 25px;
+        }
+
+        .menu-title {
+            color: #64748b;
+            font-size: 11px;
+            margin: 20px 10px 10px;
+        }
+
+        .menu-item {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            padding: 13px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            text-align: right;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .logout {
+            position: absolute;
+            bottom: 25px;
+            right: 18px;
+            left: 18px;
+            width: calc(100% - 36px);
+            border: 1px solid #475569;
+            background: transparent;
+            color: #cbd5e1;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .logout:hover {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        /* =========================
+           LANGUAGE
+        ========================= */
+
+        .language-box {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            padding: 4px;
+        }
+
+        .language-btn {
+            border: none;
+            background: transparent;
+            color: #64748b;
+            padding: 7px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .language-btn:hover,
+        .language-btn.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-right: 260px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            min-height: 75px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 35px;
+            gap: 20px;
+        }
+
+        .page-title h2 {
+            font-size: 22px;
+        }
+
+        .page-title p {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .user-role {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            padding: 30px 35px;
+        }
+
+        .welcome {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: white;
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #dbeafe;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+            padding: 22px;
+        }
+
+        .card-title {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .card-value {
+            font-size: 27px;
+            font-weight: bold;
+        }
+
+        .card-note {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        /* =========================
+           MODULES
+        ========================= */
+
+        .section-title {
+            font-size: 19px;
+            margin-bottom: 18px;
+        }
+
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .module {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+            padding: 25px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .module:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+            border-color: #93c5fd;
+        }
+
+        .module-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: #dbeafe;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .module h3 {
+            font-size: 16px;
+            margin-bottom: 7px;
+        }
+
+        .module p {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+
+        /* =========================
+           COMPANY / PROJECT KPI BOARD
+        ========================= */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 19px 20px;
+            min-height: 132px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+        }
+
+        .kpi-card::after {
+            content: "";
+            position: absolute;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #eff6ff;
+            left: -25px;
+            bottom: -28px;
+        }
+
+        .kpi-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .kpi-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #dbeafe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex: 0 0 auto;
+        }
+
+        .kpi-value {
+            margin-top: 13px;
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+        }
+
+        .kpi-note {
+            margin-top: 6px;
+            color: #94a3b8;
+            font-size: 10px;
+        }
+
+        .dashboard-section {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+        }
+
+        .section-heading-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .section-heading-row h2 {
+            font-size: 18px;
+        }
+
+        .section-heading-row p {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .project-table-wrap {
+            overflow-x: auto;
+        }
+
+        .project-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 880px;
+        }
+
+        .project-table th,
+        .project-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eef2f7;
+            text-align: right;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        .project-table th {
+            color: #64748b;
+            background: #f8fafc;
+            font-weight: 700;
+        }
+
+        .project-table td {
+            color: #0f172a;
+        }
+
+        .project-name-cell {
+            font-weight: 700;
+        }
+
+        .project-client {
+            color: #94a3b8;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .progress-cell {
+            min-width: 120px;
+        }
+
+        .progress-track {
+            height: 7px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: #2563eb;
+            border-radius: inherit;
+        }
+
+        .progress-label {
+            margin-top: 5px;
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .empty-projects {
+            text-align: center;
+            padding: 35px 10px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        html[dir="ltr"] .project-table th,
+        html[dir="ltr"] .project-table td {
+            text-align: left;
+        }
+
+        @media (max-width: 1250px) {
+            .kpi-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        /* =========================
+           LTR
+        ========================= */
+
+        html[dir="ltr"] .sidebar {
+            right: auto;
+            left: 0;
+        }
+
+        html[dir="ltr"] .main {
+            margin-right: 0;
+            margin-left: 260px;
+        }
+
+        html[dir="ltr"] .menu-item {
+            text-align: left;
+        }
+
+        html[dir="ltr"] .user-info {
+            text-align: left;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1100px) {
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modules {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                width: 75px;
+                padding: 15px 8px;
+            }
+
+            .logo h1,
+            .logo p,
+            .menu-title,
+            .menu-item span,
+            .logout span {
+                display: none;
+            }
+
+            .menu-item {
+                text-align: center !important;
+                font-size: 20px;
+                padding: 13px 5px;
+            }
+
+            .logout {
+                right: 8px;
+                left: 8px;
+                width: calc(100% - 16px);
+            }
+
+            .main {
+                margin-right: 75px;
+                margin-left: 0;
+            }
+
+            html[dir="ltr"] .main {
+                margin-left: 75px;
+                margin-right: 0;
+            }
+
+            .topbar {
+                padding: 15px;
+                flex-wrap: wrap;
+            }
+
+            .topbar-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .cards,
+            .modules,
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-info {
+                display: none;
+            }
+        }
+    
+.sidebar{display:flex!important;flex-direction:column!important}.menu{overflow:auto!important;max-height:calc(100vh - 150px)!important;padding-bottom:75px!important}.logout-link{position:absolute!important;bottom:18px!important;left:18px!important;right:18px!important;width:auto!important;border:1px solid #475569!important;background:#172033!important;color:#fff!important;border-radius:9px!important;padding:10px 12px!important;cursor:pointer!important;text-align:center!important;z-index:5!important}.logout-link:hover{background:#dc2626!important;color:#fff!important}
+
+        .clickable-kpi {
+            cursor: pointer;
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        }
+        .clickable-kpi:hover,
+        .clickable-kpi:focus {
+            transform: translateY(-2px);
+            border-color: #93c5fd;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, .12);
+            outline: none;
+        }
+        .dashboard-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .58);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 5000;
+        }
+        .dashboard-modal.show { display: flex; }
+        .dashboard-modal-card {
+            width: min(1050px, 96vw);
+            max-height: 86vh;
+            overflow: hidden;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 25px 70px rgba(15, 23, 42, .25);
+            direction: rtl;
+        }
+        .dashboard-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 18px 22px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .dashboard-modal-head h3 { font-size: 18px; margin: 0; }
+        .dashboard-modal-head p { color: #64748b; font-size: 11px; margin-top: 5px; }
+        .dashboard-modal-close {
+            width: 36px;
+            height: 36px;
+            border: 0;
+            border-radius: 9px;
+            background: #f1f5f9;
+            color: #334155;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .dashboard-modal-body {
+            padding: 18px 22px 22px;
+            max-height: calc(86vh - 95px);
+            overflow: auto;
+        }
+        .modal-total {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 9px 13px;
+            border-radius: 10px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+        .modal-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 680px;
+        }
+        .modal-table th,
+        .modal-table td {
+            padding: 11px 10px;
+            border-bottom: 1px solid #eef2f7;
+            text-align: right;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .modal-table th {
+            color: #64748b;
+            background: #f8fafc;
+            font-weight: 700;
+        }
+        .modal-table .positive { color: #15803d; font-weight: 800; }
+        .modal-table .negative { color: #dc2626; font-weight: 800; }
+        .modal-empty { text-align: center; color: #94a3b8; padding: 35px 10px; }
+        @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 560px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .dashboard-modal { padding: 10px; }
+        }
+
+</style>
+</head>
+
+<body>
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>
+                IBuild <span>System</span>
+            </h1>
+
+            <p data-i18n="companySystem">
+                نظام إدارة الشركة
+            </p>
+
+        </div>
+
+
+        <div class="menu">
+
+            <div
+                class="menu-title"
+                data-i18n="main">
+                الرئيسية
+            </div>
+
+
+            <button
+                class="menu-item active"
+                data-page="/dashboard">
+
+                🏠
+
+                <span data-i18n="dashboard">
+                    لوحة التحكم
+                </span>
+
+            </button>
+
+
+            <div
+                class="menu-title"
+                data-i18n="companyManagement">
+                إدارة الشركة
+            </div>
+
+
+            <button
+                class="menu-item"
+                data-page="/employees">
+
+                👥
+
+                <span data-i18n="employees">
+                    الموظفين
+                </span>
+
+            </button>
+
+
+            <button
+                class="menu-item"
+                data-page="/attendance">
+
+                🕐
+
+                <span data-i18n="attendance">
+                    الحضور والانصراف
+                </span>
+
+            </button>
+
+
+            <button
+                class="menu-item"
+                data-page="/payroll">
+
+                💰
+
+                <span data-i18n="payroll">
+                    الرواتب
+                </span>
+
+            </button>
+
+
+            <button
+                class="menu-item"
+                data-page="/invoices">
+
+                📄
+
+                <span data-i18n="invoices">
+                    الفواتير
+                </span>
+
+            </button>
+
+
+            <button
+                class="menu-item"
+                data-page="/payments">
+
+                💳
+
+                <span data-i18n="payments">
+                    المدفوعات
+                </span>
+
+            </button>
+
+
+            <div
+                class="menu-title"
+                data-i18n="projectsSection">
+                المشاريع
+            </div>
+
+
+            <button
+                class="menu-item"
+                data-page="/projects">
+
+                🏗️
+
+                <span data-i18n="projects">
+                    المشاريع
+                </span>
+
+            </button>
+
+
+            <button
+                class="menu-item"
+                data-page="/reports">
+
+                📊
+
+                <span data-i18n="reports">
+                    التقارير
+                </span>
+
+            </button>
+
+            <button class="menu-item" data-page="/leaves">📅 <span>الإجازات</span></button>
+            <button class="menu-item" data-page="/end-of-service">🧮 <span>نهاية الخدمة</span></button>
+            <button class="menu-item" data-page="/users">🔐 <span>المستخدمون</span></button>
+            <button class="menu-item" data-page="/audit-log">📝 <span>سجل العمليات</span></button>
+            <button class="menu-item" data-page="/settings">⚙️ <span>الإعدادات</span></button>
+
+        </div>
+
+
+        <button
+            class="logout"
+            id="logoutButton">
+
+            🚪
+
+            <span data-i18n="logout">
+                تسجيل الخروج
+            </span>
+
+        </button>
+
+    <button type="button" class="logout-link" onclick="logoutFromSystem()">🚪 <span>تسجيل الخروج</span></button></aside>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div class="page-title">
+
+                <h2 data-i18n="dashboard">
+                    لوحة التحكم
+                </h2>
+
+                <p data-i18n="dashboardSubtitle">
+                    نظرة عامة على نظام IBuild
+                </p>
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+                <div class="language-box">
+
+                    <button
+                        class="language-btn"
+                        id="arabicButton"
+                        type="button"
+                        onclick="changeLanguage('ar')">
+
+                        العربية
+
+                    </button>
+
+
+                    <button
+                        class="language-btn"
+                        id="englishButton"
+                        type="button"
+                        onclick="changeLanguage('en')">
+
+                        English
+
+                    </button>
+
+                </div>
+
+
+                <div class="user-box">
+
+                    <div class="user-info">
+
+                        <div
+                            class="user-name"
+                            id="userName">
+                            المستخدم
+                        </div>
+
+                        <div
+                            class="user-role"
+                            id="userRole">
+                            -
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="avatar"
+                        id="avatar">
+                        U
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+            <div class="welcome">
+
+                <h1>
+
+                    <span data-i18n="welcome">
+                        مرحباً بك،
+                    </span>
+
+                    <span id="welcomeName">
+                        مستخدم
+                    </span>
+
+                    👋
+
+                </h1>
+
+
+                <p data-i18n="welcomeText">
+                    أهلاً بك في نظام إدارة شركة IBuild.
+                    من هنا يمكنك الوصول إلى جميع أقسام النظام.
+                </p>
+
+            </div>
+
+
+            <!-- =========================
+                 STATISTICS
+            ========================= -->
+
+            <div class="kpi-grid">
+
+                <div class="kpi-card">
+                    <div class="kpi-head">
+                        <span data-i18n="totalEmployees">إجمالي الموظفين</span>
+                        <span class="kpi-icon">👥</span>
+                    </div>
+                    <div class="kpi-value" id="totalEmployeesValue">0</div>
+                    <div class="kpi-note" data-i18n="activeEmployeesNote">النشطون: 0</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-head">
+                        <span data-i18n="todayAttendance">الحضور اليوم</span>
+                        <span class="kpi-icon">🕐</span>
+                    </div>
+                    <div class="kpi-value" id="todayAttendanceValue">0</div>
+                    <div class="kpi-note" data-i18n="attendanceConnection">متصل بنظام الحضور</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-head">
+                        <span data-i18n="totalProjects">إجمالي المشاريع</span>
+                        <span class="kpi-icon">🏗️</span>
+                    </div>
+                    <div class="kpi-value" id="totalProjectsValue">0</div>
+                    <div class="kpi-note" id="activeProjectsNote">النشطة: 0</div>
+                </div>
+
+                <div class="kpi-card clickable-kpi" tabindex="0" role="button" onclick="openDashboardModal('contracts')"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardModal('contracts')}">
+                    <div class="kpi-head">
+                        <span data-i18n="contractValue">إجمالي قيمة العقود</span>
+                        <span class="kpi-icon">📑</span>
+                    </div>
+                    <div class="kpi-value" id="contractValueValue">AED 0.00</div>
+                    <div class="kpi-note" data-i18n="allProjectsValue">اضغط لعرض قيمة كل مشروع</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-head">
+                        <span data-i18n="invoiceTotal">إجمالي الفواتير</span>
+                        <span class="kpi-icon">📄</span>
+                    </div>
+                    <div class="kpi-value" id="invoiceTotalValue">AED 0.00</div>
+                    <div class="kpi-note" id="invoiceCountNote">0 فاتورة</div>
+                </div>
+
+                <div class="kpi-card clickable-kpi" tabindex="0" role="button" onclick="openDashboardModal('payments_total')"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardModal('payments_total')}">
+                    <div class="kpi-head">
+                        <span data-i18n="paymentsTotalCard">إجمالي الدفعات</span>
+                        <span class="kpi-icon">💳</span>
+                    </div>
+                    <div class="kpi-value" id="paymentsTotalValue">AED 0.00</div>
+                    <div class="kpi-note" id="paymentCountNote">0 دفعة مسجلة</div>
+                </div>
+
+                <div class="kpi-card clickable-kpi" tabindex="0" role="button" onclick="openDashboardModal('payments_remaining')"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardModal('payments_remaining')}">
+                    <div class="kpi-head">
+                        <span data-i18n="paymentsRemaining">إجمالي الدفعات المتبقية</span>
+                        <span class="kpi-icon">⏳</span>
+                    </div>
+                    <div class="kpi-value" id="paymentsRemainingValue">AED 0.00</div>
+                    <div class="kpi-note" id="paymentsRemainingNote">الدفعات غير المسددة</div>
+                </div>
+
+                <div class="kpi-card clickable-kpi" tabindex="0" role="button" onclick="openDashboardModal('payments_due')"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardModal('payments_due')}">
+                    <div class="kpi-head">
+                        <span data-i18n="paymentsDue">إجمالي الدفعات المستحقة</span>
+                        <span class="kpi-icon">🔔</span>
+                    </div>
+                    <div class="kpi-value" id="paymentsDueValue">AED 0.00</div>
+                    <div class="kpi-note" id="paymentsDueNote">المستحقة حتى اليوم</div>
+                </div>
+
+                <div class="kpi-card clickable-kpi" tabindex="0" role="button" onclick="openDashboardModal('expenses')"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardModal('expenses')}">
+                    <div class="kpi-head">
+                        <span data-i18n="projectExpenses">إجمالي مصروفات المشاريع</span>
+                        <span class="kpi-icon">💸</span>
+                    </div>
+                    <div class="kpi-value" id="projectExpensesValue">AED 0.00</div>
+                    <div class="kpi-note" data-i18n="projectExpensesNote">اضغط لعرض مصروف كل مشروع</div>
+                </div>
+
+                <div class="kpi-card clickable-kpi" tabindex="0" role="button" onclick="openDashboardModal('profit')"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDashboardModal('profit')}">
+                    <div class="kpi-head">
+                        <span data-i18n="projectProfit">الربح من المشاريع</span>
+                        <span class="kpi-icon">📈</span>
+                    </div>
+                    <div class="kpi-value" id="estimatedProfitValue">AED 0.00</div>
+                    <div class="kpi-note" data-i18n="projectProfitNote">قيمة العقد ناقص مصروفات كل مشروع</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-head">
+                        <span data-i18n="monthlyPayroll">رواتب الشهر الحالي</span>
+                        <span class="kpi-icon">💰</span>
+                    </div>
+                    <div class="kpi-value" id="monthlyPayrollValue">AED 0.00</div>
+                    <div class="kpi-note" id="payrollRecordsNote">0 سجل راتب</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-head">
+                        <span data-i18n="leaveRequests">طلبات الإجازات</span>
+                        <span class="kpi-icon">📅</span>
+                    </div>
+                    <div class="kpi-value" id="leaveRequestsValue">0</div>
+                    <div class="kpi-note" id="pendingLeavesNote">المعلقة: 0</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-head">
+                        <span data-i18n="activeUsers">المستخدمون النشطون</span>
+                        <span class="kpi-icon">🔐</span>
+                    </div>
+                    <div class="kpi-value" id="activeUsersValue">0</div>
+                    <div class="kpi-note" data-i18n="usersPermissionsNote">حسب الصلاحيات</div>
+                </div>
+
+            </div>
+
+            <div class="dashboard-section">
+
+                <div class="section-heading-row">
+                    <div>
+                        <h2 data-i18n="projectsFinancialSummary">ملخص المشاريع المالي</h2>
+                        <p data-i18n="projectsFinancialSummaryNote">
+                            إجمالي العقد والفواتير والدفعات والمصروفات والمتبقي لكل مشروع
+                        </p>
+                    </div>
+                </div>
+
+                <div class="project-table-wrap">
+                    <table class="project-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="project">المشروع</th>
+                                <th data-i18n="status">الحالة</th>
+                                <th data-i18n="progress">الإنجاز</th>
+                                <th data-i18n="contract">قيمة العقد</th>
+                                <th data-i18n="invoicesAmount">الفواتير</th>
+                                <th data-i18n="collected">المستلم</th>
+                                <th data-i18n="outstanding">دفعات متبقية</th>
+                                <th data-i18n="expenses">المصروفات</th>
+                                <th data-i18n="profit">الربح</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsSummaryBody">
+                            <tr>
+                                <td colspan="9" class="empty-projects" data-i18n="loading">جاري التحميل...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+            <div id="dashboardModal" class="dashboard-modal" aria-hidden="true"
+                 onclick="if(event.target===this) closeDashboardModal()">
+                <div class="dashboard-modal-card" role="dialog" aria-modal="true" aria-labelledby="dashboardModalTitle">
+                    <div class="dashboard-modal-head">
+                        <div>
+                            <h3 id="dashboardModalTitle">تفاصيل</h3>
+                            <p id="dashboardModalSubtitle">تفاصيل المشاريع</p>
+                        </div>
+                        <button type="button" class="dashboard-modal-close" onclick="closeDashboardModal()" aria-label="Close">×</button>
+                    </div>
+                    <div class="dashboard-modal-body" id="dashboardModalBody"></div>
+                </div>
+            </div>
+
+<!-- =========================
+                 MODULES
+            ========================= -->
+
+            <h2
+                class="section-title"
+                data-i18n="systemSections">
+
+                أقسام النظام
+
+            </h2>
+
+
+            <div class="modules">
+
+                <div
+                    class="module"
+                    data-page="/employees">
+
+                    <div class="module-icon">
+                        👥
+                    </div>
+
+                    <h3 data-i18n="employees">
+                        الموظفين
+                    </h3>
+
+                    <p data-i18n="employeesDescription">
+                        إضافة وتعديل ومتابعة بيانات الموظفين.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="module"
+                    data-page="/attendance">
+
+                    <div class="module-icon">
+                        🕐
+                    </div>
+
+                    <h3 data-i18n="attendance">
+                        الحضور والانصراف
+                    </h3>
+
+                    <p data-i18n="attendanceDescription">
+                        متابعة الحضور والغياب وساعات العمل.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="module"
+                    data-page="/payroll">
+
+                    <div class="module-icon">
+                        💰
+                    </div>
+
+                    <h3 data-i18n="payroll">
+                        الرواتب
+                    </h3>
+
+                    <p data-i18n="payrollDescription">
+                        إدارة الرواتب والخصومات والاستحقاقات.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="module"
+                    data-page="/invoices">
+
+                    <div class="module-icon">
+                        📄
+                    </div>
+
+                    <h3 data-i18n="invoices">
+                        الفواتير
+                    </h3>
+
+                    <p data-i18n="invoicesDescription">
+                        إدارة الفواتير ومتابعة حالتها.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="module"
+                    data-page="/payments">
+
+                    <div class="module-icon">
+                        💳
+                    </div>
+
+                    <h3 data-i18n="payments">
+                        المدفوعات
+                    </h3>
+
+                    <p data-i18n="paymentsDescription">
+                        متابعة المدفوعات والمبالغ المستحقة.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="module"
+                    data-page="/projects">
+
+                    <div class="module-icon">
+                        🏗️
+                    </div>
+
+                    <h3 data-i18n="projects">
+                        المشاريع
+                    </h3>
+
+                    <p data-i18n="projectsDescription">
+                        متابعة المشاريع ونسب الإنجاز والبيانات.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        /* =====================================================
+           TRANSLATIONS
+        ===================================================== */
+
+        const translations = {
+
+            ar: {
+
+                companySystem: "نظام إدارة الشركة",
+
+                main: "الرئيسية",
+
+                dashboard: "لوحة التحكم",
+
+                dashboardSubtitle:
+                    "نظرة عامة على نظام IBuild",
+
+                companyManagement:
+                    "إدارة الشركة",
+
+                employees:
+                    "الموظفين",
+
+                attendance:
+                    "الحضور والانصراف",
+
+                payroll:
+                    "الرواتب",
+
+                invoices:
+                    "الفواتير",
+
+                payments:
+                    "المدفوعات",
+
+                projectsSection:
+                    "المشاريع",
+
+                projects:
+                    "المشاريع",
+
+                reports:
+                    "التقارير",
+
+                logout:
+                    "تسجيل الخروج",
+
+                welcome:
+                    "مرحباً بك،",
+
+                welcomeText:
+                    "أهلاً بك في نظام إدارة شركة IBuild. من هنا يمكنك الوصول إلى جميع أقسام النظام.",
+
+                totalEmployees:
+                    "إجمالي الموظفين",
+
+                todayAttendance:
+                    "الحضور اليوم",
+
+                totalProjects:
+                    "إجمالي المشاريع",
+
+                paymentsTotal:
+                    "إجمالي المدفوعات",
+
+                databaseConnection:
+                    "متصل بقاعدة البيانات",
+
+                attendanceConnection:
+                    "متصل بنظام الحضور",
+
+                projectsConnection:
+                    "متصل بقاعدة البيانات",
+
+                financeConnection:
+                    "متصل بالنظام المالي",
+
+                systemSections:
+                    "أقسام النظام",
+
+                employeesDescription:
+                    "إضافة وتعديل ومتابعة بيانات الموظفين.",
+
+                attendanceDescription:
+                    "متابعة الحضور والغياب وساعات العمل.",
+
+                payrollDescription:
+                    "إدارة الرواتب والخصومات والاستحقاقات.",
+
+                invoicesDescription:
+                    "إدارة الفواتير ومتابعة حالتها.",
+
+                paymentsDescription:
+                    "متابعة المدفوعات والمبالغ المستحقة.",
+
+                projectsDescription:
+                    "متابعة المشاريع ونسب الإنجاز والبيانات.",
+
+
+                activeEmployeesNote: "النشطون: 0",
+                activeProjectsNote: "النشطة: 0",
+                contractValue: "إجمالي قيمة العقود",
+                allProjectsValue: "قيمة جميع المشاريع",
+                invoiceTotal: "إجمالي الفواتير",
+                collectedTotal: "إجمالي الدفعات المستلمة",
+                outstandingTotal: "المتبقي على الفواتير",
+                invoiceOutstandingNote: "الفواتير ناقص الدفعات المستلمة",
+                projectExpenses: "إجمالي مصروفات المشاريع",
+                projectExpensesNote: "التكاليف المسجلة على المشاريع",
+                estimatedProfit: "الربح التقديري",
+                estimatedProfitNote: "قيمة العقود ناقص مصروفات المشاريع",
+                monthlyPayroll: "رواتب الشهر الحالي",
+                leaveRequests: "طلبات الإجازات",
+                activeUsers: "المستخدمون النشطون",
+                usersPermissionsNote: "حسب الصلاحيات",
+                projectsFinancialSummary: "ملخص المشاريع المالي",
+                projectsFinancialSummaryNote: "إجمالي العقد والفواتير والدفعات والمصروفات والمتبقي لكل مشروع",
+                project: "المشروع",
+                status: "الحالة",
+                progress: "الإنجاز",
+                contract: "قيمة العقد",
+                invoicesAmount: "الفواتير",
+                collected: "المستلم",
+                outstanding: "المتبقي",
+                expenses: "المصروفات",
+                profit: "الربح التقديري",
+                loading: "جاري التحميل...",
+                noProjects: "لا توجد مشاريع مسجلة",
+
+                user:
+                    "مستخدم",
+
+                roleAdmin:
+                    "مدير النظام",
+
+                roleManager:
+                    "مدير",
+
+                roleAccountant:
+                    "محاسب",
+
+                roleHR:
+                    "الموارد البشرية",
+
+                roleViewer:
+                    "مشاهد",
+
+                roleUser:
+                    "مستخدم"
+
+            },
+
+
+            en: {
+
+                companySystem:
+                    "Company Management System",
+
+                main:
+                    "Main",
+
+                dashboard:
+                    "Dashboard",
+
+                dashboardSubtitle:
+                    "Overview of the IBuild System",
+
+                companyManagement:
+                    "Company Management",
+
+                employees:
+                    "Employees",
+
+                attendance:
+                    "Attendance",
+
+                payroll:
+                    "Payroll",
+
+                invoices:
+                    "Invoices",
+
+                payments:
+                    "Payments",
+
+                projectsSection:
+                    "Projects",
+
+                projects:
+                    "Projects",
+
+                reports:
+                    "Reports",
+
+                logout:
+                    "Logout",
+
+                welcome:
+                    "Welcome,",
+
+                welcomeText:
+                    "Welcome to the IBuild Company Management System. From here you can access all system sections.",
+
+                totalEmployees:
+                    "Total Employees",
+
+                todayAttendance:
+                    "Today's Attendance",
+
+                totalProjects:
+                    "Total Projects",
+
+                paymentsTotal:
+                    "Total Payments",
+
+                databaseConnection:
+                    "Connected to database",
+
+                attendanceConnection:
+                    "Connected to attendance system",
+
+                projectsConnection:
+                    "Connected to database",
+
+                financeConnection:
+                    "Connected to finance system",
+
+                systemSections:
+                    "System Sections",
+
+                employeesDescription:
+                    "Add, edit and manage employee information.",
+
+                attendanceDescription:
+                    "Track attendance, absence and working hours.",
+
+                payrollDescription:
+                    "Manage salaries, deductions and employee entitlements.",
+
+                invoicesDescription:
+                    "Manage invoices and track their status.",
+
+                paymentsDescription:
+                    "Track payments and outstanding amounts.",
+
+                projectsDescription:
+                    "Track projects, progress percentages and project information.",
+
+
+                activeEmployeesNote: "Active: 0",
+                activeProjectsNote: "Active: 0",
+                contractValue: "Total Contract Value",
+                allProjectsValue: "All project contracts",
+                invoiceTotal: "Total Invoices",
+                collectedTotal: "Total Collected Payments",
+                outstandingTotal: "Invoice Outstanding",
+                invoiceOutstandingNote: "Invoices minus collected payments",
+                projectExpenses: "Total Project Expenses",
+                projectExpensesNote: "Costs recorded against projects",
+                estimatedProfit: "Estimated Profit",
+                estimatedProfitNote: "Contract value minus project expenses",
+                monthlyPayroll: "Current Month Payroll",
+                leaveRequests: "Leave Requests",
+                activeUsers: "Active Users",
+                usersPermissionsNote: "Based on permissions",
+                projectsFinancialSummary: "Project Financial Summary",
+                projectsFinancialSummaryNote: "Contract, invoices, collections, expenses and outstanding balance by project",
+                project: "Project",
+                status: "Status",
+                progress: "Progress",
+                contract: "Contract Value",
+                invoicesAmount: "Invoices",
+                collected: "Collected",
+                outstanding: "Outstanding",
+                expenses: "Expenses",
+                profit: "Estimated Profit",
+                loading: "Loading...",
+                noProjects: "No projects registered",
+
+                user:
+                    "User",
+
+                roleAdmin:
+                    "Administrator",
+
+                roleManager:
+                    "Manager",
+
+                roleAccountant:
+                    "Accountant",
+
+                roleHR:
+                    "Human Resources",
+
+                roleViewer:
+                    "Viewer",
+
+                roleUser:
+                    "User"
+
+            }
+
+        };
+
+
+        /* =====================================================
+           LANGUAGE
+        ===================================================== */
+
+        function changeLanguage(language) {
+
+            if (!translations[language]) {
+                return;
+            }
+
+            localStorage.setItem(
+                "ibuild_language",
+                language
+            );
+
+            applyLanguage(language);
+        }
+
+
+        function applyLanguage(language) {
+
+            const html =
+                document.documentElement;
+
+            html.lang = language;
+
+            html.dir =
+                language === "ar"
+                    ? "rtl"
+                    : "ltr";
+
+
+            document
+                .querySelectorAll("[data-i18n]")
+                .forEach(function (element) {
+
+                    const key =
+                        element.getAttribute("data-i18n");
+
+                    if (
+                        translations[language][key]
+                    ) {
+
+                        element.textContent =
+                            translations[language][key];
+
+                    }
+
+                });
+
+
+            document.title =
+                language === "ar"
+                    ? "IBuild System - لوحة التحكم"
+                    : "IBuild System - Dashboard";
+
+
+            document
+                .getElementById("arabicButton")
+                .classList.toggle(
+                    "active",
+                    language === "ar"
+                );
+
+
+            document
+                .getElementById("englishButton")
+                .classList.toggle(
+                    "active",
+                    language === "en"
+                );
+
+
+            updateUser(language);
+            if (typeof loadDashboardSummary === "function") {
+                loadDashboardSummary();
+            }
+        }
+
+
+        /* =====================================================
+           USER ROLE
+        ===================================================== */
+
+        function getRoleTranslation(
+            role,
+            language
+        ) {
+
+            const normalizedRole =
+                String(role || "")
+                    .trim()
+                    .toLowerCase();
+
+
+            if (
+                normalizedRole === "admin"
+            ) {
+                return translations[language]
+                    .roleAdmin;
+            }
+
+
+            if (
+                normalizedRole === "manager"
+            ) {
+                return translations[language]
+                    .roleManager;
+            }
+
+
+            if (
+                normalizedRole === "accountant"
+            ) {
+                return translations[language]
+                    .roleAccountant;
+            }
+
+
+            if (
+                normalizedRole === "hr"
+            ) {
+                return translations[language]
+                    .roleHR;
+            }
+
+
+            if (
+                normalizedRole === "viewer"
+            ) {
+                return translations[language]
+                    .roleViewer;
+            }
+
+
+            return translations[language]
+                .roleUser;
+        }
+
+
+        /* =====================================================
+           USER
+        ===================================================== */
+
+        function updateUser(language) {
+
+            const savedUser =
+                localStorage.getItem(
+                    "ibuild_user"
+                );
+
+
+            if (!savedUser) {
+
+                window.location.href =
+                    "/login";
+
+                return;
+            }
+
+
+            try {
+
+                const user =
+                    JSON.parse(savedUser);
+
+
+                const name =
+                    user.full_name ||
+                    user.username ||
+                    translations[language].user;
+
+
+                const role =
+                    user.role ||
+                    "User";
+
+
+                document
+                    .getElementById("userName")
+                    .textContent = name;
+
+
+                document
+                    .getElementById("userRole")
+                    .textContent =
+                    getRoleTranslation(
+                        role,
+                        language
+                    );
+
+
+                document
+                    .getElementById("welcomeName")
+                    .textContent = name;
+
+
+                document
+                    .getElementById("avatar")
+                    .textContent =
+                    name
+                        .charAt(0)
+                        .toUpperCase();
+
+
+            } catch (error) {
+
+                console.error(
+                    "USER DATA ERROR:",
+                    error
+                );
+
+
+                localStorage.removeItem(
+                    "ibuild_user"
+                );
+
+
+                window.location.href =
+                    "/login";
+            }
+        }
+
+
+        /* =====================================================
+           NAVIGATION
+        ===================================================== */
+
+        document
+            .querySelectorAll("[data-page]")
+            .forEach(function (element) {
+
+                element.addEventListener(
+                    "click",
+                    function () {
+
+                        const page =
+                            element.getAttribute("data-page");
+
+                        if (!page) {
+                            return;
+                        }
+
+                        // الانتقال للصفحة المطلوبة
+                        window.location.href = page;
+
+                    }
+                );
+
+            });
+
+
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
+
+        document
+            .getElementById("logoutButton")
+            .addEventListener(
+                "click",
+                function () {
+
+                    fetch("/api/auth/logout", { method: "POST" })
+                        .catch(() => {})
+                        .finally(() => {
+                            localStorage.removeItem("ibuild_user");
+                            localStorage.removeItem("ibuild_token");
+                            window.location.href = "/login";
+                        });
+
+                }
+            );
+
+
+        /* =====================================================
+           DASHBOARD LIVE SUMMARY
+        ===================================================== */
+
+        function formatAED(value) {
+            const amount = Number(value || 0);
+            return "AED " + amount.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function currentLanguage() {
+            return localStorage.getItem("ibuild_language") || "ar";
+        }
+
+        function dashboardText(key) {
+            return translations[currentLanguage()]?.[key] || key;
+        }
+
+        function setDashboardText(id, text) {
+            const element = document.getElementById(id);
+            if (element) element.textContent = text;
+        }
+
+        function projectStatusLabel(status) {
+            const language = currentLanguage();
+            const map = {
+                Active: language === "ar" ? "نشط" : "Active",
+                Inactive: language === "ar" ? "غير نشط" : "Inactive",
+                Completed: language === "ar" ? "مكتمل" : "Completed",
+                "On Hold": language === "ar" ? "متوقف" : "On Hold"
+            };
+            return map[status] || status || "-";
+        }
+
+        function renderProjectsSummary(projects) {
+            const body = document.getElementById("projectsSummaryBody");
+            if (!body) return;
+
+            if (!Array.isArray(projects) || projects.length === 0) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-projects">
+                            ${dashboardText("noProjects")}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            body.innerHTML = projects.map(project => {
+                const progress = Math.max(0, Math.min(100, Number(project.progress_percentage || 0)));
+                return `
+                    <tr>
+                        <td>
+                            <div class="project-name-cell">${escapeHtml(project.project_name || "-")}</div>
+                            <div class="project-client">${escapeHtml(project.client_name || "-")}</div>
+                        </td>
+                        <td><span class="status-pill">${escapeHtml(projectStatusLabel(project.status))}</span></td>
+                        <td class="progress-cell">
+                            <div class="progress-track">
+                                <div class="progress-bar" style="width:${progress}%"></div>
+                            </div>
+                            <div class="progress-label">${progress.toFixed(0)}%</div>
+                        </td>
+                        <td>${formatAED(project.contract_value)}</td>
+                        <td>${formatAED(project.invoiced_total)}</td>
+                        <td>${formatAED(project.collected_total)}</td>
+                        <td>${formatAED(project.outstanding)}</td>
+                        <td>${formatAED(project.total_expenses)}</td>
+                        <td>${formatAED(project.estimated_profit)}</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        async function loadDashboardSummary() {
+            try {
+                const response = await fetch("/api/dashboard/summary");
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Dashboard summary error");
+                }
+
+                const language = currentLanguage();
+                dashboardSummaryData = data;
+
+                setDashboardText(
+                    "totalEmployeesValue",
+                    Number(data.employees || 0).toLocaleString()
+                );
+
+                setDashboardText(
+                    "activeEmployeesNote",
+                    language === "ar"
+                        ? `النشطون: ${Number(data.active_employees || 0).toLocaleString()}`
+                        : `Active: ${Number(data.active_employees || 0).toLocaleString()}`
+                );
+
+                setDashboardText(
+                    "todayAttendanceValue",
+                    Number(data.attendance_today || 0).toLocaleString()
+                );
+
+                setDashboardText(
+                    "totalProjectsValue",
+                    Number(data.total_projects || 0).toLocaleString()
+                );
+
+                setDashboardText(
+                    "activeProjectsNote",
+                    language === "ar"
+                        ? `النشطة: ${Number(data.active_projects || 0).toLocaleString()}`
+                        : `Active: ${Number(data.active_projects || 0).toLocaleString()}`
+                );
+
+                setDashboardText("contractValueValue", formatAED(data.contract_value));
+                setDashboardText("invoiceTotalValue", formatAED(data.invoice_total));
+                setDashboardText("paymentsTotalValue", formatAED(data.payments_total));
+                setDashboardText("paymentsRemainingValue", formatAED(data.payments_remaining));
+                setDashboardText("paymentsDueValue", formatAED(data.payments_due));
+                setDashboardText("projectExpensesValue", formatAED(data.project_expenses));
+                setDashboardText("estimatedProfitValue", formatAED(data.estimated_profit));
+                setDashboardText("monthlyPayrollValue", formatAED(data.payroll_month_total));
+                setDashboardText("leaveRequestsValue", Number(data.leave_requests || 0).toLocaleString());
+                setDashboardText("activeUsersValue", Number(data.users || 0).toLocaleString());
+
+                setDashboardText(
+                    "invoiceCountNote",
+                    language === "ar"
+                        ? `${Number(data.invoice_count || 0).toLocaleString()} فاتورة`
+                        : `${Number(data.invoice_count || 0).toLocaleString()} invoices`
+                );
+
+                setDashboardText(
+                    "paymentCountNote",
+                    language === "ar"
+                        ? `${Number(data.payment_count || 0).toLocaleString()} دفعة مسجلة`
+                        : `${Number(data.payment_count || 0).toLocaleString()} registered payments`
+                );
+
+                setDashboardText(
+                    "paymentsRemainingNote",
+                    language === "ar"
+                        ? `${Number(data.payments_remaining_count || 0).toLocaleString()} دفعة غير مسددة`
+                        : `${Number(data.payments_remaining_count || 0).toLocaleString()} unpaid payments`
+                );
+
+                setDashboardText(
+                    "paymentsDueNote",
+                    language === "ar"
+                        ? `${Number(data.payments_due_count || 0).toLocaleString()} دفعة مستحقة حتى اليوم`
+                        : `${Number(data.payments_due_count || 0).toLocaleString()} payments due today`
+                );
+
+                setDashboardText(
+                    "payrollRecordsNote",
+                    language === "ar"
+                        ? `${Number(data.payroll_records || 0).toLocaleString()} سجل راتب`
+                        : `${Number(data.payroll_records || 0).toLocaleString()} payroll records`
+                );
+
+                setDashboardText(
+                    "pendingLeavesNote",
+                    language === "ar"
+                        ? `المعلقة: ${Number(data.pending_leaves || 0).toLocaleString()}`
+                        : `Pending: ${Number(data.pending_leaves || 0).toLocaleString()}`
+                );
+
+                renderProjectsSummary(data.projects_summary || []);
+
+            } catch (error) {
+                console.error("DASHBOARD SUMMARY ERROR:", error);
+                setDashboardText(
+                    "projectsSummaryBody",
+                    ""
+                );
+            }
+        }
+
+
+
+        let dashboardSummaryData = null;
+
+        function dashboardModalTitle(type) {
+            const ar = currentLanguage() === "ar";
+            const titles = {
+                contracts: ar ? "إجمالي قيمة العقود حسب المشروع" : "Total Contract Value by Project",
+                expenses: ar ? "إجمالي مصروفات كل مشروع" : "Total Expenses by Project",
+                profit: ar ? "الربح من كل مشروع" : "Profit by Project",
+                payments_total: ar ? "إجمالي الدفعات حسب المشروع" : "Total Payments by Project",
+                payments_remaining: ar ? "الدفعات المتبقية حسب المشروع" : "Remaining Payments by Project",
+                payments_due: ar ? "الدفعات المستحقة حسب المشروع" : "Due Payments by Project"
+            };
+            return titles[type] || (ar ? "تفاصيل المشاريع" : "Project Details");
+        }
+
+        function openDashboardModal(type) {
+            if (!dashboardSummaryData) return;
+
+            const modal = document.getElementById("dashboardModal");
+            const title = document.getElementById("dashboardModalTitle");
+            const subtitle = document.getElementById("dashboardModalSubtitle");
+            const body = document.getElementById("dashboardModalBody");
+            const ar = currentLanguage() === "ar";
+
+            title.textContent = dashboardModalTitle(type);
+            subtitle.textContent = ar
+                ? "الأرقام محسوبة مباشرة من قاعدة البيانات الحالية"
+                : "Figures are calculated live from the current database";
+
+            if (["contracts", "expenses", "profit"].includes(type)) {
+                const rows = (dashboardSummaryData.projects_summary || []).map(p => ({
+                    project: p.project_name || "-",
+                    client: p.client_name || "-",
+                    contract: Number(p.contract_value || 0),
+                    expenses: Number(p.total_expenses || 0),
+                    profit: Number(p.estimated_profit || 0),
+                    progress: Number(p.progress_percentage || 0)
+                }));
+
+                const total = type === "contracts"
+                    ? Number(dashboardSummaryData.contract_value || 0)
+                    : type === "expenses"
+                        ? Number(dashboardSummaryData.project_expenses || 0)
+                        : Number(dashboardSummaryData.estimated_profit || 0);
+
+                body.innerHTML = `
+                    <div class="modal-total">${ar ? "الإجمالي:" : "Total:"} ${formatAED(total)}</div>
+                    <div style="overflow-x:auto">
+                        <table class="modal-table">
+                            <thead>
+                                <tr>
+                                    <th>${ar ? "المشروع" : "Project"}</th>
+                                    <th>${ar ? "العميل" : "Client"}</th>
+                                    <th>${ar ? "الإنجاز" : "Progress"}</th>
+                                    <th>${ar ? "قيمة العقد" : "Contract Value"}</th>
+                                    <th>${ar ? "المصروفات" : "Expenses"}</th>
+                                    <th>${ar ? "الربح" : "Profit"}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows.length ? rows.map(r => `
+                                    <tr>
+                                        <td><strong>${escapeHtml(r.project)}</strong></td>
+                                        <td>${escapeHtml(r.client)}</td>
+                                        <td>${r.progress.toFixed(0)}%</td>
+                                        <td>${formatAED(r.contract)}</td>
+                                        <td>${formatAED(r.expenses)}</td>
+                                        <td class="${r.profit >= 0 ? "positive" : "negative"}">${formatAED(r.profit)}</td>
+                                    </tr>
+                                `).join("") : `<tr><td colspan="6" class="modal-empty">${ar ? "لا توجد مشاريع" : "No projects found"}</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>`;
+            } else {
+                const rows = (dashboardSummaryData.payments_summary || []).map(p => ({
+                    project: p.project_name || "-",
+                    total: Number(p.total_payments || 0),
+                    remaining: Number(p.remaining_payments || 0),
+                    due: Number(p.due_payments || 0),
+                    count: Number(p.payment_count || 0)
+                }));
+
+                const total = type === "payments_total"
+                    ? Number(dashboardSummaryData.payments_total || 0)
+                    : type === "payments_remaining"
+                        ? Number(dashboardSummaryData.payments_remaining || 0)
+                        : Number(dashboardSummaryData.payments_due || 0);
+
+                body.innerHTML = `
+                    <div class="modal-total">${ar ? "الإجمالي:" : "Total:"} ${formatAED(total)}</div>
+                    <div style="overflow-x:auto">
+                        <table class="modal-table">
+                            <thead>
+                                <tr>
+                                    <th>${ar ? "المشروع" : "Project"}</th>
+                                    <th>${ar ? "عدد الدفعات" : "Payments"}</th>
+                                    <th>${ar ? "إجمالي الدفعات" : "Total Payments"}</th>
+                                    <th>${ar ? "المتبقي" : "Remaining"}</th>
+                                    <th>${ar ? "المستحق حتى اليوم" : "Due Today"}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows.length ? rows.map(r => `
+                                    <tr>
+                                        <td><strong>${escapeHtml(r.project)}</strong></td>
+                                        <td>${r.count.toLocaleString()}</td>
+                                        <td>${formatAED(r.total)}</td>
+                                        <td>${formatAED(r.remaining)}</td>
+                                        <td>${formatAED(r.due)}</td>
+                                    </tr>
+                                `).join("") : `<tr><td colspan="5" class="modal-empty">${ar ? "لا توجد دفعات مسجلة" : "No payments found"}</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>`;
+            }
+
+            modal.classList.add("show");
+            modal.setAttribute("aria-hidden", "false");
+        }
+
+        function closeDashboardModal() {
+            const modal = document.getElementById("dashboardModal");
+            if (!modal) return;
+            modal.classList.remove("show");
+            modal.setAttribute("aria-hidden", "true");
+        }
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") closeDashboardModal();
+        });
+
+        /* =====================================================
+           START
+        ===================================================== */
+
+        const savedLanguage =
+            localStorage.getItem(
+                "ibuild_language"
+            ) || "ar";
+
+
+        applyLanguage(
+            savedLanguage
+        );
+
+        loadDashboardSummary();
+
+        setInterval(
+            loadDashboardSummary,
+            60000
+        );
+
+    async function logoutFromSystem(){try{await fetch('/api/auth/logout',{method:'POST'})}finally{location.href='/login'}}
+</script>
+
+</body>
+
+</html>

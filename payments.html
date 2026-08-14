@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBuild System - Payments</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a}
+button,input,select,textarea{font:inherit}
+.sidebar{position:fixed;top:0;right:0;width:260px;height:100vh;background:#0f172a;color:#fff;padding:25px 18px;z-index:1000}
+.logo{text-align:center;padding:10px 0 30px;border-bottom:1px solid #334155}.logo h1{font-size:25px}.logo span{color:#3b82f6}.logo p{color:#94a3b8;font-size:12px;margin-top:7px}
+.menu{margin-top:25px}.menu a{display:block;text-decoration:none;color:#cbd5e1;padding:13px 15px;margin-bottom:5px;border-radius:8px;font-size:14px}.menu a:hover,.menu a.active{background:#2563eb;color:#fff}
+.main{margin-right:260px;min-height:100vh}.topbar{min-height:75px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:15px 35px;gap:20px}
+.page-title h2{font-size:22px}.page-title p{color:#64748b;font-size:13px;margin-top:5px}.top-actions{display:flex;gap:8px}.language-btn{border:1px solid #dbeafe;background:#fff;padding:8px 12px;border-radius:7px;cursor:pointer;font-weight:bold}.language-btn.active,.language-btn:hover{background:#2563eb;color:#fff}
+.content{padding:30px 35px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:25px}.stat{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:20px}.stat .label{color:#64748b;font-size:12px;margin-bottom:9px}.stat .value{font-size:21px;font-weight:bold}.blue{color:#2563eb}.green{color:#16a34a}.orange{color:#d97706}.red{color:#dc2626}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:22px;margin-bottom:25px}.card h3{font-size:18px;margin-bottom:20px}.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:12px;color:#475569;font-weight:bold}.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:8px;outline:none;background:#fff;font-size:13px}.field input:focus,.field select:focus,.field textarea:focus{border-color:#2563eb;box-shadow:0 0 0 2px #dbeafe}.full{grid-column:1/-1}.readonly{background:#f8fafc!important;font-weight:bold}.greenbox{background:#f0fdf4!important;border:2px solid #16a34a!important;color:#15803d;font-weight:bold}.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.btn{border:0;padding:11px 18px;border-radius:8px;cursor:pointer;font-weight:bold}.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}.btn-secondary{background:#e2e8f0;color:#334155}
+.toolbar{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:18px;display:flex;align-items:end;gap:12px;margin-bottom:20px;flex-wrap:wrap}.filters{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;flex:1;min-width:600px}
+.table-card{background:#fff;border:1px solid #e2e8f0;border-radius:13px;overflow:hidden}.table-header{padding:20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}.table-container{overflow-x:auto}table{width:100%;min-width:1800px;border-collapse:collapse}th{background:#f8fafc;color:#475569;font-size:12px;padding:14px;white-space:nowrap;text-align:right}td{padding:13px;border-top:1px solid #e2e8f0;font-size:13px;white-space:nowrap}tr:hover td{background:#f8fafc}
+.badge{display:inline-block;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:bold}.draft{background:#e2e8f0;color:#334155}.submitted,.under-review,.pending{background:#fef3c7;color:#92400e}.certified,.approved{background:#dbeafe;color:#1d4ed8}.paid{background:#dcfce7;color:#166534}.rejected{background:#fee2e2;color:#b91c1c}
+.action{border:0;padding:7px 10px;border-radius:6px;cursor:pointer;font-weight:bold;background:#dbeafe;color:#1d4ed8;margin-left:4px}.action.delete{background:#fee2e2;color:#b91c1c}.empty{text-align:center;padding:45px;color:#64748b}
+.message{position:fixed;top:20px;left:20px;max-width:520px;padding:14px 20px;border-radius:8px;color:#fff;display:none;z-index:5000;font-size:13px;box-shadow:0 5px 20px rgba(0,0,0,.15)}.success{background:#16a34a}.error{background:#dc2626}.info{background:#2563eb}
+@media(max-width:1200px){.stats{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr;min-width:450px}}
+@media(max-width:700px){.sidebar{width:75px;padding:15px 8px}.logo h1,.logo p,.menu a span{display:none}.menu a{text-align:center;font-size:20px}.main{margin-right:75px}.content{padding:20px 15px}.topbar{padding:15px}.stats{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr;min-width:0}.toolbar{align-items:stretch}.form-actions{flex-direction:column}.btn{width:100%}}
+html[dir="ltr"] .sidebar{right:auto;left:0}html[dir="ltr"] .main{margin-right:0;margin-left:260px}html[dir="ltr"] th{text-align:left}
+
+.sidebar{display:flex!important;flex-direction:column!important}.menu{overflow:auto!important;max-height:calc(100vh - 150px)!important;padding-bottom:75px!important}.logout-link{position:absolute!important;bottom:18px!important;left:18px!important;right:18px!important;width:auto!important;border:1px solid #475569!important;background:#172033!important;color:#fff!important;border-radius:9px!important;padding:10px 12px!important;cursor:pointer!important;text-align:center!important;z-index:5!important}.logout-link:hover{background:#dc2626!important;color:#fff!important}
+</style>
+</head>
+<body>
+<div id="message" class="message"></div>
+<aside class="sidebar">
+  <div class="logo"><h1>IBuild <span>System</span></h1><p id="companySystem">نظام إدارة الشركة</p></div>
+  <nav class="menu">
+    <a href="/dashboard">🏠 <span id="dashboardText">لوحة التحكم</span></a>
+    <a href="/employees">👥 <span id="employeesText">الموظفين</span></a>
+    <a href="/attendance">🕐 <span id="attendanceText">الحضور والانصراف</span></a>
+    <a href="/payroll">💰 <span id="payrollText">الرواتب</span></a>
+    <a href="/invoices">📄 <span id="invoicesText">الفواتير</span></a>
+    <a href="/payments" class="active">💳 <span id="paymentsText">المدفوعات</span></a>
+    <a href="/projects">🏗️ <span id="projectsText">المشاريع</span></a>
+    <a href="/reports">📊 <span id="reportsText">التقارير</span></a>
+  </nav>
+<button type="button" class="logout-link" onclick="logoutFromSystem()">🚪 <span>تسجيل الخروج</span></button></aside>
+
+<main class="main">
+<header class="topbar">
+  <div class="page-title"><h2 id="pageTitle">المدفوعات</h2><p id="pageSubtitle">تسجيل ومتابعة دفعات المشاريع</p></div>
+  <div class="top-actions"><button class="language-btn active" id="arBtn" onclick="setLanguage('ar')">العربية</button><button class="language-btn" id="enBtn" onclick="setLanguage('en')">English</button></div>
+</header>
+
+<section class="content">
+<div class="stats">
+  <div class="stat"><div class="label" id="statRecords">عدد الدفعات</div><div class="value blue" id="totalRecords">0</div></div>
+  <div class="stat"><div class="label" id="statPaid">إجمالي المدفوع فعليًا</div><div class="value green" id="totalPaid">0.00 AED</div></div>
+  <div class="stat"><div class="label" id="statPending">دفعات قيد المتابعة</div><div class="value orange" id="totalPending">0.00 AED</div></div>
+  <div class="stat"><div class="label" id="statRejected">دفعات مرفوضة</div><div class="value red" id="totalRejected">0.00 AED</div></div>
+</div>
+
+<div class="card">
+<h3 id="formTitle">إضافة دفعة جديدة</h3>
+<form id="paymentForm">
+<div class="form-grid">
+
+<div class="field"><label id="projectLabel">المشروع *</label><select id="project_id" required onchange="projectChanged()"><option value="">اختر المشروع</option></select></div>
+<div class="field"><label id="invoiceLabel">الفاتورة (اختياري)</label><select id="invoice_id" onchange="updateInvoiceInfo()"><option value="">بدون ربط بفاتورة</option></select></div>
+<div class="field"><label id="paymentNumberLabel">رقم الدفعة *</label><input id="payment_number" required placeholder="مثال: 07.3BR"></div>
+<div class="field"><label id="paymentTypeLabel">نوع الدفعة</label><input id="payment_type" placeholder="مثال: Progress Payment"></div>
+
+<div class="field"><label id="periodFromLabel">الفترة من</label><input type="date" id="period_from"></div>
+<div class="field"><label id="periodToLabel">الفترة إلى</label><input type="date" id="period_to"></div>
+<div class="field"><label id="amountLabel">مبلغ الدفعة *</label><input type="number" id="amount" min="0.01" step="0.01" required oninput="updateProjectInfo()"></div>
+<div class="field"><label id="statusLabel">الحالة</label><select id="status"></select></div>
+
+<div class="field"><label id="submittedDateLabel">تاريخ التقديم</label><input type="date" id="submitted_date"></div>
+<div class="field"><label id="approvedDateLabel">تاريخ الاعتماد</label><input type="date" id="approved_date"></div>
+<div class="field"><label id="dueDateLabel">تاريخ الاستحقاق</label><input type="date" id="due_date"></div>
+<div class="field"><label id="receivedDateLabel">تاريخ الاستلام</label><input type="date" id="received_date"></div>
+
+<div class="field"><label id="contractValueLabel">قيمة عقد المشروع</label><input class="readonly" id="contract_value" readonly value="0.00 AED"></div>
+<div class="field"><label id="registeredPaymentsLabel">إجمالي المدفوعات المسجلة</label><input class="readonly" id="registered_payments" readonly value="0.00 AED"></div>
+<div class="field"><label id="paidAmountLabel">إجمالي المدفوع فعليًا</label><input class="readonly" id="paid_amount" readonly value="0.00 AED"></div>
+<div class="field"><label id="remainingContractLabel">المتبقي من العقد</label><input class="greenbox" id="remaining_contract" readonly value="0.00 AED"></div>
+
+<div class="field"><label id="clientLabel">العميل</label><input class="readonly" id="client_name" readonly></div>
+<div class="field"><label id="contractNumberLabel">رقم العقد</label><input class="readonly" id="contract_number" readonly></div>
+<div class="field full"><label id="notesLabel">ملاحظات</label><textarea id="notes" rows="3" placeholder="ملاحظات الدفعة"></textarea></div>
+
+</div>
+<div class="form-actions">
+<button type="button" class="btn btn-secondary" id="cancelBtn" onclick="resetForm()" style="display:none">إلغاء التعديل</button>
+<button type="submit" class="btn btn-primary" id="saveBtn">حفظ الدفعة</button>
+</div>
+</form>
+</div>
+
+<div class="toolbar">
+<div class="filters">
+<div class="field"><label id="searchLabel">بحث</label><input id="search" placeholder="رقم الدفعة / المشروع / العميل / الفاتورة" oninput="loadPayments()"></div>
+<div class="field"><label id="filterStatusLabel">الحالة</label><select id="filterStatus" onchange="loadPayments()"></select></div>
+<div class="field"><label id="filterMonthLabel">الشهر</label><input type="month" id="filterMonth" onchange="loadPayments();loadSummary()"></div>
+</div>
+<button class="btn btn-secondary" onclick="clearFilters()" id="clearBtn">مسح</button>
+</div>
+
+<div class="table-card">
+<div class="table-header"><h3 id="tableTitle">سجل المدفوعات</h3><div id="tableCount">0</div></div>
+<div class="table-container">
+<table>
+<thead><tr>
+<th>#</th><th id="thPaymentNumber">رقم الدفعة</th><th id="thProject">المشروع</th><th id="thClient">العميل</th><th id="thInvoice">الفاتورة</th>
+<th id="thType">النوع</th><th id="thAmount">المبلغ</th><th id="thSubmitted">التقديم</th><th id="thApproved">الاعتماد</th><th id="thDue">الاستحقاق</th><th id="thReceived">الاستلام</th>
+<th id="thStatus">الحالة</th><th id="thActions">الإجراء</th>
+</tr></thead>
+<tbody id="paymentsTable"></tbody>
+</table>
+</div></div>
+</section>
+</main>
+
+<script>
+let projects=[], invoices=[], payments=[], editingId=null;
+let currentLanguage=localStorage.getItem("ibuild_language")||"ar";
+
+const STATUSES=["Draft","Submitted","Under Review","Certified","Approved","Pending","Paid","Rejected"];
+const dict={
+ar:{
+companySystem:"نظام إدارة الشركة",dashboard:"لوحة التحكم",employees:"الموظفين",attendance:"الحضور والانصراف",payroll:"الرواتب",invoices:"الفواتير",payments:"المدفوعات",projects:"المشاريع",reports:"التقارير",
+title:"المدفوعات",subtitle:"تسجيل ومتابعة دفعات المشاريع",records:"عدد الدفعات",paidTotal:"إجمالي المدفوع فعليًا",pendingTotal:"دفعات قيد المتابعة",rejectedTotal:"دفعات مرفوضة",
+add:"إضافة دفعة جديدة",edit:"تعديل الدفعة",project:"المشروع *",invoice:"الفاتورة (اختياري)",paymentNumber:"رقم الدفعة *",paymentType:"نوع الدفعة",periodFrom:"الفترة من",periodTo:"الفترة إلى",amount:"مبلغ الدفعة *",status:"الحالة",
+submittedDate:"تاريخ التقديم",approvedDate:"تاريخ الاعتماد",dueDate:"تاريخ الاستحقاق",receivedDate:"تاريخ الاستلام",contractValue:"قيمة عقد المشروع",registeredPayments:"إجمالي المدفوعات المسجلة",paidAmount:"إجمالي المدفوع فعليًا",remainingContract:"المتبقي من العقد",client:"العميل",contractNumber:"رقم العقد",notes:"ملاحظات",
+save:"حفظ الدفعة",update:"تحديث الدفعة",cancel:"إلغاء التعديل",search:"بحث",searchPh:"رقم الدفعة / المشروع / العميل / الفاتورة",all:"كل الحالات",month:"الشهر",clear:"مسح",table:"سجل المدفوعات",no:"لا توجد مدفوعات",chooseProject:"اختر المشروع",noInvoice:"بدون ربط بفاتورة",chooseInvoice:"اختر الفاتورة",
+saved:"تم تسجيل الدفعة بنجاح",updated:"تم تعديل الدفعة بنجاح",deleted:"تم حذف الدفعة بنجاح",required:"أكمل المشروع ورقم الدفعة والمبلغ",confirmDelete:"هل أنت متأكد من حذف هذه الدفعة؟",
+statuses:{Draft:"مسودة",Submitted:"مقدمة","Under Review":"قيد المراجعة",Certified:"معتمدة",Approved:"موافق عليها",Pending:"معلقة",Paid:"مدفوعة",Rejected:"مرفوضة"}
+},
+en:{
+companySystem:"Company Management System",dashboard:"Dashboard",employees:"Employees",attendance:"Attendance",payroll:"Payroll",invoices:"Invoices",payments:"Payments",projects:"Projects",reports:"Reports",
+title:"Payments",subtitle:"Record and track project payments",records:"Payment Records",paidTotal:"Actually Paid",pendingTotal:"Payments In Progress",rejectedTotal:"Rejected Payments",
+add:"Add New Payment",edit:"Edit Payment",project:"Project *",invoice:"Invoice (Optional)",paymentNumber:"Payment Number *",paymentType:"Payment Type",periodFrom:"Period From",periodTo:"Period To",amount:"Payment Amount *",status:"Status",
+submittedDate:"Submitted Date",approvedDate:"Approved Date",dueDate:"Due Date",receivedDate:"Received Date",contractValue:"Project Contract Value",registeredPayments:"Registered Payments",paidAmount:"Actually Paid",remainingContract:"Contract Balance",client:"Client",contractNumber:"Contract Number",notes:"Notes",
+save:"Save Payment",update:"Update Payment",cancel:"Cancel Edit",search:"Search",searchPh:"Payment number / project / client / invoice",all:"All Statuses",month:"Month",clear:"Clear",table:"Payment Register",no:"No payments found",chooseProject:"Select project",noInvoice:"No invoice link",chooseInvoice:"Select invoice",
+saved:"Payment saved successfully",updated:"Payment updated successfully",deleted:"Payment deleted successfully",required:"Complete project, payment number and amount",confirmDelete:"Are you sure you want to delete this payment?",
+statuses:{Draft:"Draft",Submitted:"Submitted","Under Review":"Under Review",Certified:"Certified",Approved:"Approved",Pending:"Pending",Paid:"Paid",Rejected:"Rejected"}
+}};
+
+function money(v){return Number(v||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+" AED"}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function showMessage(text,type="info"){const el=document.getElementById("message");el.className="message "+type;el.textContent=text;el.style.display="block";clearTimeout(window.msgTimer);window.msgTimer=setTimeout(()=>el.style.display="none",4000)}
+function today(){const d=new Date(); const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${day}`}
+function validDateInput(id){const v=document.getElementById(id).value;if(!v)return null;const y=Number(v.slice(0,4));return y>=1900&&y<=2100?v:null}
+async function api(url,options={}){const r=await fetch(url,options);let d={};try{d=await r.json()}catch(_){throw new Error("استجابة غير صالحة من الخادم")}if(!r.ok||d.success===false)throw new Error(d.message||"Request failed");return d}
+
+async function loadProjects(){
+  const d=await api("/api/payments/projects"); projects=d.projects||[];
+  const s=document.getElementById("project_id"), selected=s.value;
+  s.innerHTML=`<option value="">${dict[currentLanguage].chooseProject}</option>`+projects.map(p=>`<option value="${p.id}">${esc(p.project_name)}</option>`).join("");
+  if(selected)s.value=selected;
+  updateProjectInfo();
+}
+function selectedProject(){return projects.find(p=>Number(p.id)===Number(document.getElementById("project_id").value))}
+async function projectChanged(){
+  updateProjectInfo();
+  await loadInvoices();
+}
+function updateProjectInfo(){
+  const p=selectedProject(), z=n=>Number(n||0);
+  document.getElementById("contract_value").value=money(p?z(p.contract_value):0);
+  document.getElementById("registered_payments").value=money(p?z(p.registered_payments):0);
+  document.getElementById("paid_amount").value=money(p?z(p.paid_amount):0);
+  document.getElementById("remaining_contract").value=money(p?Math.max(z(p.remaining_contract),0):0);
+  document.getElementById("client_name").value=p?.client_name||"";
+  document.getElementById("contract_number").value=p?.contract_number||"";
+}
+async function loadInvoices(){
+  const projectId=Number(document.getElementById("project_id").value||0);
+  const d=await api("/api/payments/invoices"+(projectId?`?project_id=${projectId}`:""));
+  invoices=d.invoices||[];
+  const s=document.getElementById("invoice_id"), selected=s.value;
+  s.innerHTML=`<option value="">${dict[currentLanguage].noInvoice}</option>`+invoices.map(i=>`<option value="${i.id}">${esc(i.invoice_number)} — ${money(i.total_amount)} — ${esc(i.project_name||"")}</option>`).join("");
+  if(selected && invoices.some(i=>Number(i.id)===Number(selected)))s.value=selected;
+}
+function updateInvoiceInfo(){}
+
+async function loadPayments(){
+  try{
+    const q=new URLSearchParams(), search=document.getElementById("search").value.trim(), status=document.getElementById("filterStatus").value, month=document.getElementById("filterMonth").value;
+    if(search)q.set("search",search);if(status)q.set("status",status);if(month)q.set("month",month);
+    const d=await api("/api/payments?"+q.toString());payments=d.payments||[];renderPayments();
+  }catch(e){showMessage(e.message,"error")}
+}
+async function loadSummary(){
+  try{
+    const month=document.getElementById("filterMonth").value;
+    const d=await api("/api/payments/stats/summary"+(month?"?month="+encodeURIComponent(month):""));
+    document.getElementById("totalRecords").textContent=d.total_records||0;
+    document.getElementById("totalPaid").textContent=money(d.total_paid);
+    document.getElementById("totalPending").textContent=money(d.total_pending);
+    document.getElementById("totalRejected").textContent=money(d.total_rejected);
+  }catch(e){console.error(e)}
+}
+function renderPayments(){
+  const tbody=document.getElementById("paymentsTable");document.getElementById("tableCount").textContent=payments.length;
+  if(!payments.length){tbody.innerHTML=`<tr><td colspan="13" class="empty">${dict[currentLanguage].no}</td></tr>`;return}
+  tbody.innerHTML=payments.map((p,i)=>{
+    const st=String(p.status||"Draft"), cls=st.toLowerCase().replace(/\s+/g,"-");
+    return `<tr>
+      <td>${i+1}</td><td><strong>${esc(p.payment_number)}</strong></td><td>${esc(p.project_name)}</td><td>${esc(p.client_name||"-")}</td><td>${esc(p.invoice_number||"-")}</td>
+      <td>${esc(p.payment_type||"-")}</td><td><strong>${money(p.amount)}</strong></td><td>${esc(p.submitted_date||"-")}</td><td>${esc(p.approved_date||"-")}</td><td>${esc(p.due_date||"-")}</td><td>${esc(p.received_date||"-")}</td>
+      <td><span class="badge ${cls}">${esc(dict[currentLanguage].statuses[st]||st)}</span></td>
+      <td><button class="action" onclick="location.href='/payment-details?id=${p.id}'">👁️ ${currentLanguage==="ar"?"التفاصيل":"Details"}</button><button class="action" onclick="editPayment(${p.id})">${currentLanguage==="ar"?"تعديل":"Edit"}</button><button class="action delete" onclick="deletePayment(${p.id})">${currentLanguage==="ar"?"حذف":"Delete"}</button></td>
+    </tr>`;
+  }).join("");
+}
+function fillDate(id,v){const el=document.getElementById(id);el.value=(v||"").slice(0,10);if(el.value&&Number(el.value.slice(0,4))<1900)el.value=""}
+async function editPayment(id){
+  try{
+    const d=await api("/api/payments/"+id),p=d.payment;
+    document.getElementById("project_id").value=p.project_id;await loadInvoices();
+    document.getElementById("invoice_id").value=p.invoice_id||"";
+    document.getElementById("payment_number").value=p.payment_number||"";
+    document.getElementById("payment_type").value=p.payment_type||"";
+    fillDate("period_from",p.period_from);fillDate("period_to",p.period_to);
+    document.getElementById("amount").value=Number(p.amount||0).toFixed(2);
+    document.getElementById("status").value=p.status||"Draft";
+    fillDate("submitted_date",p.submitted_date);fillDate("approved_date",p.approved_date);fillDate("due_date",p.due_date);fillDate("received_date",p.received_date);
+    document.getElementById("notes").value=p.notes||"";
+    editingId=id;updateProjectInfo();document.getElementById("formTitle").textContent=dict[currentLanguage].edit;document.getElementById("saveBtn").textContent=dict[currentLanguage].update;document.getElementById("cancelBtn").style.display="inline-block";window.scrollTo({top:0,behavior:"smooth"});
+  }catch(e){showMessage(e.message,"error")}
+}
+async function deletePayment(id){
+  if(!confirm(dict[currentLanguage].confirmDelete))return;
+  try{const d=await api("/api/payments/"+id,{method:"DELETE"});showMessage(d.message||dict[currentLanguage].deleted,"success");await Promise.all([loadProjects(),loadPayments(),loadSummary()])}catch(e){showMessage(e.message,"error")}
+}
+function resetForm(){
+  editingId=null;document.getElementById("paymentForm").reset();document.getElementById("status").value="Draft";document.getElementById("formTitle").textContent=dict[currentLanguage].add;document.getElementById("saveBtn").textContent=dict[currentLanguage].save;document.getElementById("cancelBtn").style.display="none";
+  updateProjectInfo();
+}
+document.getElementById("paymentForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const payload={
+    project_id:Number(document.getElementById("project_id").value),
+    invoice_id:Number(document.getElementById("invoice_id").value)||null,
+    payment_number:document.getElementById("payment_number").value.trim(),
+    payment_type:document.getElementById("payment_type").value.trim(),
+    period_from:validDateInput("period_from"),period_to:validDateInput("period_to"),
+    amount:Number(document.getElementById("amount").value),
+    submitted_date:validDateInput("submitted_date"),approved_date:validDateInput("approved_date"),due_date:validDateInput("due_date"),received_date:validDateInput("received_date"),
+    status:document.getElementById("status").value,notes:document.getElementById("notes").value.trim()
+  };
+  if(!payload.project_id||!payload.payment_number||payload.amount<=0){showMessage(dict[currentLanguage].required,"error");return}
+  const dateIds=["period_from","period_to","submitted_date","approved_date","due_date","received_date"];
+  if(dateIds.some(id=>document.getElementById(id).value&&!validDateInput(id))){showMessage(currentLanguage==="ar"?"يوجد تاريخ غير صحيح. اختر التاريخ من التقويم.":"One or more dates are invalid. Choose the date from the calendar.","error");return}
+  try{
+    const url=editingId?"/api/payments/"+editingId:"/api/payments",method=editingId?"PUT":"POST";
+    const d=await api(url,{method,headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    showMessage(d.message||(editingId?dict[currentLanguage].updated:dict[currentLanguage].saved),"success");resetForm();await Promise.all([loadProjects(),loadPayments(),loadSummary()]);
+  }catch(e){showMessage(e.message,"error")}
+});
+function clearFilters(){document.getElementById("search").value="";document.getElementById("filterStatus").value="";document.getElementById("filterMonth").value="";loadPayments();loadSummary()}
+function setLanguage(lang){
+  currentLanguage=lang;localStorage.setItem("ibuild_language",lang);document.documentElement.lang=lang;document.documentElement.dir=lang==="ar"?"rtl":"ltr";const x=dict[lang];
+  const ids={companySystem:x.companySystem,dashboardText:x.dashboard,employeesText:x.employees,attendanceText:x.attendance,payrollText:x.payroll,invoicesText:x.invoices,paymentsText:x.payments,projectsText:x.projects,reportsText:x.reports,pageTitle:x.title,pageSubtitle:x.subtitle,statRecords:x.records,statPaid:x.paidTotal,statPending:x.pendingTotal,statRejected:x.rejectedTotal,formTitle:editingId?x.edit:x.add,projectLabel:x.project,invoiceLabel:x.invoice,paymentNumberLabel:x.paymentNumber,paymentTypeLabel:x.paymentType,periodFromLabel:x.periodFrom,periodToLabel:x.periodTo,amountLabel:x.amount,statusLabel:x.status,submittedDateLabel:x.submittedDate,approvedDateLabel:x.approvedDate,dueDateLabel:x.dueDate,receivedDateLabel:x.receivedDate,contractValueLabel:x.contractValue,registeredPaymentsLabel:x.registeredPayments,paidAmountLabel:x.paidAmount,remainingContractLabel:x.remainingContract,clientLabel:x.client,contractNumberLabel:x.contractNumber,notesLabel:x.notes,saveBtn:editingId?x.update:x.save,cancelBtn:x.cancel,searchLabel:x.search,filterStatusLabel:x.status,filterMonthLabel:x.month,clearBtn:x.clear,tableTitle:x.table,thPaymentNumber:x.paymentNumber.replace(" *",""),thProject:x.project.replace(" *",""),thClient:x.client,thInvoice:"الفاتورة",thType:x.paymentType,thAmount:x.amount.replace(" *",""),thSubmitted:x.submittedDate,thApproved:x.approvedDate,thDue:x.dueDate,thReceived:x.receivedDate,thStatus:x.status,thActions:lang==="ar"?"الإجراء":"Actions"};
+  Object.entries(ids).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.textContent=v});
+  document.getElementById("search").placeholder=x.searchPh;
+  const status=document.getElementById("status");status.innerHTML=STATUSES.map(s=>`<option value="${s}">${x.statuses[s]}</option>`).join("");status.value=editingId?status.value:"Draft";
+  const filter=document.getElementById("filterStatus");filter.innerHTML=`<option value="">${x.all}</option>`+STATUSES.map(s=>`<option value="${s}">${x.statuses[s]}</option>`).join("");
+  const project=document.getElementById("project_id"),pv=project.value;project.innerHTML=`<option value="">${x.chooseProject}</option>`+projects.map(p=>`<option value="${p.id}">${esc(p.project_name)}</option>`).join("");if(pv)project.value=pv;
+  const inv=document.getElementById("invoice_id"),iv=inv.value;inv.innerHTML=`<option value="">${x.noInvoice}</option>`+invoices.map(i=>`<option value="${i.id}">${esc(i.invoice_number)} — ${money(i.total_amount)}</option>`).join("");if(iv)inv.value=iv;
+  document.getElementById("arBtn").classList.toggle("active",lang==="ar");document.getElementById("enBtn").classList.toggle("active",lang==="en");renderPayments();
+}
+document.getElementById("submitted_date").value=today();
+setLanguage(currentLanguage);
+Promise.all([loadProjects(),loadPayments(),loadSummary()]).catch(e=>showMessage(e.message,"error"));
+async function logoutFromSystem(){try{await fetch('/api/auth/logout',{method:'POST'})}finally{location.href='/login'}}
+</script>
+</body>
+</html>

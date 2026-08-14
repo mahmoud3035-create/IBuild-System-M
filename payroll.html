@@ -1,0 +1,4035 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>IBuild System - Payroll</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 260px;
+    height: 100vh;
+    background: #0f172a;
+    color: white;
+    padding: 25px 18px;
+    z-index: 1000;
+}
+
+.logo {
+    text-align: center;
+    padding: 10px 0 30px;
+    border-bottom: 1px solid #334155;
+}
+
+.logo h1 {
+    font-size: 25px;
+}
+
+.logo span {
+    color: #3b82f6;
+}
+
+.logo p {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+.menu {
+    margin-top: 25px;
+}
+
+.menu a {
+    display: block;
+    text-decoration: none;
+    color: #cbd5e1;
+    padding: 13px 15px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: .2s;
+}
+
+.menu a:hover,
+.menu a.active {
+    background: #2563eb;
+    color: white;
+}
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.main {
+    margin-right: 260px;
+    min-height: 100vh;
+}
+
+.topbar {
+    min-height: 75px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 35px;
+    gap: 20px;
+}
+
+.page-title h2 {
+    font-size: 22px;
+}
+
+.page-title p {
+    color: #64748b;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.top-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.language-btn {
+    border: 1px solid #dbeafe;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.language-btn.active,
+.language-btn:hover {
+    background: #2563eb;
+    color: white;
+}
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.content {
+    padding: 30px 35px;
+}
+
+/* =====================================================
+   MONTH BAR
+===================================================== */
+
+.month-bar {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.month-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.month-box label {
+    font-weight: bold;
+    color: #475569;
+    font-size: 13px;
+}
+
+.month-box input {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+.month-box input:focus {
+    border-color: #2563eb;
+}
+
+.refresh-btn {
+    border: none;
+    background: #2563eb;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.refresh-btn:hover {
+    background: #1d4ed8;
+}
+
+/* =====================================================
+   STATS
+===================================================== */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    padding: 20px;
+}
+
+.stat-title {
+    color: #64748b;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.blue {
+    color: #2563eb;
+}
+
+.green {
+    color: #16a34a;
+}
+
+.red {
+    color: #dc2626;
+}
+
+.orange {
+    color: #d97706;
+}
+
+/* =====================================================
+   FORM CARD
+===================================================== */
+
+.form-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    padding: 22px;
+    margin-bottom: 25px;
+}
+
+.section-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    color: #475569;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    font-size: 13px;
+    background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px #dbeafe;
+}
+
+.readonly {
+    background: #f8fafc !important;
+    color: #2563eb;
+    font-weight: bold;
+}
+
+.net-box {
+    border: 2px solid #16a34a !important;
+    background: #f0fdf4 !important;
+    color: #15803d !important;
+    font-size: 17px !important;
+    font-weight: bold;
+}
+
+/* =====================================================
+   ATTENDANCE INFO
+===================================================== */
+
+.attendance-info {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-top: 5px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.attendance-box {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    padding: 13px;
+    text-align: center;
+}
+
+.attendance-box .label {
+    display: block;
+    color: #64748b;
+    font-size: 11px;
+    margin-bottom: 7px;
+}
+
+.attendance-box .value {
+    display: block;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.attendance-box.present .value {
+    color: #16a34a;
+}
+
+.attendance-box.absent .value {
+    color: #dc2626;
+}
+
+.attendance-box.late .value {
+    color: #d97706;
+}
+
+.attendance-box.leave .value {
+    color: #7c3aed;
+}
+
+.attendance-box.off .value {
+    color: #64748b;
+}
+
+/* =====================================================
+   CALCULATION NOTE
+===================================================== */
+
+.calculation-note {
+    grid-column: 1 / -1;
+    padding: 12px 15px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+/* =====================================================
+   FORM ACTIONS
+===================================================== */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.save-btn,
+.clear-btn {
+    border: none;
+    padding: 11px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.save-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.save-btn:hover {
+    background: #1d4ed8;
+}
+
+.save-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.clear-btn {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.clear-btn:hover {
+    background: #cbd5e1;
+}
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.table-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    overflow: hidden;
+}
+
+.table-header {
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.table-header h3 {
+    font-size: 18px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 1650px;
+    border-collapse: collapse;
+}
+
+th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 12px;
+    padding: 14px;
+    white-space: nowrap;
+    text-align: right;
+}
+
+td {
+    padding: 14px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+tr:hover td {
+    background: #f8fafc;
+}
+
+/* =====================================================
+   BADGES
+===================================================== */
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.badge.draft {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge.approved {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge.paid {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.net {
+    color: #15803d;
+    font-weight: bold;
+}
+
+.action-btn {
+    border: none;
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 7px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.action-btn:hover {
+    background: #bfdbfe;
+}
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+.message {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    max-width: 420px;
+    padding: 14px 20px;
+    border-radius: 8px;
+    color: white;
+    display: none;
+    z-index: 5000;
+    font-size: 13px;
+    box-shadow:
+        0 5px 20px
+        rgba(0,0,0,.15);
+}
+
+.message.success {
+    background: #16a34a;
+}
+
+.message.error {
+    background: #dc2626;
+}
+
+.message.info {
+    background: #2563eb;
+}
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.empty {
+    text-align: center;
+    padding: 45px;
+    color: #64748b;
+}
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.loading {
+    opacity: .6;
+    pointer-events: none;
+}
+
+/* =====================================================
+   LTR
+===================================================== */
+
+html[dir="ltr"] .sidebar {
+    right: auto;
+    left: 0;
+}
+
+html[dir="ltr"] .main {
+    margin-right: 0;
+    margin-left: 260px;
+}
+
+html[dir="ltr"] th {
+    text-align: left;
+}
+
+html[dir="ltr"] .form-actions {
+    justify-content: flex-start;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1200px) {
+
+    .stats {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .form-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .attendance-info {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .sidebar {
+        width: 75px;
+        padding: 15px 8px;
+    }
+
+    .logo h1,
+    .logo p,
+    .menu a span {
+        display: none;
+    }
+
+    .menu a {
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .main {
+        margin-right: 75px;
+    }
+
+    html[dir="ltr"] .main {
+        margin-left: 75px;
+        margin-right: 0;
+    }
+
+    .content {
+        padding: 20px 15px;
+    }
+
+    .topbar {
+        padding: 15px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .attendance-info {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .month-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .month-box {
+        justify-content: space-between;
+    }
+
+}
+
+
+.sidebar{display:flex!important;flex-direction:column!important}.menu{overflow:auto!important;max-height:calc(100vh - 150px)!important;padding-bottom:75px!important}.logout-link{position:absolute!important;bottom:18px!important;left:18px!important;right:18px!important;width:auto!important;border:1px solid #475569!important;background:#172033!important;color:#fff!important;border-radius:9px!important;padding:10px 12px!important;cursor:pointer!important;text-align:center!important;z-index:5!important}.logout-link:hover{background:#dc2626!important;color:#fff!important}
+</style>
+
+<style>
+.overtime-add-btn,.archive-btn{border:none;color:#fff;padding:10px 15px;border-radius:8px;cursor:pointer;font-weight:bold}
+.overtime-add-btn{background:#d97706}.overtime-add-btn:hover{background:#b45309}
+.archive-btn{background:#0f766e}.archive-btn:hover{background:#115e59}
+.payroll-archive-panel{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:16px;margin:-8px 0 20px;box-shadow:0 8px 25px rgba(15,23,42,.07)}
+.archive-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.archive-subtitle{font-size:11px;color:#94a3b8;margin-top:4px}
+.archive-close{border:0;background:#f1f5f9;width:30px;height:30px;border-radius:8px;font-size:20px;cursor:pointer}
+.payroll-archive-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;max-height:280px;overflow:auto}
+.payroll-archive-item{border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:11px;cursor:pointer;text-align:right}
+.payroll-archive-item:hover,.payroll-archive-item.active{background:#ecfeff;border-color:#5eead4}
+.payroll-archive-item strong{display:block}.payroll-archive-item small{color:#94a3b8}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:6000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-overlay[hidden]{display:none}
+.overtime-modal{background:#fff;width:min(720px,100%);border-radius:16px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:18px}
+.modal-head h3{font-size:18px}.modal-head p{color:#64748b;font-size:11px;margin-top:5px}
+.overtime-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.modal-actions{display:flex;justify-content:flex-start;gap:10px;margin-top:20px}
+@media(max-width:900px){.overtime-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.overtime-grid{grid-template-columns:1fr}.month-bar{flex-wrap:wrap}}
+</style></head>
+
+<body>
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+        <h1>
+            IBuild <span>System</span>
+        </h1>
+
+        <p id="companySystem">
+            نظام إدارة الشركة
+        </p>
+
+    </div>
+
+    <nav class="menu">
+
+        <a href="/dashboard">
+            🏠
+            <span id="dashboardText">
+                الموظفين
+            </span>
+        </a>
+
+        <a href="/employees">
+            👥
+            <span id="employeesText">
+                الموظفين
+            </span>
+        </a>
+
+        <a href="/attendance">
+            🕐
+            <span id="attendanceText">
+                الحضور والانصراف
+            </span>
+        </a>
+
+        <a href="/payroll" class="active">
+            💰
+            <span id="payrollText">
+                الرواتب
+            </span>
+        </a>
+
+        <a href="/invoices">
+            📄
+            <span id="invoicesText">
+                الفواتير
+            </span>
+        </a>
+
+        <a href="/payments">
+            💳
+            <span id="paymentsText">
+                المدفوعات
+            </span>
+        </a>
+
+        <a href="/projects">
+            🏗️
+            <span id="projectsText">
+                المشاريع
+            </span>
+        </a>
+
+        <a href="/reports">
+            📊
+            <span id="reportsText">
+                التقارير
+            </span>
+        </a>
+
+    </nav>
+
+<button type="button" class="logout-link" onclick="logoutFromSystem()">🚪 <span>تسجيل الخروج</span></button></aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+<header class="topbar">
+
+    <div class="page-title">
+
+        <h2 id="pageTitle">
+            الرواتب
+        </h2>
+
+        <p id="pageSubtitle">
+            إدارة وحساب رواتب الموظفين
+        </p>
+
+    </div>
+
+    <div class="top-actions">
+
+        <button
+            class="language-btn"
+            id="arButton"
+            onclick="changeLanguage('ar')">
+
+            العربية
+
+        </button>
+
+        <button
+            class="language-btn"
+            id="enButton"
+            onclick="changeLanguage('en')">
+
+            English
+
+        </button>
+
+    </div>
+
+</header>
+
+
+<section class="content">
+
+
+<!-- =====================================================
+     MONTH
+===================================================== -->
+
+<div class="month-bar">
+
+    <div class="month-box">
+
+        <label id="monthLabel">
+            شهر الراتب
+        </label>
+
+        <input
+            type="month"
+            id="payrollMonth">
+
+    </div>
+
+    <button
+        class="refresh-btn"
+        onclick="loadPayroll()"
+        id="refreshButton">
+
+        🔄 تحديث
+
+    </button>
+
+    <button
+        type="button"
+        class="overtime-add-btn"
+        onclick="openOvertimeModal()"
+        id="overtimeAddButton">
+        ⏱️ إضافة ساعات أوفر تايم
+    </button>
+
+    <button
+        type="button"
+        class="archive-btn"
+        onclick="togglePayrollArchive()"
+        id="archiveButton">
+        📅 الشهور السابقة
+    </button>
+
+</div>
+
+<div id="payrollArchivePanel" class="payroll-archive-panel" hidden>
+    <div class="archive-head">
+        <div>
+            <strong id="archiveTitle">أرشيف الشهور</strong>
+            <div class="archive-subtitle" id="archiveSubtitle">اختر شهرًا سابقًا لعرض كشف الرواتب</div>
+        </div>
+        <button type="button" class="archive-close" onclick="togglePayrollArchive(false)">×</button>
+    </div>
+    <div id="payrollArchiveList" class="payroll-archive-list"></div>
+</div>
+
+
+<!-- =====================================================
+     STATISTICS
+===================================================== -->
+
+<div class="stats">
+
+
+    <div class="stat-card">
+
+        <div
+            class="stat-title"
+            id="salaryTitle">
+
+            إجمالي الرواتب
+
+        </div>
+
+        <div
+            class="stat-value blue"
+            id="totalSalary">
+
+            AED 0.00
+
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div
+            class="stat-title"
+            id="overtimeTitle">
+
+            إجمالي الإضافي
+
+        </div>
+
+        <div
+            class="stat-value orange"
+            id="totalOvertime">
+
+            AED 0.00
+
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div
+            class="stat-title"
+            id="deductionsTitle">
+
+            إجمالي الخصومات
+
+        </div>
+
+        <div
+            class="stat-value red"
+            id="totalDeductions">
+
+            AED 0.00
+
+        </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <div
+            class="stat-title"
+            id="netTitle">
+
+            صافي الرواتب
+
+        </div>
+
+        <div
+            class="stat-value green"
+            id="totalNet">
+
+            AED 0.00
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     FORM
+===================================================== -->
+
+<div class="form-card">
+
+    <h3
+        class="section-title"
+        id="formTitle">
+
+        إنشاء / تعديل كشف راتب
+
+    </h3>
+
+
+    <form id="payrollForm">
+
+        <div class="form-grid">
+
+
+            <!-- EMPLOYEE -->
+
+            <div class="form-group">
+
+                <label id="employeeLabel">
+                    الموظف *
+                </label>
+
+                <select
+                    id="employee_id"
+                    required>
+
+                    <option value="">
+                        اختر الموظف
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- SALARY -->
+
+            <div class="form-group">
+
+                <label id="payrollSalaryLabel">
+                    راتب حساب الرواتب
+                </label>
+
+                <input
+                    type="number"
+                    id="payroll_salary"
+                    class="readonly"
+                    step="0.01"
+                    readonly>
+
+            </div>
+
+
+            <!-- WORKING DAYS -->
+
+            <div class="form-group">
+
+                <label id="workingDaysLabel">
+                    أيام العمل
+                </label>
+
+                <input
+                    type="number"
+                    id="working_days"
+                    min="1"
+                    max="31">
+
+            </div>
+
+
+            <!-- ABSENT DAYS -->
+
+            <div class="form-group">
+
+                <label id="absentDaysLabel">
+                    أيام الغياب
+                </label>
+
+                <input
+                    type="number"
+                    id="absent_days"
+                    min="0"
+                    max="31"
+                    value="0">
+
+            </div>
+
+
+            <!-- ABSENCE DEDUCTION -->
+
+            <div class="form-group">
+
+                <label id="absenceDeductionLabel">
+                    خصم الغياب
+                </label>
+
+                <input
+                    type="number"
+                    id="absence_deduction"
+                    class="readonly"
+                    step="0.01"
+                    value="0"
+                    readonly>
+
+            </div>
+
+
+            <!-- OVERTIME -->
+
+            <div class="form-group">
+
+                <label id="overtimeLabel">
+                    العمل الإضافي
+                </label>
+
+                <input
+                    type="number"
+                    id="overtime_amount"
+                    step="0.01"
+                    min="0"
+                    value="0">
+
+            </div>
+
+
+            <!-- ADDITIONS -->
+
+            <div class="form-group">
+
+                <label id="additionsLabel">
+                    الإضافات
+                </label>
+
+                <input
+                    type="number"
+                    id="additions"
+                    step="0.01"
+                    min="0"
+                    value="0">
+
+            </div>
+
+
+            <!-- DEDUCTIONS -->
+
+            <div class="form-group">
+
+                <label id="deductionsLabel">
+                    الخصومات
+                </label>
+
+                <input
+                    type="number"
+                    id="deductions"
+                    step="0.01"
+                    min="0"
+                    value="0">
+
+            </div>
+
+
+            <!-- NET -->
+
+            <div class="form-group">
+
+                <label id="netSalaryLabel">
+                    صافي الراتب
+                </label>
+
+                <input
+                    type="number"
+                    id="net_salary"
+                    class="net-box"
+                    step="0.01"
+                    readonly>
+
+            </div>
+
+
+            <!-- ATTENDANCE SUMMARY -->
+
+            <div class="attendance-info">
+
+                <div class="attendance-box present">
+
+                    <span
+                        class="label"
+                        id="attendancePresentLabel">
+
+                        الحضور
+
+                    </span>
+
+                    <span
+                        class="value"
+                        id="attendancePresent">
+
+                        0
+
+                    </span>
+
+                </div>
+
+
+                <div class="attendance-box absent">
+
+                    <span
+                        class="label"
+                        id="attendanceAbsentLabel">
+
+                        الغياب
+
+                    </span>
+
+                    <span
+                        class="value"
+                        id="attendanceAbsent">
+
+                        0
+
+                    </span>
+
+                </div>
+
+
+                <div class="attendance-box late">
+
+                    <span
+                        class="label"
+                        id="attendanceLateLabel">
+
+                        التأخير
+
+                    </span>
+
+                    <span
+                        class="value"
+                        id="attendanceLate">
+
+                        0
+
+                    </span>
+
+                </div>
+
+
+                <div class="attendance-box leave">
+
+                    <span
+                        class="label"
+                        id="attendanceLeaveLabel">
+
+                        الإجازة
+
+                    </span>
+
+                    <span
+                        class="value"
+                        id="attendanceLeave">
+
+                        0
+
+                    </span>
+
+                </div>
+
+
+                <div class="attendance-box off">
+
+                    <span
+                        class="label"
+                        id="attendanceOffLabel">
+
+                        العطلة
+
+                    </span>
+
+                    <span
+                        class="value"
+                        id="attendanceOff">
+
+                        0
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- CALCULATION NOTE -->
+
+            <div
+                class="calculation-note"
+                id="calculationNote">
+
+                سيتم حساب خصم الغياب تلقائيًا:
+                راتب حساب الرواتب ÷ أيام العمل × أيام الغياب
+
+            </div>
+
+
+            <!-- NOTES -->
+
+            <div class="form-group full">
+
+                <label id="notesLabel">
+                    ملاحظات
+                </label>
+
+                <textarea
+                    id="notes"
+                    rows="3"></textarea>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="button"
+                class="clear-btn"
+                onclick="clearForm()"
+                id="clearButton">
+
+                مسح
+
+            </button>
+
+            <button
+                type="submit"
+                class="save-btn"
+                id="saveButton">
+
+                💾 حفظ كشف الراتب
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- =====================================================
+     TABLE
+===================================================== -->
+
+<div class="table-card">
+
+    <div class="table-header">
+
+        <h3 id="tableTitle">
+            كشوف رواتب الشهر
+        </h3>
+
+    </div>
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th id="codeHeader">الكود</th>
+                    <th id="nameHeader">الموظف</th>
+                    <th id="salaryHeader">أجر الشهر</th>
+                    <th id="dailySalaryHeader">أجر اليوم</th>
+                    <th id="workingHeader">أيام العمل</th>
+                    <th id="absentHeader">الغياب</th>
+                    <th id="absenceHeader">خصم الغياب</th>
+                    <th id="overtimeHoursHeader">ساعات الأوفر تايم</th>
+                    <th id="overtimeHeader">الأوفر تايم</th>
+                    <th id="additionsHeader">المكافآت</th>
+                    <th id="deductionsHeader">الخصومات</th>
+                    <th id="netHeader">صافي الراتب</th>
+                    <th id="statusHeader">الحالة</th>
+                    <th id="actionHeader">الإجراء</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="payrollTable"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<!-- =====================================================
+     OVERTIME MODAL
+===================================================== -->
+<div class="modal-overlay" id="overtimeModal" hidden>
+    <div class="overtime-modal">
+        <div class="modal-head">
+            <div>
+                <h3 id="overtimeModalTitle">إضافة ساعات أوفر تايم</h3>
+                <p id="overtimeModalSubtitle">سيتم حساب أجر الساعة تلقائيًا من الراتب الشهري</p>
+            </div>
+            <button type="button" class="archive-close" onclick="closeOvertimeModal()">×</button>
+        </div>
+
+        <div class="overtime-grid">
+            <div class="form-group">
+                <label id="otEmployeeLabel">الموظف *</label>
+                <select id="ot_employee_id"></select>
+            </div>
+
+            <div class="form-group">
+                <label id="otCurrentHoursLabel">ساعات الأوفر تايم الحالية</label>
+                <input type="number" id="ot_current_hours" readonly class="readonly">
+            </div>
+
+            <div class="form-group">
+                <label id="otHoursLabel">الساعات المضافة *</label>
+                <input type="number" id="ot_hours" min="0.25" step="0.25" value="1">
+            </div>
+
+            <div class="form-group">
+                <label id="otDailyLabel">أجر اليوم</label>
+                <input type="number" id="ot_daily_rate" readonly class="readonly">
+            </div>
+
+            <div class="form-group">
+                <label id="otHourlyLabel">أجر الساعة</label>
+                <input type="number" id="ot_hourly_rate" readonly class="readonly">
+            </div>
+
+            <div class="form-group">
+                <label id="otAmountLabel">قيمة الساعات المضافة</label>
+                <input type="number" id="ot_amount" readonly class="net-box">
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="clear-btn" onclick="closeOvertimeModal()" id="otCancelButton">إلغاء</button>
+            <button type="button" class="save-btn" onclick="saveOvertimeHours()" id="otSaveButton">💾 إضافة للأجر</button>
+        </div>
+    </div>
+</div>
+
+<!-- =====================================================
+     MESSAGE
+===================================================== -->
+
+<div
+    class="message"
+    id="message">
+</div>
+
+
+<script>
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+let payrollEmployees = [];
+
+let payrollRecords = [];
+
+let employeeAttendance = [];
+
+let editingPayrollId = null;
+
+let currentLanguage =
+    localStorage.getItem(
+        "ibuild_language"
+    ) || "ar";
+
+
+/* =====================================================
+   TRANSLATIONS
+===================================================== */
+
+const translations = {
+
+ar: {
+
+companySystem:
+"نظام إدارة الشركة",
+
+dashboard:
+"لوحة التحكم",
+
+employees:
+"الموظفين",
+
+attendance:
+"الحضور والانصراف",
+
+payroll:
+"الرواتب",
+
+invoices:
+"الفواتير",
+
+payments:
+"المدفوعات",
+
+projects:
+"المشاريع",
+
+reports:
+"التقارير",
+
+pageTitle:
+"الرواتب",
+
+pageSubtitle:
+"إدارة وحساب رواتب الموظفين",
+
+month:
+"شهر الراتب",
+
+refresh:
+"🔄 تحديث",
+
+records:
+"عدد كشوف الرواتب",
+
+salary:
+"إجمالي الرواتب",
+
+overtime:
+"إجمالي الإضافي",
+
+deductions:
+"إجمالي الخصومات",
+
+net:
+"صافي الرواتب",
+
+dailySalary:
+"أجر اليوم",
+
+overtimeHours:
+"ساعات الأوفر تايم",
+
+archive:
+"📅 الشهور السابقة",
+
+archiveTitle:
+"أرشيف الشهور",
+
+archiveSubtitle:
+"اختر شهرًا سابقًا لعرض كشف الرواتب",
+
+overtimeAdd:
+"⏱️ إضافة ساعات أوفر تايم",
+
+otModalTitle:
+"إضافة ساعات أوفر تايم",
+
+otModalSubtitle:
+"سيتم حساب أجر الساعة تلقائيًا من الراتب الشهري",
+
+otEmployee:
+"الموظف *",
+
+otCurrentHours:
+"ساعات الأوفر تايم الحالية",
+
+otHours:
+"الساعات المضافة *",
+
+otDaily:
+"أجر اليوم",
+
+otHourly:
+"أجر الساعة",
+
+otAmount:
+"قيمة الساعات المضافة",
+
+otCancel:
+"إلغاء",
+
+otSave:
+"💾 إضافة للأجر",
+
+unsaved:
+"غير محفوظ",
+
+create:
+"إضافة كشف",
+
+formTitle:
+"إنشاء / تعديل كشف راتب",
+
+employee:
+"الموظف *",
+
+chooseEmployee:
+"اختر الموظف",
+
+payrollSalary:
+"راتب حساب الرواتب",
+
+workingDays:
+"أيام العمل",
+
+absentDays:
+"أيام الغياب",
+
+absenceDeduction:
+"خصم الغياب",
+
+overtimeAmount:
+"العمل الإضافي",
+
+additions:
+"المكافآت",
+
+deductionsAmount:
+"الخصومات",
+
+netSalary:
+"صافي الراتب",
+
+notes:
+"ملاحظات",
+
+clear:
+"مسح",
+
+save:
+"💾 حفظ كشف الراتب",
+
+update:
+"💾 تحديث كشف الراتب",
+
+tableTitle:
+"كشف رواتب العمال",
+
+code:
+"الكود",
+
+name:
+"الموظف",
+
+salaryHeader:
+"راتب حساب الرواتب",
+
+working:
+"أيام العمل",
+
+absent:
+"الغياب",
+
+absence:
+"خصم الغياب",
+
+overtimeHeader:
+"الإضافي",
+
+additionsHeader:
+"المكافآت",
+
+deductionsHeader:
+"الخصومات",
+
+netHeader:
+"صافي الراتب",
+
+status:
+"الحالة",
+
+action:
+"الإجراء",
+
+edit:
+"تعديل",
+
+draft:
+"مسودة",
+
+approved:
+"معتمد",
+
+paid:
+"مدفوع",
+
+noRecords:
+"لا توجد كشوف رواتب لهذا الشهر",
+
+loadError:
+"حدث خطأ أثناء تحميل بيانات الرواتب",
+
+saveSuccess:
+"تم حفظ كشف الراتب بنجاح",
+
+updateSuccess:
+"تم تحديث كشف الراتب بنجاح",
+
+saveError:
+"حدث خطأ أثناء حفظ كشف الراتب",
+
+employeesError:
+"حدث خطأ أثناء تحميل الموظفين",
+
+attendanceError:
+"حدث خطأ أثناء تحميل الحضور",
+
+invalidMonth:
+"يجب اختيار شهر الراتب",
+
+employeeRequired:
+"اختر الموظف أولاً",
+
+attendancePresent:
+"الحضور",
+
+attendanceAbsent:
+"الغياب",
+
+attendanceLate:
+"التأخير",
+
+attendanceLeave:
+"الإجازة",
+
+attendanceOff:
+"العطلة",
+
+calculation:
+"سيتم حساب خصم الغياب تلقائيًا: راتب حساب الرواتب ÷ أيام العمل × أيام الغياب",
+
+saving:
+"جاري الحفظ...",
+
+updating:
+"جاري التحديث..."
+
+},
+
+en: {
+
+companySystem:
+"Company Management System",
+
+dashboard:
+"Dashboard",
+
+employees:
+"Employees",
+
+attendance:
+"Attendance",
+
+payroll:
+"Payroll",
+
+invoices:
+"Invoices",
+
+payments:
+"Payments",
+
+projects:
+"Projects",
+
+reports:
+"Reports",
+
+pageTitle:
+"Payroll",
+
+pageSubtitle:
+"Manage and calculate employee salaries",
+
+month:
+"Payroll Month",
+
+refresh:
+"🔄 Refresh",
+
+records:
+"Payroll Records",
+
+salary:
+"Total Salaries",
+
+overtime:
+"Total Overtime",
+
+deductions:
+"Total Deductions",
+
+net:
+"Net Salaries",
+
+dailySalary:
+"Daily Wage",
+
+overtimeHours:
+"Overtime Hours",
+
+archive:
+"📅 Previous Months",
+
+archiveTitle:
+"Month Archive",
+
+archiveSubtitle:
+"Choose a previous month to view payroll",
+
+overtimeAdd:
+"⏱️ Add Overtime Hours",
+
+otModalTitle:
+"Add Overtime Hours",
+
+otModalSubtitle:
+"Hourly wage is calculated automatically from monthly salary",
+
+otEmployee:
+"Employee *",
+
+otCurrentHours:
+"Current Overtime Hours",
+
+otHours:
+"Hours to Add *",
+
+otDaily:
+"Daily Wage",
+
+otHourly:
+"Hourly Wage",
+
+otAmount:
+"Added Overtime Amount",
+
+otCancel:
+"Cancel",
+
+otSave:
+"💾 Add to Payroll",
+
+unsaved:
+"Not Saved",
+
+create:
+"Create Payroll",
+
+formTitle:
+"Create / Edit Payroll",
+
+employee:
+"Employee *",
+
+chooseEmployee:
+"Select Employee",
+
+payrollSalary:
+"Payroll Salary",
+
+workingDays:
+"Working Days",
+
+absentDays:
+"Absent Days",
+
+absenceDeduction:
+"Absence Deduction",
+
+overtimeAmount:
+"Overtime",
+
+additions:
+"Bonuses",
+
+deductionsAmount:
+"Deductions",
+
+netSalary:
+"Net Salary",
+
+notes:
+"Notes",
+
+clear:
+"Clear",
+
+save:
+"💾 Save Payroll",
+
+update:
+"💾 Update Payroll",
+
+tableTitle:
+"Employee Payroll Sheet",
+
+code:
+"Code",
+
+name:
+"Employee",
+
+salaryHeader:
+"Payroll Salary",
+
+working:
+"Working Days",
+
+absent:
+"Absent",
+
+absence:
+"Absence Deduction",
+
+overtimeHeader:
+"Overtime",
+
+additionsHeader:
+"Bonuses",
+
+deductionsHeader:
+"Deductions",
+
+netHeader:
+"Net Salary",
+
+status:
+"Status",
+
+action:
+"Action",
+
+edit:
+"Edit",
+
+draft:
+"Draft",
+
+approved:
+"Approved",
+
+paid:
+"Paid",
+
+noRecords:
+"No payroll records for this month",
+
+loadError:
+"Error loading payroll data",
+
+saveSuccess:
+"Payroll saved successfully",
+
+updateSuccess:
+"Payroll updated successfully",
+
+saveError:
+"Error saving payroll",
+
+employeesError:
+"Error loading employees",
+
+attendanceError:
+"Error loading attendance",
+
+invalidMonth:
+"Please select payroll month",
+
+employeeRequired:
+"Please select an employee first",
+
+attendancePresent:
+"Present",
+
+attendanceAbsent:
+"Absent",
+
+attendanceLate:
+"Late",
+
+attendanceLeave:
+"Leave",
+
+attendanceOff:
+"Off",
+
+calculation:
+"Absence deduction is calculated automatically: Payroll Salary ÷ Working Days × Absent Days",
+
+saving:
+"Saving...",
+
+updating:
+"Updating..."
+
+}
+
+};
+
+
+
+let payrollArchiveMonths = [];
+let overtimeModalEmployee = null;
+
+function getMonthDays(month) {
+    if (!month) return 30;
+    const [y,m] = month.split("-").map(Number);
+    return new Date(y,m,0).getDate();
+}
+
+function calculateDailyWage(salary, month) {
+    const days = getMonthDays(month);
+    return days > 0 ? money(salary) / days : 0;
+}
+
+function calculateHourlyWage(salary, month) {
+    return calculateDailyWage(salary, month) / 8;
+}
+
+function togglePayrollArchive(force) {
+    const panel=document.getElementById("payrollArchivePanel");
+    if(!panel) return;
+    const show=typeof force==="boolean"?force:panel.hidden;
+    panel.hidden=!show;
+    if(show) loadPayrollArchive();
+}
+
+async function loadPayrollArchive() {
+    const list=document.getElementById("payrollArchiveList");
+    if(!list) return;
+    list.innerHTML='<div class="empty">جاري تحميل الشهور...</div>';
+    try {
+        const r=await fetch("/api/payroll/months");
+        const d=await r.json();
+        payrollArchiveMonths=d.months||[];
+        list.innerHTML=payrollArchiveMonths.length ? payrollArchiveMonths.map(m=>`
+            <button type="button" class="payroll-archive-item ${m===document.getElementById("payrollMonth").value?"active":""}" onclick="selectPayrollArchiveMonth('${m}')">
+                <strong>${escapeHtml(formatArchiveMonth(m))}</strong>
+                <small>${escapeHtml(m)}</small>
+            </button>`).join("") :
+            '<div class="empty">لا توجد شهور سابقة محفوظة</div>';
+    } catch(e) {
+        list.innerHTML=`<div class="empty">${escapeHtml(e.message)}</div>`;
+    }
+}
+
+function formatArchiveMonth(month) {
+    const [y,m]=month.split("-").map(Number);
+    return new Date(y,m-1,1).toLocaleDateString(currentLanguage==="ar"?"ar-AE":"en-US",{year:"numeric",month:"long"});
+}
+
+function selectPayrollArchiveMonth(month) {
+    document.getElementById("payrollMonth").value=month;
+    togglePayrollArchive(false);
+    handleMonthChange();
+}
+
+function openOvertimeModal(employeeId) {
+    const modal=document.getElementById("overtimeModal");
+    const select=document.getElementById("ot_employee_id");
+    select.innerHTML=`<option value="">${translations[currentLanguage].chooseEmployee}</option>`+
+        payrollEmployees.map(e=>`<option value="${e.id}">${escapeHtml(e.employee_code||e.id)} - ${escapeHtml(e.full_name)}</option>`).join("");
+    if(employeeId) select.value=String(employeeId);
+    document.getElementById("ot_hours").value="1";
+    updateOvertimeModal();
+    modal.hidden=false;
+}
+
+function closeOvertimeModal() {
+    const modal=document.getElementById("overtimeModal");
+    if(modal) modal.hidden=true;
+}
+
+function updateOvertimeModal() {
+    const employeeId=Number(document.getElementById("ot_employee_id").value);
+    const employee=payrollEmployees.find(e=>Number(e.id)===employeeId);
+    const month=document.getElementById("payrollMonth").value;
+    const record=payrollRecords.find(r=>Number(r.employee_id)===employeeId);
+    const salary=money(record?.payroll_salary ?? employee?.payroll_salary);
+    const currentHours=money(record?.overtime_hours);
+    const hours=Math.max(0,money(document.getElementById("ot_hours").value));
+    const daily=calculateDailyWage(salary,month);
+    const hourly=calculateHourlyWage(salary,month);
+    document.getElementById("ot_current_hours").value=currentHours.toFixed(2);
+    document.getElementById("ot_daily_rate").value=daily.toFixed(2);
+    document.getElementById("ot_hourly_rate").value=hourly.toFixed(2);
+    document.getElementById("ot_amount").value=(hours*hourly).toFixed(2);
+}
+
+async function saveOvertimeHours() {
+    const employeeId=Number(document.getElementById("ot_employee_id").value);
+    const hoursToAdd=Math.max(0,money(document.getElementById("ot_hours").value));
+    const month=document.getElementById("payrollMonth").value;
+    if(!employeeId || !month || hoursToAdd<=0) {
+        showMessage(currentLanguage==="ar"?"اختر الموظف وأدخل عدد الساعات":"Select an employee and enter hours","error");
+        return;
+    }
+    const employee=payrollEmployees.find(e=>Number(e.id)===employeeId);
+    const existing=payrollRecords.find(r=>Number(r.employee_id)===employeeId);
+    const salary=money(existing?.payroll_salary ?? employee?.payroll_salary);
+    const daily=calculateDailyWage(salary,month);
+    const hourly=calculateHourlyWage(salary,month);
+    const newHours=money(existing?.overtime_hours)+hoursToAdd;
+    const newOvertime=money(existing?.overtime_amount)+(hoursToAdd*hourly);
+    const payload={
+        employee_id:employeeId,
+        payroll_month:month+"-01",
+        working_days:Number(existing?.working_days)||getMonthDays(month),
+        additions:money(existing?.additions),
+        deductions:money(existing?.deductions),
+        overtime_hours:newHours,
+        overtime_amount:newOvertime,
+        notes:existing?.notes||""
+    };
+    try {
+        const r=await fetch("/api/payroll",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+        const d=await r.json();
+        if(!r.ok||!d.success) throw new Error(d.message||"فشل حفظ الأوفر تايم");
+        closeOvertimeModal();
+        await loadPayroll();
+        showMessage(currentLanguage==="ar"?"تمت إضافة ساعات الأوفر تايم مباشرة إلى الراتب":"Overtime hours added directly to payroll","success");
+    } catch(e) { showMessage(e.message,"error"); }
+}
+
+/* =====================================================
+   INITIALIZATION
+===================================================== */
+
+document.addEventListener(
+"DOMContentLoaded",
+async function() {
+
+    setDefaultMonth();
+
+    setWorkingDaysFromMonth();
+
+    applyLanguage();
+
+    bindEvents();
+
+    await loadPayrollEmployees();
+
+    await loadPayroll();
+
+}
+);
+
+
+/* =====================================================
+   SET DEFAULT MONTH
+===================================================== */
+
+function setDefaultMonth() {
+
+    const input =
+        document.getElementById(
+            "payrollMonth"
+        );
+
+    const now =
+        new Date();
+
+    const year =
+        now.getFullYear();
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+    input.value =
+        `${year}-${month}`;
+
+}
+
+
+/* =====================================================
+   BIND EVENTS
+===================================================== */
+
+function bindEvents() {
+
+    const otEmployee=document.getElementById("ot_employee_id");
+    const otHours=document.getElementById("ot_hours");
+    if(otEmployee) otEmployee.addEventListener("change", updateOvertimeModal);
+    if(otHours) otHours.addEventListener("input", updateOvertimeModal);
+
+    document.getElementById(
+        "employee_id"
+    ).addEventListener(
+        "change",
+        handleEmployeeChange
+    );
+
+
+    document.getElementById(
+        "payrollMonth"
+    ).addEventListener(
+        "change",
+        handleMonthChange
+    );
+
+
+    [
+        "working_days",
+        "absent_days",
+        "overtime_amount",
+        "additions",
+        "deductions"
+    ].forEach(
+        id => {
+
+            document.getElementById(id)
+                .addEventListener(
+                    "input",
+                    calculatePayroll
+                );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   LANGUAGE
+===================================================== */
+
+function changeLanguage(language) {
+
+    currentLanguage =
+        language;
+
+    localStorage.setItem(
+        "ibuild_language",
+        language
+    );
+
+    applyLanguage();
+
+}
+
+
+function applyLanguage() {
+
+    const t =
+        translations[
+            currentLanguage
+        ];
+
+    document.documentElement.lang =
+        currentLanguage;
+
+    document.documentElement.dir =
+        currentLanguage === "ar"
+            ? "rtl"
+            : "ltr";
+
+
+    const map = {
+
+        companySystem:
+            "companySystem",
+
+        dashboard:
+            "dashboardText",
+
+        employees:
+            "employeesText",
+
+        attendance:
+            "attendanceText",
+
+        payroll:
+            "payrollText",
+
+        invoices:
+            "invoicesText",
+
+        payments:
+            "paymentsText",
+
+        projects:
+            "projectsText",
+
+        reports:
+            "reportsText",
+
+        pageTitle:
+            "pageTitle",
+
+        pageSubtitle:
+            "pageSubtitle",
+
+        month:
+            "monthLabel",
+
+        refresh:
+            "refreshButton",
+
+        records:
+            "recordsTitle",
+
+        salary:
+            "salaryTitle",
+
+        overtime:
+            "overtimeTitle",
+
+        deductions:
+            "deductionsTitle",
+
+        net:
+            "netTitle",
+
+        formTitle:
+            "formTitle",
+
+        employee:
+            "employeeLabel",
+
+        payrollSalary:
+            "payrollSalaryLabel",
+
+        workingDays:
+            "workingDaysLabel",
+
+        absentDays:
+            "absentDaysLabel",
+
+        absenceDeduction:
+            "absenceDeductionLabel",
+
+        overtimeAmount:
+            "overtimeLabel",
+
+        additions:
+            "additionsLabel",
+
+        deductionsAmount:
+            "deductionsLabel",
+
+        netSalary:
+            "netSalaryLabel",
+
+        notes:
+            "notesLabel",
+
+        clear:
+            "clearButton",
+
+        tableTitle:
+            "tableTitle",
+
+        code:
+            "codeHeader",
+
+        name:
+            "nameHeader",
+
+        salaryHeader:
+            "salaryHeader",
+
+        dailySalary:
+            "dailySalaryHeader",
+
+        overtimeHours:
+            "overtimeHoursHeader",
+
+        working:
+            "workingHeader",
+
+        absent:
+            "absentHeader",
+
+        absence:
+            "absenceHeader",
+
+        overtimeHeader:
+            "overtimeHeader",
+
+        additionsHeader:
+            "additionsHeader",
+
+        deductionsHeader:
+            "deductionsHeader",
+
+        netHeader:
+            "netHeader",
+
+        status:
+            "statusHeader",
+
+        action:
+            "actionHeader",
+
+        attendancePresent:
+            "attendancePresentLabel",
+
+        attendanceAbsent:
+            "attendanceAbsentLabel",
+
+        attendanceLate:
+            "attendanceLateLabel",
+
+        attendanceLeave:
+            "attendanceLeaveLabel",
+
+        attendanceOff:
+            "attendanceOffLabel",
+
+        calculation:
+            "calculationNote"
+
+    };
+
+
+    Object.keys(map).forEach(
+        key => {
+
+            const element =
+                document.getElementById(
+                    map[key]
+                );
+
+            if (element) {
+
+                element.textContent =
+                    t[key];
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "saveButton"
+    ).textContent =
+        editingPayrollId
+            ? t.update
+            : t.save;
+
+
+    document.getElementById(
+        "arButton"
+    ).classList.toggle(
+        "active",
+        currentLanguage === "ar"
+    );
+
+
+    document.getElementById(
+        "enButton"
+    ).classList.toggle(
+        "active",
+        currentLanguage === "en"
+    );
+
+
+    const setText=(id,key)=>{const el=document.getElementById(id); if(el&&t[key]) el.textContent=t[key];};
+    setText("dailySalaryHeader","dailySalary");
+    setText("overtimeHoursHeader","overtimeHours");
+    setText("overtimeAddButton","overtimeAdd");
+    setText("archiveButton","archive");
+    setText("archiveTitle","archiveTitle");
+    setText("archiveSubtitle","archiveSubtitle");
+    setText("overtimeModalTitle","otModalTitle");
+    setText("overtimeModalSubtitle","otModalSubtitle");
+    setText("otEmployeeLabel","otEmployee");
+    setText("otCurrentHoursLabel","otCurrentHours");
+    setText("otHoursLabel","otHours");
+    setText("otDailyLabel","otDaily");
+    setText("otHourlyLabel","otHourly");
+    setText("otAmountLabel","otAmount");
+    setText("otCancelButton","otCancel");
+    setText("otSaveButton","otSave");
+
+    populateEmployees();
+    renderPayroll();
+
+}
+
+
+/* =====================================================
+   LOAD EMPLOYEES
+===================================================== */
+
+async function loadPayrollEmployees() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/payroll/employees"
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                translations[
+                    currentLanguage
+                ].employeesError
+            );
+
+        }
+
+        payrollEmployees =
+            data.employees || [];
+
+        populateEmployees();
+
+    }
+    catch(error) {
+
+        console.error(
+            "PAYROLL EMPLOYEES ERROR:",
+            error
+        );
+
+        showMessage(
+            error.message ||
+            translations[
+                currentLanguage
+            ].employeesError,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   POPULATE EMPLOYEES
+===================================================== */
+
+function populateEmployees() {
+
+    const select =
+        document.getElementById(
+            "employee_id"
+        );
+
+    if (!select) {
+        return;
+    }
+
+    const currentValue =
+        select.value;
+
+    const t =
+        translations[
+            currentLanguage
+        ];
+
+    select.innerHTML = "";
+
+    const first =
+        document.createElement(
+            "option"
+        );
+
+    first.value = "";
+
+    first.textContent =
+        t.chooseEmployee;
+
+    select.appendChild(
+        first
+    );
+
+
+    payrollEmployees.forEach(
+        employee => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                employee.id;
+
+            option.textContent =
+                `${employee.employee_code || employee.id} - ${employee.full_name}`;
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (currentValue) {
+
+        select.value =
+            currentValue;
+
+    }
+
+}
+
+
+/* =====================================================
+   EMPLOYEE CHANGE
+===================================================== */
+
+async function handleEmployeeChange() {
+
+    const employeeId =
+        Number(
+            document.getElementById(
+                "employee_id"
+            ).value
+        );
+
+    const employee =
+        payrollEmployees.find(
+            item =>
+                Number(item.id) ===
+                employeeId
+        );
+
+
+    if (!employee) {
+
+        document.getElementById(
+            "payroll_salary"
+        ).value = "";
+
+        resetAttendanceInfo();
+
+        calculatePayroll();
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "payroll_salary"
+    ).value =
+        money(
+            employee.payroll_salary
+        ).toFixed(2);
+
+
+    await loadEmployeeAttendance();
+
+    calculatePayroll();
+
+}
+
+
+/* =====================================================
+   MONTH CHANGE
+===================================================== */
+
+async function handleMonthChange() {
+
+    /*
+     * عند تغيير الشهر نعيد أيام العمل
+     * حسب الشهر الجديد
+     */
+
+    setWorkingDaysFromMonth();
+
+
+    const employeeId =
+        Number(
+            document.getElementById(
+                "employee_id"
+            ).value
+        );
+
+
+    if (employeeId) {
+
+        await loadEmployeeAttendance();
+
+    }
+
+
+    /*
+     * إذا كنا في وضع تعديل
+     * لا نحتفظ برقم الكشف القديم
+     * عند تغيير الشهر
+     */
+
+    editingPayrollId =
+        null;
+
+
+    document.getElementById(
+        "formTitle"
+    ).textContent =
+        translations[
+            currentLanguage
+        ].formTitle;
+
+
+    document.getElementById(
+        "saveButton"
+    ).textContent =
+        translations[
+            currentLanguage
+        ].save;
+
+
+    await loadPayroll();
+
+    calculatePayroll();
+
+}
+
+
+/* =====================================================
+   LOAD EMPLOYEE ATTENDANCE
+===================================================== */
+
+async function loadEmployeeAttendance() {
+
+    const employeeId =
+        Number(
+            document.getElementById(
+                "employee_id"
+            ).value
+        );
+
+    const month =
+        document.getElementById(
+            "payrollMonth"
+        ).value;
+
+
+    if (!employeeId || !month) {
+
+        resetAttendanceInfo();
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/attendance?month=${encodeURIComponent(month)}`
+            );
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                translations[
+                    currentLanguage
+                ].attendanceError
+            );
+
+        }
+
+
+        const records =
+            data.records || [];
+
+
+        employeeAttendance =
+            records.filter(
+                record =>
+                    Number(
+                        record.employee_id
+                    ) === employeeId
+            );
+
+
+        calculateAttendanceSummary();
+
+    }
+    catch(error) {
+
+        console.error(
+            "ATTENDANCE LOAD ERROR:",
+            error
+        );
+
+        employeeAttendance = [];
+
+        resetAttendanceInfo();
+
+        showMessage(
+            error.message ||
+            translations[
+                currentLanguage
+            ].attendanceError,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ATTENDANCE SUMMARY
+===================================================== */
+
+function calculateAttendanceSummary() {
+
+    let present = 0;
+
+    let absent = 0;
+
+    let late = 0;
+
+    let leave = 0;
+
+    let off = 0;
+
+
+    employeeAttendance.forEach(
+        record => {
+
+            const status =
+                String(
+                    record.status || ""
+                ).toLowerCase();
+
+
+            if (status === "present") {
+
+                present++;
+
+            }
+
+            else if (status === "absent") {
+
+                absent++;
+
+            }
+
+            else if (status === "late") {
+
+                late++;
+
+            }
+
+            else if (status === "leave") {
+
+                leave++;
+
+            }
+
+            else if (status === "off") {
+
+                off++;
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "attendancePresent"
+    ).textContent =
+        present;
+
+
+    document.getElementById(
+        "attendanceAbsent"
+    ).textContent =
+        absent;
+
+
+    document.getElementById(
+        "attendanceLate"
+    ).textContent =
+        late;
+
+
+    document.getElementById(
+        "attendanceLeave"
+    ).textContent =
+        leave;
+
+
+    document.getElementById(
+        "attendanceOff"
+    ).textContent =
+        off;
+
+
+    /*
+     * الغياب من سجل الحضور
+     */
+
+    document.getElementById(
+        "absent_days"
+    ).value =
+        absent;
+
+
+    calculatePayroll();
+
+}
+
+
+/* =====================================================
+   RESET ATTENDANCE
+===================================================== */
+
+function resetAttendanceInfo() {
+
+    employeeAttendance = [];
+
+
+    [
+        "attendancePresent",
+        "attendanceAbsent",
+        "attendanceLate",
+        "attendanceLeave",
+        "attendanceOff"
+    ].forEach(
+        id => {
+
+            document.getElementById(
+                id
+            ).textContent = "0";
+
+        }
+    );
+
+
+    document.getElementById(
+        "absent_days"
+    ).value = "0";
+
+}
+
+
+/* =====================================================
+   CALCULATE PAYROLL
+===================================================== */
+
+function calculatePayroll() {
+
+    const salary =
+        money(
+            document.getElementById(
+                "payroll_salary"
+            ).value
+        );
+
+
+    let workingDays =
+        Number(
+            document.getElementById(
+                "working_days"
+            ).value
+        ) || 0;
+
+
+    const absentDays =
+        Number(
+            document.getElementById(
+                "absent_days"
+            ).value
+        ) || 0;
+
+
+    const overtime =
+        money(
+            document.getElementById(
+                "overtime_amount"
+            ).value
+        );
+
+
+    const additions =
+        money(
+            document.getElementById(
+                "additions"
+            ).value
+        );
+
+
+    const deductions =
+        money(
+            document.getElementById(
+                "deductions"
+            ).value
+        );
+
+
+    if (workingDays < 1) {
+
+        workingDays = 1;
+
+    }
+
+
+    if (workingDays > 31) {
+
+        workingDays = 31;
+
+    }
+
+
+    let absenceDeduction = 0;
+
+
+    if (
+        salary > 0 &&
+        workingDays > 0 &&
+        absentDays > 0
+    ) {
+
+        absenceDeduction =
+            (
+                salary /
+                workingDays
+            ) *
+            absentDays;
+
+    }
+
+
+    document.getElementById(
+        "absence_deduction"
+    ).value =
+        absenceDeduction.toFixed(2);
+
+
+    const net =
+        salary
+        + overtime
+        + additions
+        - absenceDeduction
+        - deductions;
+
+
+    document.getElementById(
+        "net_salary"
+    ).value =
+        Math.max(
+            net,
+            0
+        ).toFixed(2);
+
+}
+
+
+/* =====================================================
+   LOAD PAYROLL
+===================================================== */
+
+async function loadPayroll() {
+
+    const month =
+        document.getElementById(
+            "payrollMonth"
+        ).value;
+
+
+    if (!month) {
+
+        showMessage(
+            translations[
+                currentLanguage
+            ].invalidMonth,
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * قاعدة البيانات عندك تخزن payroll_month
+     * كـ DATE.
+     *
+     * لذلك:
+     *
+     * 2026-08
+     *
+     * يصبح:
+     *
+     * 2026-08-01
+     */
+
+    const databaseMonth =
+        month + "-01";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/payroll?month=${encodeURIComponent(databaseMonth)}`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                translations[
+                    currentLanguage
+                ].loadError
+            );
+
+        }
+
+
+        payrollRecords =
+            data.records || [];
+
+
+        renderPayroll();
+
+
+        await loadPayrollSummary(
+            databaseMonth
+        );
+
+    }
+    catch(error) {
+
+        console.error(
+            "LOAD PAYROLL ERROR:",
+            error
+        );
+
+        payrollRecords = [];
+
+        renderPayroll();
+
+        showMessage(
+            error.message ||
+            translations[
+                currentLanguage
+            ].loadError,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD SUMMARY
+===================================================== */
+
+async function loadPayrollSummary(
+    month
+) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/payroll/stats/summary?month=${encodeURIComponent(month)}`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            return;
+
+        }
+
+
+        const totalRecordsElement =
+            document.getElementById("totalRecords");
+
+        if (totalRecordsElement) {
+            totalRecordsElement.textContent =
+                data.total_records || 0;
+        }
+
+
+        document.getElementById(
+            "totalSalary"
+        ).textContent =
+            formatMoney(
+                data.total_payroll_salary
+            );
+
+
+        document.getElementById(
+            "totalOvertime"
+        ).textContent =
+            formatMoney(
+                data.total_overtime
+            );
+
+
+        const totalDeductions =
+            Number(
+                data.total_deductions || 0
+            )
+            +
+            Number(
+                data.total_absence_deduction || 0
+            );
+
+
+        document.getElementById(
+            "totalDeductions"
+        ).textContent =
+            formatMoney(
+                totalDeductions
+            );
+
+
+        document.getElementById(
+            "totalNet"
+        ).textContent =
+            formatMoney(
+                data.total_net_salary
+            );
+
+    }
+    catch(error) {
+
+        console.error(
+            "SUMMARY ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER PAYROLL
+===================================================== */
+
+function renderPayroll() {
+    const table=document.getElementById("payrollTable");
+    const t=translations[currentLanguage];
+    table.innerHTML="";
+
+    const month=document.getElementById("payrollMonth").value;
+    const days=getMonthDays(month);
+
+    const rows=payrollEmployees.map(employee=>{
+        const record=payrollRecords.find(r=>Number(r.employee_id)===Number(employee.id));
+        return {employee,record};
+    });
+
+    if(!rows.length){
+        table.innerHTML=`<tr><td colspan="14" class="empty">${t.noRecords}</td></tr>`;
+        return;
+    }
+
+    rows.forEach(({employee,record})=>{
+        const salary=money(record?.payroll_salary ?? employee.payroll_salary);
+        const daily=calculateDailyWage(salary,month);
+        const overtimeHours=money(record?.overtime_hours);
+        const overtime=money(record?.overtime_amount);
+        const additions=money(record?.additions);
+        const deductions=money(record?.deductions);
+        const absenceDeduction=money(record?.absence_deduction);
+        const net=record ? money(record.net_salary) : Math.max(0,salary-overtime*0-absenceDeduction-deductions+additions);
+        const status=record ? String(record.status||"draft").toLowerCase() : "unsaved";
+        let statusText=record ? (status==="approved"?t.approved:status==="paid"?t.paid:t.draft) : t.unsaved;
+        const action=record
+            ? `<button class="action-btn" onclick="editPayroll(${record.id})">✏️ ${t.edit}</button>`
+            : `<button class="action-btn" onclick="createPayrollForEmployee(${employee.id})">➕ ${t.create}</button>`;
+
+        const row=document.createElement("tr");
+        row.innerHTML=`
+            <td>${escapeHtml(employee.employee_code||record?.employee_code||"-")}</td>
+            <td><strong>${escapeHtml(employee.full_name||record?.full_name||"-")}</strong></td>
+            <td>${formatMoney(salary)}</td>
+            <td>${formatMoney(daily)}</td>
+            <td>${Number(record?.working_days||days)}</td>
+            <td>${Number(record?.absent_days||0)}</td>
+            <td>${formatMoney(absenceDeduction)}</td>
+            <td>${overtimeHours.toFixed(2)}</td>
+            <td>${formatMoney(overtime)}</td>
+            <td>${formatMoney(additions)}</td>
+            <td>${formatMoney(deductions)}</td>
+            <td class="net">${formatMoney(net)}</td>
+            <td><span class="badge ${status==="unsaved"?"draft":status}">${statusText}</span></td>
+            <td>
+                ${action}
+                <button class="action-btn" onclick="openOvertimeModal(${employee.id})" style="margin-inline-start:5px">⏱️</button>
+            </td>`;
+        table.appendChild(row);
+    });
+}
+
+async function createPayrollForEmployee(employeeId) {
+    const employee=payrollEmployees.find(e=>Number(e.id)===Number(employeeId));
+    if(!employee) return;
+    const month=document.getElementById("payrollMonth").value;
+    const payload={
+        employee_id:employeeId,
+        payroll_month:month+"-01",
+        working_days:getMonthDays(month),
+        additions:0,
+        deductions:0,
+        overtime_hours:0,
+        overtime_amount:0,
+        notes:""
+    };
+    try{
+        const r=await fetch("/api/payroll",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+        const d=await r.json();
+        if(!r.ok||!d.success) throw new Error(d.message||"تعذر إنشاء كشف الراتب");
+        await loadPayroll();
+        showMessage(currentLanguage==="ar"?"تم إنشاء كشف الراتب":"Payroll created","success");
+    }catch(e){showMessage(e.message,"error");}
+}
+
+/* =====================================================
+   EDIT PAYROLL
+===================================================== */
+
+async function editPayroll(id) {
+
+    const record =
+        payrollRecords.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
+
+
+    if (!record) {
+
+        return;
+
+    }
+
+
+    editingPayrollId =
+        record.id;
+
+
+    /*
+     * التأكد أن الشهر الموجود في
+     * السجل هو الشهر المختار.
+     */
+
+    if (record.payroll_month) {
+
+        const recordDate =
+            String(
+                record.payroll_month
+            ).substring(
+                0,
+                7
+            );
+
+        if (recordDate) {
+
+            document.getElementById(
+                "payrollMonth"
+            ).value =
+                recordDate;
+
+        }
+
+    }
+
+
+    document.getElementById(
+        "employee_id"
+    ).value =
+        record.employee_id;
+
+
+    document.getElementById(
+        "payroll_salary"
+    ).value =
+        money(
+            record.payroll_salary
+        ).toFixed(2);
+
+
+    document.getElementById(
+        "working_days"
+    ).value =
+        record.working_days ||
+        getDaysInCurrentMonth();
+
+
+    document.getElementById(
+        "absent_days"
+    ).value =
+        record.absent_days || 0;
+
+
+    document.getElementById(
+        "absence_deduction"
+    ).value =
+        money(
+            record.absence_deduction
+        ).toFixed(2);
+
+
+    document.getElementById(
+        "overtime_amount"
+    ).value =
+        money(
+            record.overtime_amount
+        ).toFixed(2);
+
+
+    document.getElementById(
+        "additions"
+    ).value =
+        money(
+            record.additions
+        ).toFixed(2);
+
+
+    document.getElementById(
+        "deductions"
+    ).value =
+        money(
+            record.deductions
+        ).toFixed(2);
+
+
+    document.getElementById(
+        "notes"
+    ).value =
+        record.notes || "";
+
+
+    const t =
+        translations[
+            currentLanguage
+        ];
+
+
+    document.getElementById(
+        "formTitle"
+    ).textContent =
+        t.update;
+
+
+    document.getElementById(
+        "saveButton"
+    ).textContent =
+        t.update;
+
+
+    await loadEmployeeAttendance();
+
+
+    calculatePayroll();
+
+
+    document.querySelector(
+        ".form-card"
+    ).scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+}
+
+
+/* =====================================================
+   SUBMIT PAYROLL
+===================================================== */
+
+document.getElementById(
+    "payrollForm"
+).addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const month =
+            document.getElementById(
+                "payrollMonth"
+            ).value;
+
+
+        if (!month) {
+
+            showMessage(
+                translations[
+                    currentLanguage
+                ].invalidMonth,
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const employeeId =
+            Number(
+                document.getElementById(
+                    "employee_id"
+                ).value
+            );
+
+
+        if (!employeeId) {
+
+            showMessage(
+                translations[
+                    currentLanguage
+                ].employeeRequired,
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        calculatePayroll();
+
+
+        /*
+         * مهم جدًا:
+         *
+         * server.js عندك يستخدم:
+         *
+         * POST /api/payroll
+         *
+         * سواء إضافة أو تعديل.
+         *
+         * والسيرفر نفسه يبحث عن:
+         *
+         * employee_id + payroll_month
+         *
+         * وإذا وجد سجلًا يقوم بتحديثه.
+         *
+         * لذلك لا نستخدم PUT هنا.
+         */
+
+        const databaseMonth =
+            month + "-01";
+
+
+        const payload = {
+
+            employee_id:
+                employeeId,
+
+            payroll_month:
+                databaseMonth,
+
+            working_days:
+                Number(
+                    document.getElementById(
+                        "working_days"
+                    ).value
+                ) ||
+                getDaysInCurrentMonth(),
+
+            additions:
+                money(
+                    document.getElementById(
+                        "additions"
+                    ).value
+                ),
+
+            deductions:
+                money(
+                    document.getElementById(
+                        "deductions"
+                    ).value
+                ),
+
+            overtime_amount:
+                money(
+                    document.getElementById(
+                        "overtime_amount"
+                    ).value
+                ),
+
+            notes:
+                document.getElementById(
+                    "notes"
+                ).value.trim()
+
+        };
+
+
+        const button =
+            document.getElementById(
+                "saveButton"
+            );
+
+
+        const wasEditing =
+            Boolean(
+                editingPayrollId
+            );
+
+
+        button.disabled =
+            true;
+
+
+        button.textContent =
+            wasEditing
+                ? translations[
+                    currentLanguage
+                ].updating
+                : translations[
+                    currentLanguage
+                ].saving;
+
+
+        try {
+
+            /*
+             * لا يوجد PUT في server.js
+             *
+             * POST فقط.
+             *
+             * server.js يقوم تلقائيًا بـ:
+             *
+             * INSERT إذا لم يوجد سجل.
+             *
+             * UPDATE إذا وجد سجل لنفس الموظف
+             * ونفس الشهر.
+             */
+
+            const response =
+                await fetch(
+                    "/api/payroll",
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            )
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.message ||
+                    translations[
+                        currentLanguage
+                    ].saveError
+                );
+
+            }
+
+
+            showMessage(
+
+                wasEditing
+
+                    ? translations[
+                        currentLanguage
+                    ].updateSuccess
+
+                    : translations[
+                        currentLanguage
+                    ].saveSuccess,
+
+                "success"
+
+            );
+
+
+            editingPayrollId =
+                null;
+
+
+            clearForm();
+
+
+            await loadPayroll();
+
+
+        }
+        catch(error) {
+
+            console.error(
+                "SAVE PAYROLL ERROR:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                translations[
+                    currentLanguage
+                ].saveError,
+                "error"
+            );
+
+        }
+        finally {
+
+            button.disabled =
+                false;
+
+
+            button.textContent =
+                editingPayrollId
+
+                    ? translations[
+                        currentLanguage
+                    ].update
+
+                    : translations[
+                        currentLanguage
+                    ].save;
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   CLEAR FORM
+===================================================== */
+
+function clearForm() {
+
+    editingPayrollId =
+        null;
+
+
+    document.getElementById(
+        "payrollForm"
+    ).reset();
+
+
+    document.getElementById(
+        "working_days"
+    ).value =
+        getDaysInCurrentMonth();
+
+
+    document.getElementById(
+        "absent_days"
+    ).value =
+        "0";
+
+
+    document.getElementById(
+        "absence_deduction"
+    ).value =
+        "0.00";
+
+
+    document.getElementById(
+        "net_salary"
+    ).value =
+        "0.00";
+
+
+    document.getElementById(
+        "payroll_salary"
+    ).value =
+        "";
+
+
+    resetAttendanceInfo();
+
+
+    const t =
+        translations[
+            currentLanguage
+        ];
+
+
+    document.getElementById(
+        "formTitle"
+    ).textContent =
+        t.formTitle;
+
+
+    document.getElementById(
+        "saveButton"
+    ).textContent =
+        t.save;
+
+}
+
+
+/* =====================================================
+   SET WORKING DAYS FROM MONTH
+===================================================== */
+
+function setWorkingDaysFromMonth() {
+
+    document.getElementById(
+        "working_days"
+    ).value =
+        getDaysInCurrentMonth();
+
+}
+
+
+/* =====================================================
+   DAYS IN MONTH
+===================================================== */
+
+function getDaysInCurrentMonth() {
+
+    const month =
+        document.getElementById(
+            "payrollMonth"
+        ).value;
+
+
+    if (!month) {
+
+        return 30;
+
+    }
+
+
+    const parts =
+        month.split("-");
+
+
+    const year =
+        Number(parts[0]);
+
+
+    const monthNumber =
+        Number(parts[1]);
+
+
+    if (
+        !year ||
+        !monthNumber
+    ) {
+
+        return 30;
+
+    }
+
+
+    return new Date(
+        year,
+        monthNumber,
+        0
+    ).getDate();
+
+}
+
+
+/* =====================================================
+   MONEY
+===================================================== */
+
+function money(value) {
+
+    const number =
+        Number(value);
+
+
+    return Number.isFinite(
+        number
+    )
+        ? number
+        : 0;
+
+}
+
+
+/* =====================================================
+   FORMAT MONEY
+===================================================== */
+
+function formatMoney(value) {
+
+    return (
+        "AED " +
+        money(value).toLocaleString(
+            "en-US",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        )
+    );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value) {
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+function showMessage(
+    text,
+    type = "success"
+) {
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    message.textContent =
+        text;
+
+
+    message.className =
+        "message " + type;
+
+
+    message.style.display =
+        "block";
+
+
+    setTimeout(
+        function() {
+
+            message.style.display =
+                "none";
+
+        },
+        3500
+    );
+
+}
+
+async function logoutFromSystem(){try{await fetch('/api/auth/logout',{method:'POST'})}finally{location.href='/login'}}
+</script>
+
+</body>
+
+</html>

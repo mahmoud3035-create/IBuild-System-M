@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBuild System - Invoices</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a}
+button,input,select,textarea{font:inherit}
+.sidebar{position:fixed;top:0;right:0;width:260px;height:100vh;background:#0f172a;color:#fff;padding:25px 18px;z-index:1000}
+.logo{text-align:center;padding:10px 0 30px;border-bottom:1px solid #334155}
+.logo h1{font-size:25px}.logo span{color:#3b82f6}.logo p{color:#94a3b8;font-size:12px;margin-top:7px}
+.menu{margin-top:25px}.menu a{display:block;text-decoration:none;color:#cbd5e1;padding:13px 15px;margin-bottom:5px;border-radius:8px;font-size:14px;transition:.2s}
+.menu a:hover,.menu a.active{background:#2563eb;color:#fff}
+.main{margin-right:260px;min-height:100vh}.topbar{min-height:75px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:15px 35px;gap:20px}
+.page-title h2{font-size:22px}.page-title p{color:#64748b;font-size:13px;margin-top:5px}
+.top-actions{display:flex;gap:8px}.language-btn{border:1px solid #dbeafe;background:#fff;padding:8px 12px;border-radius:7px;cursor:pointer;font-weight:bold}
+.language-btn.active,.language-btn:hover{background:#2563eb;color:#fff}
+.content{padding:30px 35px}
+.toolbar{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:18px;display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:20px;flex-wrap:wrap}
+.filters{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;flex:1;min-width:600px}
+.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:12px;color:#475569;font-weight:bold}
+.field input,.field select,.field textarea{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:8px;outline:none;background:#fff;font-size:13px}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#2563eb;box-shadow:0 0 0 2px #dbeafe}
+.btn{border:0;padding:11px 18px;border-radius:8px;cursor:pointer;font-weight:bold}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-secondary{background:#e2e8f0;color:#334155}.btn-secondary:hover{background:#cbd5e1}
+.btn-danger{background:#fee2e2;color:#b91c1c}.btn-danger:hover{background:#fecaca}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;margin-bottom:25px}
+.stat{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:20px}.stat .label{color:#64748b;font-size:12px;margin-bottom:9px}.stat .value{font-size:21px;font-weight:bold}
+.blue{color:#2563eb}.green{color:#16a34a}.orange{color:#d97706}.red{color:#dc2626}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:13px;padding:22px;margin-bottom:25px}.card h3{font-size:18px;margin-bottom:20px}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.full{grid-column:1/-1}
+.money-box{background:#f8fafc!important;font-weight:bold}.total-box{background:#f0fdf4!important;border:2px solid #16a34a!important;color:#15803d;font-weight:bold;font-size:16px!important}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.table-card{background:#fff;border:1px solid #e2e8f0;border-radius:13px;overflow:hidden}.table-header{padding:20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+.table-header h3{font-size:18px}.table-container{overflow-x:auto}
+table{width:100%;min-width:1250px;border-collapse:collapse}th{background:#f8fafc;color:#475569;font-size:12px;padding:14px;white-space:nowrap;text-align:right}td{padding:13px;border-top:1px solid #e2e8f0;font-size:13px;white-space:nowrap}tr:hover td{background:#f8fafc}
+.badge{display:inline-block;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:bold}.draft{background:#fef3c7;color:#92400e}.submitted{background:#dbeafe;color:#1d4ed8}.approved{background:#dcfce7;color:#166534}.rejected{background:#fee2e2;color:#b91c1c}.paid{background:#e0e7ff;color:#3730a3}
+.action{border:0;padding:7px 10px;border-radius:6px;cursor:pointer;font-weight:bold;background:#dbeafe;color:#1d4ed8;margin-left:4px}.action.delete{background:#fee2e2;color:#b91c1c}
+.empty{text-align:center;padding:45px;color:#64748b}
+.message{position:fixed;top:20px;left:20px;max-width:430px;padding:14px 20px;border-radius:8px;color:#fff;display:none;z-index:5000;font-size:13px;box-shadow:0 5px 20px rgba(0,0,0,.15)}.success{background:#16a34a}.error{background:#dc2626}.info{background:#2563eb}
+.loading{opacity:.6;pointer-events:none}
+html[dir="ltr"] .sidebar{right:auto;left:0}html[dir="ltr"] .main{margin-right:0;margin-left:260px}html[dir="ltr"] th{text-align:left}html[dir="ltr"] .form-actions{justify-content:flex-start}
+@media(max-width:1200px){.stats{grid-template-columns:repeat(3,1fr)}.form-grid{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr;min-width:450px}}
+@media(max-width:700px){.sidebar{width:75px;padding:15px 8px}.logo h1,.logo p,.menu a span{display:none}.menu a{text-align:center;font-size:20px}.main{margin-right:75px}html[dir="ltr"] .main{margin-left:75px;margin-right:0}.content{padding:20px 15px}.topbar{padding:15px}.stats{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr;min-width:100%}.toolbar{align-items:stretch}.form-actions{flex-direction:column}.btn{width:100%}}
+
+.sidebar{display:flex!important;flex-direction:column!important}.menu{overflow:auto!important;max-height:calc(100vh - 150px)!important;padding-bottom:75px!important}.logout-link{position:absolute!important;bottom:18px!important;left:18px!important;right:18px!important;width:auto!important;border:1px solid #475569!important;background:#172033!important;color:#fff!important;border-radius:9px!important;padding:10px 12px!important;cursor:pointer!important;text-align:center!important;z-index:5!important}.logout-link:hover{background:#dc2626!important;color:#fff!important}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="logo">
+        <h1>IBuild <span>System</span></h1>
+        <p id="companySystem">نظام إدارة الشركة</p>
+    </div>
+    <nav class="menu">
+        <a href="/dashboard">🏠 <span id="dashboardText">لوحة التحكم</span></a>
+        <a href="/employees">👥 <span id="employeesText">الموظفين</span></a>
+        <a href="/attendance">🕐 <span id="attendanceText">الحضور والانصراف</span></a>
+        <a href="/payroll">💰 <span id="payrollText">الرواتب</span></a>
+        <a href="/invoices" class="active">📄 <span id="invoicesText">الفواتير</span></a>
+        <a href="/payments">💳 <span id="paymentsText">المدفوعات</span></a>
+        <a href="/projects">🏗️ <span id="projectsText">المشاريع</span></a>
+        <a href="/reports">📊 <span id="reportsText">التقارير</span></a>
+    </nav>
+<button type="button" class="logout-link" onclick="logoutFromSystem()">🚪 <span>تسجيل الخروج</span></button></aside>
+
+<main class="main">
+<header class="topbar">
+    <div class="page-title">
+        <h2 id="pageTitle">الفواتير</h2>
+        <p id="pageSubtitle">إدارة الفواتير ومتابعة حالتها</p>
+    </div>
+    <div class="top-actions">
+        <button class="language-btn" id="arButton" onclick="changeLanguage('ar')">العربية</button>
+        <button class="language-btn" id="enButton" onclick="changeLanguage('en')">English</button>
+    </div>
+</header>
+
+<section class="content">
+
+<div class="toolbar">
+    <div class="filters">
+        <div class="field">
+            <label id="searchLabel">بحث</label>
+            <input id="search" type="search" placeholder="رقم الفاتورة / المشروع / العميل">
+        </div>
+        <div class="field">
+            <label id="statusLabel">الحالة</label>
+            <select id="statusFilter">
+                <option value="">كل الحالات</option>
+                <option value="Draft">مسودة</option>
+                <option value="Submitted">مقدمة</option>
+                <option value="Approved">معتمدة</option>
+                <option value="Rejected">مرفوضة</option>
+                <option value="Paid">مدفوعة</option>
+            </select>
+        </div>
+        <div class="field">
+            <label id="monthLabel">الشهر</label>
+            <input id="monthFilter" type="month">
+        </div>
+    </div>
+    <button class="btn btn-primary" onclick="loadAll()">🔄 <span id="refreshText">تحديث</span></button>
+</div>
+
+<div class="stats">
+    <div class="stat"><div class="label" id="recordsTitle">عدد الفواتير</div><div class="value" id="totalRecords">0</div></div>
+    <div class="stat"><div class="label" id="subtotalTitle">قبل الضريبة</div><div class="value blue" id="subtotal">AED 0.00</div></div>
+    <div class="stat"><div class="label" id="vatTitle">VAT 5%</div><div class="value orange" id="vat">AED 0.00</div></div>
+    <div class="stat"><div class="label" id="totalTitle">إجمالي الفواتير</div><div class="value green" id="totalAmount">AED 0.00</div></div>
+    <div class="stat"><div class="label" id="outstandingTitle">المتبقي</div><div class="value red" id="outstanding">AED 0.00</div></div>
+</div>
+
+<div class="card">
+    <h3 id="formTitle">إنشاء فاتورة جديدة</h3>
+    <form id="invoiceForm">
+        <div class="form-grid">
+            <div class="field">
+                <label id="projectLabel">المشروع *</label>
+                <select id="project_id" required>
+                    <option value="">اختر المشروع</option>
+                </select>
+            </div>
+            <div class="field">
+                <label id="invoiceNumberLabel">رقم الفاتورة *</label>
+                <input id="invoice_number" required>
+            </div>
+            <div class="field">
+                <label id="invoiceDateLabel">تاريخ الفاتورة *</label>
+                <input id="invoice_date" type="date" required>
+            </div>
+            <div class="field">
+                <label id="invoiceAmountLabel">المبلغ قبل VAT *</label>
+                <input id="invoice_amount" class="money-box" type="number" min="0" step="0.01" value="0" required>
+            </div>
+            <div class="field">
+                <label id="vatAmountLabel">VAT 5%</label>
+                <input id="vat_amount" class="money-box" type="number" step="0.01" readonly value="0.00">
+            </div>
+            <div class="field">
+                <label id="totalAmountLabel">الإجمالي</label>
+                <input id="total_amount" class="total-box" type="number" step="0.01" readonly value="0.00">
+            </div>
+            <div class="field">
+                <label id="invoiceStatusLabel">الحالة</label>
+                <select id="invoice_status">
+                    <option value="Draft">مسودة</option>
+                    <option value="Submitted">مقدمة</option>
+                    <option value="Approved">معتمدة</option>
+                    <option value="Rejected">مرفوضة</option>
+                    <option value="Paid">مدفوعة</option>
+                </select>
+            </div>
+            <div class="field full">
+                <label id="notesLabel">ملاحظات</label>
+                <textarea id="notes" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="clearForm()" id="clearButton">مسح</button>
+            <button type="submit" class="btn btn-primary" id="saveButton">💾 حفظ الفاتورة</button>
+        </div>
+    </form>
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <h3 id="tableTitle">الفواتير</h3>
+        <div id="tableCount">0</div>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th id="codeHeader">#</th>
+                    <th id="numberHeader">رقم الفاتورة</th>
+                    <th id="projectHeader">المشروع</th>
+                    <th id="clientHeader">العميل</th>
+                    <th id="dateHeader">التاريخ</th>
+                    <th id="subtotalHeader">قبل VAT</th>
+                    <th id="vatHeader">VAT</th>
+                    <th id="totalHeader">الإجمالي</th>
+                    <th id="paidHeader">المدفوع</th>
+                    <th id="outstandingHeader">المتبقي</th>
+                    <th id="statusHeader">الحالة</th>
+                    <th id="actionHeader">الإجراء</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceTable"></tbody>
+        </table>
+    </div>
+</div>
+
+</section>
+</main>
+
+<div class="message" id="message"></div>
+
+<script>
+let invoices = [];
+let projects = [];
+let editingId = null;
+let currentLanguage = localStorage.getItem("ibuild_language") || "ar";
+
+const t = {
+ar:{
+companySystem:"نظام إدارة الشركة",dashboard:"لوحة التحكم",employees:"الموظفين",attendance:"الحضور والانصراف",payroll:"الرواتب",invoices:"الفواتير",payments:"المدفوعات",projects:"المشاريع",reports:"التقارير",
+pageTitle:"الفواتير",pageSubtitle:"إدارة الفواتير ومتابعة حالتها",paid:"المدفوع",outstanding:"المتبقي",search:"بحث",searchPlaceholder:"رقم الفاتورة / المشروع / العميل",status:"الحالة",allStatuses:"كل الحالات",month:"الشهر",refresh:"تحديث",
+records:"عدد الفواتير",subtotal:"قبل الضريبة",vat:"VAT 5%",total:"إجمالي الفواتير",outstanding:"المتبقي",
+formNew:"إنشاء فاتورة جديدة",formEdit:"تعديل الفاتورة",project:"المشروع *",chooseProject:"اختر المشروع",invoiceNumber:"رقم الفاتورة *",invoiceDate:"تاريخ الفاتورة *",invoiceAmount:"المبلغ قبل VAT *",vatAmount:"VAT 5%",totalAmount:"الإجمالي",invoiceStatus:"الحالة",notes:"ملاحظات",clear:"مسح",save:"💾 حفظ الفاتورة",update:"💾 تحديث الفاتورة",
+tableTitle:"الفواتير",code:"#",number:"رقم الفاتورة",client:"العميل",date:"التاريخ",beforeVat:"قبل VAT",action:"الإجراء",edit:"تعديل",delete:"حذف",noRecords:"لا توجد فواتير مطابقة",
+draft:"مسودة",submitted:"مقدمة",approved:"معتمدة",rejected:"مرفوضة",paid:"مدفوعة",
+loadError:"حدث خطأ أثناء تحميل الفواتير",projectsError:"حدث خطأ أثناء تحميل المشاريع",saveSuccess:"تم حفظ الفاتورة بنجاح",updateSuccess:"تم تحديث الفاتورة بنجاح",deleteSuccess:"تم حذف الفاتورة بنجاح",saveError:"حدث خطأ أثناء حفظ الفاتورة",deleteConfirm:"هل أنت متأكد من حذف هذه الفاتورة؟"
+},
+en:{
+companySystem:"Company Management System",dashboard:"Dashboard",employees:"Employees",attendance:"Attendance",payroll:"Payroll",invoices:"Invoices",payments:"Payments",projects:"Projects",reports:"Reports",
+pageTitle:"Invoices",pageSubtitle:"Manage invoices and track their status",paid:"Paid",outstanding:"Outstanding",search:"Search",searchPlaceholder:"Invoice / project / client",status:"Status",allStatuses:"All statuses",month:"Month",refresh:"Refresh",
+records:"Invoices",subtotal:"Subtotal",vat:"VAT 5%",total:"Total Invoices",outstanding:"Outstanding",
+formNew:"Create New Invoice",formEdit:"Edit Invoice",project:"Project *",chooseProject:"Select project",invoiceNumber:"Invoice Number *",invoiceDate:"Invoice Date *",invoiceAmount:"Amount Before VAT *",vatAmount:"VAT 5%",totalAmount:"Total",invoiceStatus:"Status",notes:"Notes",clear:"Clear",save:"💾 Save Invoice",update:"💾 Update Invoice",
+tableTitle:"Invoices",code:"#",number:"Invoice Number",client:"Client",date:"Date",beforeVat:"Before VAT",action:"Action",edit:"Edit",delete:"Delete",noRecords:"No matching invoices",
+draft:"Draft",submitted:"Submitted",approved:"Approved",rejected:"Rejected",paid:"Paid",
+loadError:"Error loading invoices",projectsError:"Error loading projects",saveSuccess:"Invoice saved successfully",updateSuccess:"Invoice updated successfully",deleteSuccess:"Invoice deleted successfully",saveError:"Error saving invoice",deleteConfirm:"Are you sure you want to delete this invoice?"
+}};
+
+function money(v){const n=Number(v);return Number.isFinite(n)?n:0}
+function formatMoney(v){return "AED "+money(v).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function escapeHtml(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+
+function changeLanguage(lang){
+    currentLanguage=lang;
+    localStorage.setItem("ibuild_language",lang);
+    applyLanguage();
+}
+function applyLanguage(){
+    const x=t[currentLanguage];
+    document.documentElement.lang=currentLanguage;
+    document.documentElement.dir=currentLanguage==="ar"?"rtl":"ltr";
+    const map={
+        companySystem:"companySystem",dashboard:"dashboardText",employees:"employeesText",attendance:"attendanceText",payroll:"payrollText",invoices:"invoicesText",payments:"paymentsText",projects:"projectsText",reports:"reportsText",
+        pageTitle:"pageTitle",pageSubtitle:"pageSubtitle",search:"searchLabel",status:"statusLabel",month:"monthLabel",refresh:"refreshText",records:"recordsTitle",subtotal:"subtotalTitle",vat:"vatTitle",total:"totalTitle",outstanding:"outstandingTitle",
+        project:"projectLabel",invoiceNumber:"invoiceNumberLabel",invoiceDate:"invoiceDateLabel",invoiceAmount:"invoiceAmountLabel",vatAmount:"vatAmountLabel",totalAmount:"totalAmountLabel",invoiceStatus:"invoiceStatusLabel",notes:"notesLabel",clear:"clearButton",
+        tableTitle:"tableTitle",code:"codeHeader",number:"numberHeader",project:"projectHeader",client:"clientHeader",date:"dateHeader",beforeVat:"subtotalHeader",vat:"vatHeader",total:"totalHeader",status:"statusHeader",action:"actionHeader"
+    };
+    Object.entries(map).forEach(([key,id])=>{const el=document.getElementById(id);if(el)el.textContent=x[key]});
+    document.getElementById("search").placeholder=x.searchPlaceholder;
+    document.getElementById("formTitle").textContent=editingId?x.formEdit:x.formNew;
+    document.getElementById("saveButton").textContent=editingId?x.update:x.save;
+    const projectSelect=document.getElementById("project_id");
+    const current=projectSelect.value;
+    projectSelect.innerHTML=`<option value="">${x.chooseProject}</option>`;
+    projects.forEach(p=>{
+        const opt=document.createElement("option");
+        opt.value=p.id;
+        opt.textContent=`${p.project_name}${p.client_name?" - "+p.client_name:""}`;
+        projectSelect.appendChild(opt);
+    });
+    projectSelect.value=current;
+    document.getElementById("arButton").classList.toggle("active",currentLanguage==="ar");
+    document.getElementById("enButton").classList.toggle("active",currentLanguage==="en");
+    updateStatusOptions();
+    renderInvoices();
+}
+function updateStatusOptions(){
+    const x=t[currentLanguage];
+    const statusSelect=document.getElementById("invoice_status");
+    const filter=document.getElementById("statusFilter");
+    const values=["Draft","Submitted","Approved","Rejected","Paid"];
+    const labels=[x.draft,x.submitted,x.approved,x.rejected,x.paid];
+    const current=statusSelect.value, currentFilter=filter.value;
+    statusSelect.innerHTML=values.map((v,i)=>`<option value="${v}">${labels[i]}</option>`).join("");
+    filter.innerHTML=`<option value="">${x.allStatuses}</option>`+values.map((v,i)=>`<option value="${v}">${labels[i]}</option>`).join("");
+    statusSelect.value=current||"Draft";filter.value=currentFilter;
+}
+async function loadProjects(){
+    try{
+        const r=await fetch("/api/invoices/projects");
+        const d=await r.json();
+        if(!r.ok||!d.success)throw new Error(d.message||t[currentLanguage].projectsError);
+        projects=d.projects||[];
+        applyLanguage();
+    }catch(e){console.error(e);showMessage(e.message||t[currentLanguage].projectsError,"error")}
+}
+async function loadInvoices(){
+    const params=new URLSearchParams();
+    const search=document.getElementById("search").value.trim();
+    const status=document.getElementById("statusFilter").value;
+    const month=document.getElementById("monthFilter").value;
+    if(search)params.set("search",search);
+    if(status)params.set("status",status);
+    if(month)params.set("month",month);
+    try{
+        const r=await fetch("/api/invoices?"+params.toString());
+        const d=await r.json();
+        if(!r.ok||!d.success)throw new Error(d.message||t[currentLanguage].loadError);
+        invoices=d.invoices||[];
+        renderInvoices();
+    }catch(e){invoices=[];renderInvoices();showMessage(e.message||t[currentLanguage].loadError,"error")}
+}
+async function loadSummary(){
+    const month=document.getElementById("monthFilter").value;
+    const q=month?"?month="+encodeURIComponent(month):"";
+    try{
+        const r=await fetch("/api/invoices/stats/summary"+q);
+        const d=await r.json();
+        if(!r.ok||!d.success)return;
+        document.getElementById("totalRecords").textContent=d.total_records||0;
+        document.getElementById("subtotal").textContent=formatMoney(d.subtotal);
+        document.getElementById("vat").textContent=formatMoney(d.vat);
+        document.getElementById("totalAmount").textContent=formatMoney(d.total_amount);
+        document.getElementById("outstanding").textContent=formatMoney(d.outstanding_amount);
+    }catch(e){console.error(e)}
+}
+async function loadAll(){await Promise.all([loadInvoices(),loadSummary()])}
+
+function statusLabel(status){
+    const x=t[currentLanguage];
+    return {Draft:x.draft,Submitted:x.submitted,Approved:x.approved,Rejected:x.rejected,Paid:x.paid}[status]||status;
+}
+function renderInvoices(){
+    const tbody=document.getElementById("invoiceTable");
+    tbody.innerHTML="";
+    document.getElementById("tableCount").textContent=invoices.length;
+    if(!invoices.length){
+        tbody.innerHTML=`<tr><td colspan="12" class="empty">${t[currentLanguage].noRecords}</td></tr>`;
+        return;
+    }
+    invoices.forEach((inv,i)=>{
+        const tr=document.createElement("tr");
+        const cls=String(inv.status||"Draft").toLowerCase();
+        tr.innerHTML=`
+            <td>${i+1}</td>
+            <td><strong>${escapeHtml(inv.invoice_number)}</strong></td>
+            <td>${escapeHtml(inv.project_name||"-")}</td>
+            <td>${escapeHtml(inv.client_name||"-")}</td>
+            <td>${escapeHtml(inv.invoice_date||"-")}</td>
+            <td>${formatMoney(inv.invoice_amount)}</td>
+            <td>${formatMoney(inv.vat_amount)}</td>
+            <td class="green"><strong>${formatMoney(inv.total_amount)}</strong></td>
+            <td class="green">${formatMoney(inv.paid_amount || 0)}</td>
+            <td class="red">${formatMoney(inv.outstanding_amount || 0)}</td>
+            <td><span class="badge ${cls}">${escapeHtml(statusLabel(inv.status))}</span></td>
+            <td>
+                <button class="action" onclick="location.href='/invoice-details?id=${inv.id}'">👁️ ${currentLanguage==='ar'?'التفاصيل':'Details'}</button>
+                <button class="action" onclick="editInvoice(${inv.id})">✏️ ${t[currentLanguage].edit}</button>
+                <button class="action delete" onclick="deleteInvoice(${inv.id})">🗑️ ${t[currentLanguage].delete}</button>
+            </td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+function calculateInvoice(){
+    const amount=money(document.getElementById("invoice_amount").value);
+    const vat=Number((amount*0.05).toFixed(2));
+    const total=Number((amount+vat).toFixed(2));
+    document.getElementById("vat_amount").value=vat.toFixed(2);
+    document.getElementById("total_amount").value=total.toFixed(2);
+}
+function clearForm(){
+    editingId=null;
+    document.getElementById("invoiceForm").reset();
+    document.getElementById("invoice_date").value=new Date().toISOString().slice(0,10);
+    document.getElementById("invoice_amount").value="0";
+    document.getElementById("vat_amount").value="0.00";
+    document.getElementById("total_amount").value="0.00";
+    document.getElementById("invoice_status").value="Draft";
+    applyLanguage();
+}
+function editInvoice(id){
+    const inv=invoices.find(x=>Number(x.id)===Number(id));
+    if(!inv)return;
+    editingId=inv.id;
+    document.getElementById("project_id").value=inv.project_id;
+    document.getElementById("invoice_number").value=inv.invoice_number||"";
+    document.getElementById("invoice_date").value=(inv.invoice_date||"").slice(0,10);
+    document.getElementById("invoice_amount").value=money(inv.invoice_amount).toFixed(2);
+    document.getElementById("invoice_status").value=inv.status||"Draft";
+    document.getElementById("notes").value=inv.notes||"";
+    calculateInvoice();
+    applyLanguage();
+    document.querySelector(".card").scrollIntoView({behavior:"smooth",block:"start"});
+}
+async function saveInvoice(e){
+    e.preventDefault();
+    calculateInvoice();
+    const payload={
+        project_id:Number(document.getElementById("project_id").value),
+        invoice_number:document.getElementById("invoice_number").value.trim(),
+        invoice_date:document.getElementById("invoice_date").value,
+        invoice_amount:money(document.getElementById("invoice_amount").value),
+        status:document.getElementById("invoice_status").value,
+        notes:document.getElementById("notes").value.trim()
+    };
+    if(!payload.project_id||!payload.invoice_number||!payload.invoice_date){
+        showMessage(currentLanguage==="ar"?"أكمل البيانات المطلوبة":"Please complete the required fields","error");
+        return;
+    }
+    const btn=document.getElementById("saveButton");
+    btn.disabled=true;
+    try{
+        const url=editingId?"/api/invoices/"+editingId:"/api/invoices";
+        const r=await fetch(url,{method:editingId?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+        const d=await r.json();
+        if(!r.ok||!d.success)throw new Error(d.message||t[currentLanguage].saveError);
+        showMessage(editingId?t[currentLanguage].updateSuccess:t[currentLanguage].saveSuccess,"success");
+        clearForm();
+        await loadAll();
+    }catch(e){showMessage(e.message||t[currentLanguage].saveError,"error")}
+    finally{btn.disabled=false}
+}
+async function deleteInvoice(id){
+    if(!confirm(t[currentLanguage].deleteConfirm))return;
+    try{
+        const r=await fetch("/api/invoices/"+id,{method:"DELETE"});
+        const d=await r.json();
+        if(!r.ok||!d.success)throw new Error(d.message||"Delete error");
+        showMessage(t[currentLanguage].deleteSuccess,"success");
+        await loadAll();
+    }catch(e){showMessage(e.message,"error")}
+}
+function showMessage(text,type){
+    const el=document.getElementById("message");
+    el.textContent=text;el.className="message "+type;el.style.display="block";
+    clearTimeout(window._msgTimer);
+    window._msgTimer=setTimeout(()=>el.style.display="none",3500);
+}
+
+document.addEventListener("DOMContentLoaded",async()=>{
+    document.getElementById("invoiceForm").addEventListener("submit",saveInvoice);
+    document.getElementById("invoice_amount").addEventListener("input",calculateInvoice);
+    document.getElementById("search").addEventListener("input",()=>{clearTimeout(window._searchTimer);window._searchTimer=setTimeout(loadInvoices,300)});
+    document.getElementById("statusFilter").addEventListener("change",loadInvoices);
+    document.getElementById("monthFilter").addEventListener("change",loadAll);
+    document.getElementById("invoice_date").value=new Date().toISOString().slice(0,10);
+    applyLanguage();
+    await loadProjects();
+    await loadAll();
+});
+async function logoutFromSystem(){try{await fetch('/api/auth/logout',{method:'POST'})}finally{location.href='/login'}}
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBuild System - الإعدادات والنسخ الاحتياطي</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a}
+.sidebar{position:fixed;top:0;right:0;width:260px;height:100vh;background:#0f172a;color:#fff;padding:25px 18px;z-index:10}
+.logo{text-align:center;padding:10px 0 25px;border-bottom:1px solid #334155}.logo h1{font-size:25px}.logo span{color:#3b82f6}.logo p{color:#94a3b8;font-size:12px;margin-top:7px}
+.menu{margin-top:25px}.menu a{display:block;text-decoration:none;color:#cbd5e1;padding:12px 15px;margin-bottom:5px;border-radius:8px}.menu a:hover,.menu a.active{background:#2563eb;color:#fff}
+.main{margin-right:260px;min-height:100vh}.topbar{min-height:75px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;padding:15px 35px}.content{padding:35px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:15px;padding:25px;margin-bottom:20px}
+.card h2{margin-bottom:10px}.muted{color:#64748b;line-height:1.7}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+button{border:0;border-radius:8px;padding:12px 18px;cursor:pointer;font-family:inherit;font-weight:bold}
+.primary{background:#2563eb;color:#fff}.danger{background:#dc2626;color:#fff}.secondary{background:#e2e8f0;color:#0f172a}
+input[type=file]{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px;margin-top:12px}
+#status{margin-top:15px;padding:12px;border-radius:8px;display:none}
+.success{display:block!important;background:#dcfce7;color:#166534}.error{display:block!important;background:#fee2e2;color:#991b1b}
+.notice{background:#fff7ed;border:1px solid #fed7aa;padding:15px;border-radius:10px;margin-top:15px;color:#9a3412;line-height:1.7}
+table{width:100%;border-collapse:collapse;margin-top:18px}th,td{padding:11px;border-bottom:1px solid #e2e8f0;text-align:right}th{background:#f8fafc}
+@media(max-width:700px){.sidebar{width:75px;padding:15px 8px}.logo h1,.logo p,.menu span{display:none}.main{margin-right:75px}.content{padding:15px}.topbar{padding:15px}.actions{flex-direction:column}button{width:100%}}
+html[dir=ltr] .sidebar{right:auto;left:0}html[dir=ltr] .main{margin-right:0;margin-left:260px}
+
+.sidebar{display:flex!important;flex-direction:column!important}.menu{overflow:auto!important;max-height:calc(100vh - 150px)!important;padding-bottom:75px!important}.logout-link{position:absolute!important;bottom:18px!important;left:18px!important;right:18px!important;width:auto!important;border:1px solid #475569!important;background:#172033!important;color:#fff!important;border-radius:9px!important;padding:10px 12px!important;cursor:pointer!important;text-align:center!important;z-index:5!important}.logout-link:hover{background:#dc2626!important;color:#fff!important}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+<div class="logo"><h1>IBuild <span>System</span></h1><p>نظام إدارة الشركة</p></div>
+<div class="menu">
+<a href="/dashboard">🏠 <span>لوحة التحكم</span></a>
+<a href="/employees">👥 <span>الموظفين</span></a>
+<a href="/attendance">🕐 <span>الحضور</span></a>
+<a href="/payroll">💰 <span>الرواتب</span></a>
+<a href="/invoices">📄 <span>الفواتير</span></a>
+<a href="/payments">💳 <span>المدفوعات</span></a>
+<a href="/projects">🏗️ <span>المشاريع</span></a>
+<a href="/reports">📊 <span>التقارير</span></a>
+<a href="/leaves">📅 <span>الإجازات</span></a>
+<a href="/end-of-service">🧮 <span>نهاية الخدمة</span></a>
+<a href="/users">🔐 <span>المستخدمون</span></a>
+<a href="/audit-log">📝 <span>سجل العمليات</span></a>
+<a class="active" href="/settings">⚙️ <span>الإعدادات</span></a>
+</div>
+<button type="button" class="logout-link" onclick="logoutFromSystem()">🚪 <span>تسجيل الخروج</span></button></aside>
+
+<main class="main">
+<header class="topbar"><h2>الإعدادات والنسخ الاحتياطي</h2><strong id="currentUser">...</strong></header>
+<section class="content">
+<div id="accessDenied" class="card" style="display:none">
+<h2>غير مصرح</h2><p class="muted">النسخ الاحتياطي والاستعادة متاحان للمتحكم الرئيسي فقط.</p>
+</div>
+
+<div id="adminContent">
+<div class="card">
+<h2>💾 النسخ الاحتياطي</h2>
+<p class="muted">ينشئ النظام نسخة من هيكل قاعدة البيانات والبيانات الحالية ويحفظ نسخة داخل <b>database/backups</b> بالإضافة إلى تنزيلها على جهازك. كلمات المرور لا يتم حفظها كنص، وإنما تبقى كـ bcrypt hashes.</p>
+<div class="actions">
+<button class="primary" id="backupBtn">إنشاء وتنزيل Backup</button>
+<button class="secondary" id="refreshBtn">تحديث قائمة النسخ</button>
+</div>
+</div>
+
+<div class="card">
+<h2>♻️ استعادة قاعدة البيانات</h2>
+<p class="muted">الاستعادة عملية حساسة وتستبدل بيانات قاعدة البيانات بالبيانات الموجودة في النسخة. خذ Backup جديدًا قبل الاستعادة.</p>
+<div class="notice">⚠️ لا تضغط Restore إلا إذا كنت متأكدًا من النسخة. يفضل الاحتفاظ بآخر Backup على جهاز منفصل.</div>
+<input type="file" id="backupFile" accept=".json,application/json">
+<div class="actions">
+<button class="danger" id="restoreFileBtn">استعادة الملف المختار</button>
+<button class="danger" id="restoreLatestBtn">استعادة آخر Backup محفوظ على السيرفر</button>
+</div>
+</div>
+
+<div class="card">
+<h2>📦 النسخ المحفوظة على السيرفر</h2>
+<table><thead><tr><th>الملف</th><th>الحجم</th><th>التاريخ</th></tr></thead><tbody id="backupList"><tr><td colspan="3">جاري التحميل...</td></tr></tbody></table>
+</div>
+<div id="status"></div>
+</div>
+</section>
+</main>
+
+<script>
+let me=null;
+const statusBox=document.getElementById('status');
+function showStatus(message,ok=true){statusBox.textContent=message;statusBox.className=ok?'success':'error'}
+async function api(url,options={}){const r=await fetch(url,options);const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.message||'حدث خطأ');return data}
+async function loadMe(){
+ try{
+  const data=await api('/api/auth/me'); me=data.user;
+  document.getElementById('currentUser').textContent=`${me.full_name||me.username} — ${me.role}`;
+  if(me.role!=='Admin'){document.getElementById('adminContent').style.display='none';document.getElementById('accessDenied').style.display='block';}
+  else loadBackups();
+ }catch(e){location.href='/login'}
+}
+async function loadBackups(){
+ try{
+  const data=await api('/api/system/backups');
+  const body=document.getElementById('backupList');
+  if(!data.backups.length){body.innerHTML='<tr><td colspan="3">لا توجد نسخ محفوظة حتى الآن</td></tr>';return}
+  body.innerHTML=data.backups.map(x=>`<tr><td>${escapeHtml(x.name)}</td><td>${formatBytes(x.size)}</td><td>${new Date(x.created_at).toLocaleString('ar-AE')}</td></tr>`).join('');
+ }catch(e){showStatus(e.message,false)}
+}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function formatBytes(n){if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1)+' KB';return (n/1048576).toFixed(1)+' MB'}
+document.getElementById('backupBtn').onclick=async()=>{
+ try{
+  showStatus('جاري إنشاء النسخة...');
+  const r=await fetch('/api/system/backup');
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.message||'فشل إنشاء النسخة')}
+  const blob=await r.blob();
+  const disposition=r.headers.get('Content-Disposition')||'';
+  const match=disposition.match(/filename="([^"]+)"/);
+  const name=match?match[1]:'ibuild-backup.json';
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);
+  showStatus('تم إنشاء وتنزيل النسخة الاحتياطية بنجاح');loadBackups();
+ }catch(e){showStatus(e.message,false)}
+}
+document.getElementById('refreshBtn').onclick=loadBackups;
+document.getElementById('restoreFileBtn').onclick=async()=>{
+ const file=document.getElementById('backupFile').files[0];
+ if(!file)return showStatus('اختر ملف Backup أولًا',false);
+ if(!confirm('تحذير: سيتم استبدال بيانات قاعدة البيانات بالنسخة المختارة. هل أنت متأكد؟'))return;
+ try{
+  showStatus('جاري الاستعادة، لا تغلق الصفحة...');
+  const backup=JSON.parse(await file.text());
+  const data=await api('/api/system/restore',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({backup})});
+  showStatus(data.message);
+  setTimeout(()=>location.href='/dashboard',2000);
+ }catch(e){showStatus(e.message,false)}
+}
+document.getElementById('restoreLatestBtn').onclick=async()=>{
+ if(!confirm('سيتم استعادة آخر Backup محفوظ على السيرفر واستبدال البيانات الحالية. هل أنت متأكد؟'))return;
+ try{showStatus('جاري الاستعادة...');const data=await api('/api/system/restore-latest',{method:'POST'});showStatus(data.message);setTimeout(()=>location.href='/dashboard',2000)}catch(e){showStatus(e.message,false)}
+}
+loadMe();
+async function logoutFromSystem(){try{await fetch('/api/auth/logout',{method:'POST'})}finally{location.href='/login'}}
+</script>
+</body>
+</html>

@@ -1,0 +1,3054 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>IBuild System - Employees</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 260px;
+            height: 100vh;
+            background: #0f172a;
+            color: white;
+            padding: 25px 18px;
+            z-index: 1000;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 10px 0 30px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .logo h1 {
+            font-size: 25px;
+        }
+
+        .logo span {
+            color: #3b82f6;
+        }
+
+        .logo p {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        .menu {
+            margin-top: 25px;
+        }
+
+        .menu a {
+            display: block;
+            text-decoration: none;
+            color: #cbd5e1;
+            padding: 13px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-right: 260px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            min-height: 75px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 35px;
+            gap: 20px;
+        }
+
+        .page-title h2 {
+            font-size: 22px;
+        }
+
+        .page-title p {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .language-btn {
+            border: 1px solid #dbeafe;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .language-btn:hover,
+        .language-btn.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            padding: 30px 35px;
+        }
+
+        /* =========================
+           STATISTICS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+            padding: 20px;
+        }
+
+        .stat-title {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        /* =========================
+           TOOLBAR
+        ========================= */
+
+        .toolbar {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            border-color: #2563eb;
+        }
+
+        .add-btn {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .add-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* =========================
+           TABLE
+        ========================= */
+
+        .table-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 13px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            padding: 15px;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-btn {
+            border: none;
+            padding: 7px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .edit-btn {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* =========================
+           MODAL
+        ========================= */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 2000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        .close-btn {
+            border: none;
+            background: #f1f5f9;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* =========================
+           FORM
+        ========================= */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            color: #475569;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #2563eb;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* =========================
+           PAYROLL SALARY
+        ========================= */
+
+        .payroll-salary-field {
+            border: 2px solid #2563eb !important;
+            background: #eff6ff;
+        }
+
+        .payroll-help {
+            color: #2563eb;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           FORM ACTIONS
+        ========================= */
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .cancel-btn,
+        .save-btn {
+            border: none;
+            padding: 11px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .cancel-btn {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .save-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            color: white;
+            display: none;
+            z-index: 3000;
+            font-size: 13px;
+        }
+
+        .message.success {
+            background: #16a34a;
+        }
+
+        .message.error {
+            background: #dc2626;
+        }
+
+        /* =========================
+           LTR
+        ========================= */
+
+        html[dir="ltr"] .sidebar {
+            right: auto;
+            left: 0;
+        }
+
+        html[dir="ltr"] .main {
+            margin-right: 0;
+            margin-left: 260px;
+        }
+
+        html[dir="ltr"] th {
+            text-align: left;
+        }
+
+        html[dir="ltr"] .form-actions {
+            justify-content: flex-start;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1100px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                width: 75px;
+                padding: 15px 8px;
+            }
+
+            .logo h1,
+            .logo p,
+            .menu a span {
+                display: none;
+            }
+
+            .menu a {
+                text-align: center;
+                font-size: 20px;
+            }
+
+            .main {
+                margin-right: 75px;
+            }
+
+            html[dir="ltr"] .main {
+                margin-left: 75px;
+                margin-right: 0;
+            }
+
+            .topbar {
+                padding: 15px;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    
+.sidebar{display:flex!important;flex-direction:column!important}.menu{overflow:auto!important;max-height:calc(100vh - 150px)!important;padding-bottom:75px!important}.logout-link{position:absolute!important;bottom:18px!important;left:18px!important;right:18px!important;width:auto!important;border:1px solid #475569!important;background:#172033!important;color:#fff!important;border-radius:9px!important;padding:10px 12px!important;cursor:pointer!important;text-align:center!important;z-index:5!important}.logout-link:hover{background:#dc2626!important;color:#fff!important}
+</style>
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+        <h1>
+            IBuild <span>System</span>
+        </h1>
+
+        <p id="companySystem">
+            نظام إدارة الشركة
+        </p>
+
+    </div>
+
+    <nav class="menu">
+
+        <a href="/dashboard">
+            🏠
+            <span id="dashboardText">
+                لوحة التحكم
+            </span>
+        </a>
+
+        <a href="/employees" class="active">
+            👥
+            <span id="employeesText">
+                الموظفين
+            </span>
+        </a>
+
+        <a href="/attendance">
+            🕐
+            <span id="attendanceText">
+                الحضور والانصراف
+            </span>
+        </a>
+
+        <a href="/payroll">
+            💰
+            <span id="payrollText">
+                الرواتب
+            </span>
+        </a>
+
+        <a href="/invoices">
+            📄
+            <span id="invoicesText">
+                الفواتير
+            </span>
+        </a>
+
+        <a href="/payments">
+            💳
+            <span id="paymentsText">
+                المدفوعات
+            </span>
+        </a>
+
+        <a href="/projects">
+            🏗️
+            <span id="projectsText">
+                المشاريع
+            </span>
+        </a>
+
+        <a href="/reports">
+            📊
+            <span id="reportsText">
+                التقارير
+            </span>
+        </a>
+
+    </nav>
+
+<button type="button" class="logout-link" onclick="logoutFromSystem()">🚪 <span>تسجيل الخروج</span></button></aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="main">
+
+    <header class="topbar">
+
+        <div class="page-title">
+
+            <h2 id="pageTitle">
+                الموظفين
+            </h2>
+
+            <p id="pageSubtitle">
+                إدارة ومتابعة بيانات موظفي الشركة
+            </p>
+
+        </div>
+
+        <div class="top-actions">
+
+            <button
+                class="language-btn"
+                id="arButton"
+                onclick="changeLanguage('ar')">
+
+                العربية
+
+            </button>
+
+            <button
+                class="language-btn"
+                id="enButton"
+                onclick="changeLanguage('en')">
+
+                English
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <section class="content">
+
+
+        <!-- =================================================
+             STATISTICS
+        ================================================== -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <div
+                    class="stat-title"
+                    id="totalEmployeesTitle">
+
+                    إجمالي الموظفين
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalEmployees">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div
+                    class="stat-title"
+                    id="activeEmployeesTitle">
+
+                    الموظفين النشطين
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="activeEmployees">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div
+                    class="stat-title"
+                    id="inactiveEmployeesTitle">
+
+                    غير النشطين
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="inactiveEmployees">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div
+                    class="stat-title"
+                    id="salaryTitle">
+
+                    إجمالي رواتب حساب الرواتب
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalSalary">
+
+                    0 AED
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             TOOLBAR
+        ================================================== -->
+
+        <div class="toolbar">
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="ابحث بالاسم أو الكود أو الهاتف أو الإيميل..."
+                    oninput="searchEmployees()">
+
+            </div>
+
+            <button
+                class="add-btn"
+                onclick="openAddModal()"
+                id="addButton">
+
+                + إضافة موظف
+
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             TABLE
+        ================================================== -->
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th id="codeHeader">
+                            الكود
+                        </th>
+
+                        <th id="nameHeader">
+                            الاسم
+                        </th>
+
+                        <th id="nationalityHeader">
+                            الجنسية
+                        </th>
+
+                        <th id="jobHeader">
+                            الوظيفة
+                        </th>
+
+                        <th id="companyHeader">
+                            الشركة
+                        </th>
+
+                        <th id="phoneHeader">
+                            الهاتف
+                        </th>
+
+                        <th id="basicSalaryHeader">
+                            الأساسي
+                        </th>
+
+                        <th id="payrollSalaryHeader">
+                            راتب حساب الرواتب
+                        </th>
+
+                        <th id="statusHeader">
+                            الحالة
+                        </th>
+
+                        <th id="actionsHeader">
+                            الإجراءات
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="employeesTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     MODAL
+===================================================== -->
+
+<div
+    class="modal"
+    id="employeeModal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+                إضافة موظف
+            </h2>
+
+            <button
+                class="close-btn"
+                onclick="closeModal()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <form id="employeeForm">
+
+            <input
+                type="hidden"
+                id="employeeId">
+
+            <input type="hidden" id="department">
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+                    <label id="employeeCodeLabel">
+                        كود الموظف
+                    </label>
+
+                    <input
+                        type="text"
+                        id="employee_code">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="fullNameLabel">
+                        الاسم الكامل *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="full_name"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="nationalityLabel">
+                        الجنسية
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nationality">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="jobTitleLabel">
+                        المسمى الوظيفي
+                    </label>
+
+                    <input
+                        type="text"
+                        id="job_title">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label id="companyNameLabel">
+                        الشركة
+                    </label>
+
+                    <select id="company_name">
+                        <option value="IBuild Engineering Contracting">IBuild Engineering Contracting</option>
+                        <option value="__OTHER__">أخرى / Other</option>
+                    </select>
+                    <input type="text" id="other_company_name" placeholder="اسم الشركة الأخرى" style="display:none;margin-top:6px">
+
+                </div>
+
+
+                <div class="form-group">
+                    <label id="birthDateLabel">تاريخ الميلاد</label>
+                    <input type="date" id="birth_date">
+                </div>
+
+                <div class="form-group">
+                    <label id="genderLabel">الجنس</label>
+                    <select id="gender"><option value="">اختر</option><option value="Male">ذكر</option><option value="Female">أنثى</option></select>
+                </div>
+
+                <div class="form-group">
+                    <label id="maritalLabel">الحالة الاجتماعية</label>
+                    <select id="marital_status"><option value="">اختر</option><option value="Single">أعزب</option><option value="Married">متزوج</option></select>
+                </div>
+
+                <div class="form-group">
+                    <label id="countryCodeLabel">رمز الدولة</label>
+                    <input type="text" id="country_code" placeholder="+971">
+                </div>
+
+                <div class="form-group">
+                    <label id="idNumberLabel">رقم الهوية</label>
+                    <input type="text" id="id_number">
+                </div>
+
+                <div class="form-group">
+                    <label id="idIssueDateLabel">تاريخ بداية الهوية</label>
+                    <input type="date" id="id_issue_date">
+                </div>
+
+                <div class="form-group">
+                    <label id="idExpiryDateLabel">تاريخ انتهاء الهوية</label>
+                    <input type="date" id="id_expiry_date">
+                </div>
+
+                <div class="form-group">
+
+                    <label id="hireDateLabel">
+                        تاريخ التوظيف
+                    </label>
+
+                    <input
+                        type="date"
+                        id="hire_date">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="phoneLabel">
+                        الهاتف
+                    </label>
+
+                    <input
+                        type="text"
+                        id="phone">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="emailLabel">
+                        البريد الإلكتروني
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email">
+
+                </div>
+
+
+                <!-- =========================
+                     BASIC SALARY
+                ========================= -->
+
+                <div class="form-group">
+
+                    <label id="basicSalaryLabel">
+                        الراتب الأساسي
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="basic_salary">
+
+                </div>
+
+
+                <!-- =========================
+                     PAYROLL SALARY
+                     ده الراتب اللي هيتحسب
+                     عليه قسم الرواتب
+                ========================= -->
+
+                <div class="form-group">
+
+                    <label id="payrollSalaryLabel">
+                        راتب حساب الرواتب
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        id="payroll_salary"
+                        class="payroll-salary-field">
+
+                    <small
+                        class="payroll-help"
+                        id="payrollSalaryHelp">
+
+                        هذا هو الراتب الذي سيتم استخدامه في حساب الرواتب فقط
+
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="housingLabel">
+                        بدل السكن
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="housing_allowance">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="transportLabel">
+                        بدل المواصلات
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="transport_allowance">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="otherAllowanceLabel">
+                        بدل آخر
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="other_allowance">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="joiningDateLabel">
+                        تاريخ المباشرة
+                    </label>
+
+                    <input
+                        type="date"
+                        id="joining_date">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="contractEndLabel">
+                        نهاية العقد
+                    </label>
+
+                    <input
+                        type="date"
+                        id="contract_end_date">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label id="employmentStatusLabel">
+                        حالة التوظيف
+                    </label>
+
+                    <select id="employment_status">
+
+                        <option value="Active">
+                            Active
+                        </option>
+
+                        <option value="Inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group full employee-doc-upload">
+                    <label id="docsUploadLabel">📎 مستندات الموظف</label>
+                    <div class="form-grid" style="margin-top:8px">
+                        <div class="form-group"><label>الهوية / Emirates ID</label><input type="file" id="doc_identity" accept=".pdf,image/*"></div>
+                        <div class="form-group"><label>الباسبور / Passport</label><input type="file" id="doc_passport" accept=".pdf,image/*"></div>
+                        <div class="form-group"><label>العقد / Contract</label><input type="file" id="doc_contract" accept=".pdf,image/*"></div>
+                        <div class="form-group"><label>بطاقة العمل / Work Card</label><input type="file" id="doc_work_card" accept=".pdf,image/*"></div>
+                        <div class="form-group"><label>صورة الموظف / Photo</label><input type="file" id="doc_photo" accept="image/*"></div>
+                        <div class="form-group"><label>مستند آخر / Other</label><input type="file" id="doc_other" accept=".pdf,image/*"></div>
+                    </div>
+                    <small style="color:#64748b">سيتم ربط الملفات بالموظف تلقائياً بعد الحفظ.</small>
+                </div>
+
+                <div class="form-group full">
+
+                    <label id="notesLabel">
+                        ملاحظات
+                    </label>
+
+                    <textarea
+                        id="notes"></textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="cancel-btn"
+                    onclick="closeModal()"
+                    id="cancelButton">
+
+                    إلغاء
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="save-btn"
+                    id="saveButton">
+
+                    حفظ الموظف
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MESSAGE
+===================================================== -->
+
+<div
+    class="message"
+    id="message">
+
+</div>
+
+
+<script>
+
+let employees = [];
+
+let currentLanguage =
+    localStorage.getItem("ibuild_language") || "ar";
+
+let editingEmployeeId = null;
+
+
+/* =====================================================
+   TRANSLATIONS
+===================================================== */
+
+const translations = {
+
+    ar: {
+
+        companySystem:
+            "نظام إدارة الشركة",
+
+        dashboard:
+            "لوحة التحكم",
+
+        employees:
+            "الموظفين",
+
+        attendance:
+            "الحضور والانصراف",
+
+        payroll:
+            "الرواتب",
+
+        invoices:
+            "الفواتير",
+
+        payments:
+            "المدفوعات",
+
+        projects:
+            "المشاريع",
+
+        reports:
+            "التقارير",
+
+        pageTitle:
+            "الموظفين",
+
+        pageSubtitle:
+            "إدارة ومتابعة بيانات موظفي الشركة",
+
+        totalEmployees:
+            "إجمالي الموظفين",
+
+        activeEmployees:
+            "الموظفين النشطين",
+
+        inactiveEmployees:
+            "غير النشطين",
+
+        salary:
+            "إجمالي رواتب حساب الرواتب",
+
+        search:
+            "ابحث بالاسم أو الكود أو الهاتف أو الإيميل...",
+
+        add:
+            "+ إضافة موظف",
+
+        code:
+            "الكود",
+
+        name:
+            "الاسم",
+
+        nationality:
+            "الجنسية",
+
+        job:
+            "الوظيفة",
+
+        company:
+            "الشركة",
+
+        phone:
+            "الهاتف",
+
+        basicSalary:
+            "الراتب الأساسي",
+
+        payrollSalary:
+            "راتب حساب الرواتب",
+
+        status:
+            "الحالة",
+
+        actions:
+            "الإجراءات",
+
+        addEmployee:
+            "إضافة موظف",
+
+        editEmployee:
+            "تعديل موظف",
+
+        employeeCode:
+            "كود الموظف",
+
+        birthDate: "تاريخ الميلاد",
+        gender: "الجنس",
+        marital: "الحالة الاجتماعية",
+        countryCode: "رمز الدولة",
+        idNumber: "رقم الهوية",
+        idIssueDate: "تاريخ بداية الهوية",
+        idExpiryDate: "تاريخ انتهاء الهوية",
+        docsUpload: "📎 مستندات الموظف",
+
+        fullName:
+            "الاسم الكامل *",
+
+        jobTitle:
+            "المسمى الوظيفي",
+
+        companyName:
+            "الشركة",
+
+        hireDate:
+            "تاريخ التوظيف",
+
+        email:
+            "البريد الإلكتروني",
+
+        housing:
+            "بدل السكن",
+
+        transport:
+            "بدل المواصلات",
+
+        otherAllowance:
+            "بدل آخر",
+
+        joiningDate:
+            "تاريخ المباشرة",
+
+        contractEnd:
+            "نهاية العقد",
+
+        birthDate:
+            "تاريخ الميلاد",
+        gender:
+            "الجنس",
+        marital:
+            "الحالة الاجتماعية",
+        countryCode:
+            "رمز الدولة",
+        idNumber:
+            "رقم الهوية",
+        idIssueDate:
+            "تاريخ بداية الهوية",
+        idExpiryDate:
+            "تاريخ انتهاء الهوية",
+        employmentStatus:
+            "حالة التوظيف",
+
+        notes:
+            "ملاحظات",
+
+        payrollHelp:
+            "هذا هو الراتب الذي سيتم استخدامه في حساب الرواتب فقط",
+
+        cancel:
+            "إلغاء",
+
+        save:
+            "حفظ الموظف",
+
+        edit:
+            "تعديل",
+
+        details:"التفاصيل",delete:
+            "حذف",
+
+        active:
+            "نشط",
+
+        inactive:
+            "غير نشط",
+
+        noEmployees:
+            "لا يوجد موظفون",
+
+        confirmDelete:
+            "هل أنت متأكد من حذف هذا الموظف؟",
+
+        added:
+            "تم إضافة الموظف بنجاح",
+
+        updated:
+            "تم تعديل الموظف بنجاح",
+
+        deleted:
+            "تم حذف الموظف بنجاح",
+
+        loadError:
+            "حدث خطأ أثناء تحميل الموظفين",
+
+        deleteError:
+            "حدث خطأ أثناء حذف الموظف",
+
+        saveError:
+            "حدث خطأ أثناء حفظ الموظف"
+
+    },
+
+
+    en: {
+
+        companySystem:
+            "Company Management System",
+
+        dashboard:
+            "Dashboard",
+
+        employees:
+            "Employees",
+
+        attendance:
+            "Attendance",
+
+        payroll:
+            "Payroll",
+
+        invoices:
+            "Invoices",
+
+        payments:
+            "Payments",
+
+        projects:
+            "Projects",
+
+        reports:
+            "Reports",
+
+        pageTitle:
+            "Employees",
+
+        pageSubtitle:
+            "Manage and monitor company employees",
+
+        totalEmployees:
+            "Total Employees",
+
+        activeEmployees:
+            "Active Employees",
+
+        inactiveEmployees:
+            "Inactive Employees",
+
+        salary:
+            "Total Payroll Salaries",
+
+        search:
+            "Search by name, code, phone or email...",
+
+        add:
+            "+ Add Employee",
+
+        code:
+            "Code",
+
+        name:
+            "Name",
+
+        nationality:
+            "Nationality",
+
+        job:
+            "Job Title",
+
+        company:
+            "Company",
+
+        phone:
+            "Phone",
+
+        basicSalary:
+            "Basic Salary",
+
+        payrollSalary:
+            "Payroll Salary",
+
+        status:
+            "Status",
+
+        actions:
+            "Actions",
+
+        addEmployee:
+            "Add Employee",
+
+        editEmployee:
+            "Edit Employee",
+
+        employeeCode:
+            "Employee Code",
+
+        birthDate: "Birth Date",
+        gender: "Gender",
+        marital: "Marital Status",
+        countryCode: "Country Code",
+        idNumber: "ID Number",
+        idIssueDate: "ID Issue Date",
+        idExpiryDate: "ID Expiry Date",
+        docsUpload: "📎 Employee Documents",
+
+        fullName:
+            "Full Name *",
+
+        jobTitle:
+            "Job Title",
+
+        companyName:
+            "Company",
+
+        hireDate:
+            "Hire Date",
+
+        email:
+            "Email",
+
+        housing:
+            "Housing Allowance",
+
+        transport:
+            "Transport Allowance",
+
+        otherAllowance:
+            "Other Allowance",
+
+        joiningDate:
+            "Joining Date",
+
+        contractEnd:
+            "Contract End Date",
+
+        birthDate:
+            "Birth Date",
+        gender:
+            "Gender",
+        marital:
+            "Marital Status",
+        countryCode:
+            "Country Code",
+        idNumber:
+            "ID Number",
+        idIssueDate:
+            "ID Issue Date",
+        idExpiryDate:
+            "ID Expiry Date",
+        employmentStatus:
+            "Employment Status",
+
+        notes:
+            "Notes",
+
+        payrollHelp:
+            "This salary will be used only for payroll calculations",
+
+        cancel:
+            "Cancel",
+
+        save:
+            "Save Employee",
+
+        edit:
+            "Edit",
+
+        delete:
+            "Delete",
+
+        active:
+            "Active",
+
+        inactive:
+            "Inactive",
+
+        noEmployees:
+            "No employees found",
+
+        confirmDelete:
+            "Are you sure you want to delete this employee?",
+
+        added:
+            "Employee added successfully",
+
+        updated:
+            "Employee updated successfully",
+
+        deleted:
+            "Employee deleted successfully",
+
+        loadError:
+            "Error loading employees",
+
+        deleteError:
+            "Error deleting employee",
+
+        saveError:
+            "Error saving employee"
+
+    }
+
+};
+
+
+/* =====================================================
+   LANGUAGE
+===================================================== */
+
+function changeLanguage(language) {
+
+    currentLanguage = language;
+
+    localStorage.setItem(
+        "ibuild_language",
+        language
+    );
+
+    applyLanguage();
+
+}
+
+
+function applyLanguage() {
+
+    const t =
+        translations[currentLanguage];
+
+    document.documentElement.lang =
+        currentLanguage;
+
+    document.documentElement.dir =
+        currentLanguage === "ar"
+            ? "rtl"
+            : "ltr";
+
+
+    const elements = {
+
+        companySystem:
+            "companySystem",
+
+        dashboard:
+            "dashboardText",
+
+        employees:
+            "employeesText",
+
+        attendance:
+            "attendanceText",
+
+        payroll:
+            "payrollText",
+
+        invoices:
+            "invoicesText",
+
+        payments:
+            "paymentsText",
+
+        projects:
+            "projectsText",
+
+        reports:
+            "reportsText",
+
+        pageTitle:
+            "pageTitle",
+
+        pageSubtitle:
+            "pageSubtitle",
+
+        totalEmployees:
+            "totalEmployeesTitle",
+
+        activeEmployees:
+            "activeEmployeesTitle",
+
+        inactiveEmployees:
+            "inactiveEmployeesTitle",
+
+        salary:
+            "salaryTitle",
+
+        code:
+            "codeHeader",
+
+        name:
+            "nameHeader",
+
+        nationality:
+            "nationalityHeader",
+
+        job:
+            "jobHeader",
+
+        company:
+            "companyHeader",
+
+        phone:
+            "phoneHeader",
+
+        basicSalary:
+            "basicSalaryHeader",
+
+        payrollSalary:
+            "payrollSalaryHeader",
+
+        status:
+            "statusHeader",
+
+        actions:
+            "actionsHeader",
+
+        employeeCode:
+            "employeeCodeLabel",
+
+        birthDate: "birthDateLabel",
+        gender: "genderLabel",
+        marital: "maritalLabel",
+        countryCode: "countryCodeLabel",
+        idNumber: "idNumberLabel",
+        idIssueDate: "idIssueDateLabel",
+        idExpiryDate: "idExpiryDateLabel",
+        docsUpload: "docsUploadLabel",
+
+        fullName:
+            "fullNameLabel",
+
+        jobTitle:
+            "jobTitleLabel",
+
+        department:
+            "departmentLabel",
+
+        companyName:
+            "companyNameLabel",
+
+        hireDate:
+            "hireDateLabel",
+
+        email:
+            "emailLabel",
+
+        housing:
+            "housingLabel",
+
+        transport:
+            "transportLabel",
+
+        otherAllowance:
+            "otherAllowanceLabel",
+
+        joiningDate:
+            "joiningDateLabel",
+
+        contractEnd:
+            "contractEndLabel",
+
+        employmentStatus:
+            "employmentStatusLabel",
+
+        systemStatus:
+            "statusLabel",
+
+        notes:
+            "notesLabel",
+
+        cancel:
+            "cancelButton",
+
+        save:
+            "saveButton"
+
+    };
+
+
+    Object.keys(elements).forEach(key => {
+
+        const element =
+            document.getElementById(
+                elements[key]
+            );
+
+        if (element && t[key]) {
+
+            element.textContent =
+                t[key];
+
+        }
+
+    });
+
+
+    document.getElementById(
+        "payrollSalaryHelp"
+    ).textContent =
+        t.payrollHelp;
+
+
+    document.getElementById(
+        "searchInput"
+    ).placeholder =
+        t.search;
+
+
+    document.getElementById(
+        "addButton"
+    ).textContent =
+        t.add;
+
+
+    document.getElementById(
+        "arButton"
+    ).classList.toggle(
+        "active",
+        currentLanguage === "ar"
+    );
+
+
+    document.getElementById(
+        "enButton"
+    ).classList.toggle(
+        "active",
+        currentLanguage === "en"
+    );
+
+
+    renderEmployees();
+
+}
+
+
+/* =====================================================
+   LOAD EMPLOYEES
+===================================================== */
+
+async function loadEmployees() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/employees"
+            );
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok || !data.success) {
+
+            throw new Error(
+                data.message ||
+                "Failed to load employees"
+            );
+
+        }
+
+
+        employees =
+            data.employees || [];
+
+
+        renderEmployees();
+
+        loadStatistics();
+
+
+    } catch (error) {
+
+        console.error(
+            "LOAD EMPLOYEES ERROR:",
+            error
+        );
+
+        showMessage(
+            translations[currentLanguage].loadError,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+async function loadStatistics() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/employees/stats/summary"
+            );
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok || !data.success) {
+
+            return;
+
+        }
+
+
+        document.getElementById(
+            "totalEmployees"
+        ).textContent =
+            data.total || 0;
+
+
+        document.getElementById(
+            "activeEmployees"
+        ).textContent =
+            data.active || 0;
+
+
+        document.getElementById(
+            "inactiveEmployees"
+        ).textContent =
+            data.inactive || 0;
+
+
+        /*
+         * مهم:
+         * إجمالي الرواتب هنا يجب أن يكون
+         * payroll_salary فقط
+         */
+
+        document.getElementById(
+            "totalSalary"
+        ).textContent =
+            Number(
+                data.total_salary || 0
+            ).toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            ) + " AED";
+
+
+    } catch (error) {
+
+        console.error(
+            "STATISTICS ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   RENDER EMPLOYEES
+===================================================== */
+
+function renderEmployees(list = employees) {
+
+    const table =
+        document.getElementById(
+            "employeesTable"
+        );
+
+    const t =
+        translations[currentLanguage];
+
+
+    table.innerHTML = "";
+
+
+    if (!list.length) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="10"
+                    style="
+                        text-align:center;
+                        padding:40px;
+                        color:#64748b;
+                    ">
+
+                    ${t.noEmployees}
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    list.forEach(employee => {
+
+        const status =
+            String(
+                employee.status ||
+                employee.employment_status ||
+                ""
+            ).toLowerCase();
+
+
+        const statusText =
+            status === "active"
+                ? t.active
+                : t.inactive;
+
+
+        /*
+         * الراتب الأساسي مستقل
+         */
+
+        const basicSalary =
+            Number(
+                employee.basic_salary || 0
+            );
+
+
+        /*
+         * راتب حساب الرواتب مستقل
+         *
+         * ده الرقم اللي قسم الرواتب
+         * هيستخدمه في الحسابات
+         */
+
+        const payrollSalary =
+            Number(
+                employee.payroll_salary || 0
+            );
+
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td>
+                ${escapeHtml(
+                    employee.employee_code || "-"
+                )}
+            </td>
+
+            <td>
+                <strong>
+                    ${escapeHtml(
+                        employee.full_name || "-"
+                    )}
+                </strong>
+            </td>
+
+            <td>
+                ${escapeHtml(
+                    employee.nationality || "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHtml(
+                    employee.job_title || "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHtml(
+                    employee.company_name || "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHtml(
+                    employee.phone || "-"
+                )}
+            </td>
+
+            <td>
+                ${basicSalary.toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )} AED
+            </td>
+
+            <td>
+                <strong style="color:#2563eb;">
+                    ${payrollSalary.toLocaleString(
+                        "en-US",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    )} AED
+                </strong>
+            </td>
+
+            <td>
+
+                <span
+                    class="status ${
+                        status === "active"
+                            ? "active"
+                            : "inactive"
+                    }">
+
+                    ${statusText}
+
+                </span>
+
+            </td>
+
+            <td>
+
+                <div class="actions">
+
+                    <button
+                        class="action-btn edit-btn"
+                        onclick="location.href='/employee-details?id=${employee.id}'">
+
+                        👁️ ${t.details || "التفاصيل"}
+
+                    </button>
+
+                    <button
+                        class="action-btn edit-btn"
+                        onclick="openEditModal(${employee.id})">
+
+                        ✏️ ${t.edit}
+
+                    </button>
+
+                    <button
+                        class="action-btn delete-btn"
+                        onclick="deleteEmployee(${employee.id})">
+
+                        🗑️ ${t.delete}
+
+                    </button>
+
+                </div>
+
+            </td>
+
+        `;
+
+
+        table.appendChild(row);
+
+    });
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+function searchEmployees() {
+
+    const value =
+        document.getElementById(
+            "searchInput"
+        ).value
+        .trim()
+        .toLowerCase();
+
+
+    if (!value) {
+
+        renderEmployees();
+
+        return;
+
+    }
+
+
+    const filtered =
+        employees.filter(employee => {
+
+            const text = [
+
+                employee.employee_code,
+
+                employee.full_name,
+
+                employee.nationality,
+
+                employee.job_title,
+
+                employee.department,
+
+                employee.company_name,
+
+                employee.phone,
+
+                employee.email
+
+            ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+
+            return text.includes(value);
+
+        });
+
+
+    renderEmployees(filtered);
+
+}
+
+
+/* =====================================================
+   ADD MODAL
+===================================================== */
+
+function openAddModal() {
+
+    editingEmployeeId = null;
+
+
+    document.getElementById(
+        "employeeForm"
+    ).reset();
+    document.getElementById("company_name").value="IBuild Engineering Contracting";
+    document.getElementById("other_company_name").style.display="none";
+
+
+    document.getElementById(
+        "employeeId"
+    ).value = "";
+
+
+    /*
+     * لا نضع راتب حساب الرواتب تلقائيًا
+     * المستخدم يدخل الرقم بنفسه
+     */
+
+    document.getElementById(
+        "payroll_salary"
+    ).value = "";
+
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        translations[currentLanguage]
+            .addEmployee;
+
+
+    document.getElementById(
+        "saveButton"
+    ).textContent =
+        translations[currentLanguage]
+            .save;
+
+
+    document.getElementById(
+        "employeeModal"
+    ).classList.add("show");
+
+}
+
+
+/* =====================================================
+   EDIT MODAL
+===================================================== */
+
+function openEditModal(id) {
+
+    const employee =
+        employees.find(
+            item =>
+                Number(item.id) === Number(id)
+        );
+
+
+    if (!employee) {
+
+        return;
+
+    }
+
+
+    editingEmployeeId =
+        employee.id;
+
+
+    document.getElementById(
+        "employeeId"
+    ).value =
+        employee.id;
+
+
+    setInput(
+        "employee_code",
+        employee.employee_code
+    );
+
+
+    setInput(
+        "full_name",
+        employee.full_name
+    );
+
+
+    setInput(
+        "nationality",
+        employee.nationality
+    );
+
+    setInput("birth_date", formatDateForInput(employee.birth_date));
+    setInput("gender", employee.gender || "");
+    setInput("marital_status", employee.marital_status || "");
+    setInput("country_code", employee.country_code || "");
+    setInput("id_number", employee.id_number || "");
+    setInput("id_issue_date", formatDateForInput(employee.id_issue_date));
+    setInput("id_expiry_date", formatDateForInput(employee.id_expiry_date));
+
+
+    setInput(
+        "job_title",
+        employee.job_title
+    );
+
+    setInput("department", employee.department || "");
+
+
+    const companySelect = document.getElementById("company_name");
+    const knownCompany = employee.company_name === "IBuild Engineering Contracting" || !employee.company_name;
+    companySelect.value = knownCompany ? "IBuild Engineering Contracting" : "__OTHER__";
+    const otherCompany = document.getElementById("other_company_name");
+    otherCompany.value = knownCompany ? "" : (employee.company_name || "");
+    otherCompany.style.display = knownCompany ? "none" : "block";
+
+
+    setInput(
+        "hire_date",
+        formatDateForInput(
+            employee.hire_date
+        )
+    );
+
+
+    setInput(
+        "phone",
+        employee.phone
+    );
+
+
+    setInput(
+        "email",
+        employee.email
+    );
+
+
+    setInput(
+        "basic_salary",
+        employee.basic_salary
+    );
+
+
+    /*
+     * تحميل راتب حساب الرواتب
+     */
+
+    setInput(
+        "payroll_salary",
+        employee.payroll_salary
+    );
+
+
+    setInput(
+        "housing_allowance",
+        employee.housing_allowance
+    );
+
+
+    setInput(
+        "transport_allowance",
+        employee.transport_allowance
+    );
+
+
+    setInput(
+        "other_allowance",
+        employee.other_allowance
+    );
+
+
+    setInput(
+        "joining_date",
+        formatDateForInput(
+            employee.joining_date
+        )
+    );
+
+
+    setInput(
+        "contract_end_date",
+        formatDateForInput(
+            employee.contract_end_date
+        )
+    );
+
+
+    document.getElementById(
+        "employment_status"
+    ).value =
+        employee.employment_status ||
+        "Active";
+
+
+    setInput(
+        "notes",
+        employee.notes
+    );
+
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        translations[currentLanguage]
+            .editEmployee;
+
+
+    document.getElementById(
+        "saveButton"
+    ).textContent =
+        translations[currentLanguage]
+            .save;
+
+
+    document.getElementById(
+        "employeeModal"
+    ).classList.add("show");
+
+}
+
+
+/* =====================================================
+   FORM SUBMIT
+===================================================== */
+
+document.getElementById("company_name").addEventListener("change", function(){
+    const other=document.getElementById("other_company_name");
+    other.style.display=this.value==="__OTHER__"?"block":"none";
+    if(this.value!=="__OTHER__") other.value="";
+});
+
+async function uploadEmployeeDocuments(employeeId){
+    const docs=[
+        ["doc_identity","هوية / Emirates ID"],["doc_passport","جواز سفر / Passport"],["doc_contract","عقد / Contract"],
+        ["doc_work_card","بطاقة عمل / Work Card"],["doc_photo","صورة الموظف / Employee Photo"],["doc_other","مستند آخر / Other"]
+    ];
+    for(const [inputId,type] of docs){
+        const input=document.getElementById(inputId); const file=input && input.files[0];
+        if(!file) continue;
+        const reader=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)});
+        await fetch(`/api/employees/${employeeId}/documents/upload`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({document_type:type,file_data:reader,original_name:file.name})});
+    }
+}
+
+document.getElementById(
+    "employeeForm"
+).addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const payrollSalary =
+            Number(
+                getValue("payroll_salary")
+            );
+
+
+        if (
+            Number.isNaN(payrollSalary) ||
+            payrollSalary < 0
+        ) {
+
+            showMessage(
+                currentLanguage === "ar"
+                    ? "راتب حساب الرواتب غير صحيح"
+                    : "Payroll salary is invalid",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const payload = {
+
+            employee_code:
+                getValue("employee_code"),
+
+
+            full_name:
+                getValue("full_name"),
+
+
+            nationality:
+                getValue("nationality"),
+
+
+            job_title:
+                getValue("job_title"),
+
+            department: getValue("department"),
+
+            company_name:
+                getValue("company_name") === "__OTHER__" ? getValue("other_company_name") : "IBuild Engineering Contracting",
+
+            birth_date: getValue("birth_date") || null,
+            gender: getValue("gender"),
+            marital_status: getValue("marital_status"),
+            country_code: getValue("country_code"),
+            id_number: getValue("id_number"),
+            id_issue_date: getValue("id_issue_date") || null,
+            id_expiry_date: getValue("id_expiry_date") || null,
+
+
+            hire_date:
+                getValue("hire_date") ||
+                null,
+
+
+            phone:
+                getValue("phone"),
+
+
+            email:
+                getValue("email"),
+
+
+            /*
+             * الراتب الأساسي
+             * لا يستخدم كراتب الرواتب
+             */
+
+            basic_salary:
+                getValue("basic_salary") || 0,
+
+
+            /*
+             * الراتب الخاص بحساب الرواتب
+             */
+
+            payroll_salary:
+                payrollSalary,
+
+
+            joining_date:
+                getValue("joining_date") ||
+                null,
+
+
+            contract_end_date:
+                getValue("contract_end_date") ||
+                null,
+
+
+            project_id:
+                null,
+
+
+            employment_status:
+                getValue("employment_status"),
+
+
+            notes:
+                getValue("notes"),
+
+
+            housing_allowance:
+                getValue("housing_allowance") ||
+                0,
+
+
+            transport_allowance:
+                getValue("transport_allowance") ||
+                0,
+
+
+            other_allowance:
+                getValue("other_allowance") ||
+                0,
+
+
+            status: editingEmployeeId ? ((employees.find(x => Number(x.id) === Number(editingEmployeeId)) || {}).status || "active") : "active"
+
+        };
+
+
+        console.log(
+            "EMPLOYEE PAYLOAD:",
+            payload
+        );
+
+
+        try {
+
+            let response;
+
+
+            if (editingEmployeeId) {
+
+                response =
+                    await fetch(
+                        `/api/employees/${editingEmployeeId}`,
+                        {
+
+                            method: "PUT",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+
+                        }
+                    );
+
+            } else {
+
+                response =
+                    await fetch(
+                        "/api/employees",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+
+                        }
+                    );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.message ||
+                    translations[
+                        currentLanguage
+                    ].saveError
+                );
+
+            }
+
+
+            const savedEmployeeId = editingEmployeeId || data.employee_id;
+            try {
+                await uploadEmployeeDocuments(savedEmployeeId);
+            } catch (uploadError) {
+                console.error("DOCUMENT UPLOAD ERROR:", uploadError);
+            }
+
+            showMessage(
+
+                editingEmployeeId
+                    ? translations[
+                        currentLanguage
+                    ].updated
+
+                    : translations[
+                        currentLanguage
+                    ].added,
+
+                "success"
+
+            );
+
+
+            closeModal();
+
+
+            await loadEmployees();
+
+
+        } catch (error) {
+
+            console.error(
+                "SAVE EMPLOYEE ERROR:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                translations[
+                    currentLanguage
+                ].saveError,
+                "error"
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
+async function deleteEmployee(id) {
+
+    const t =
+        translations[currentLanguage];
+
+
+    if (!confirm(t.confirmDelete)) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/employees/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                t.deleteError
+            );
+
+        }
+
+
+        showMessage(
+            t.deleted,
+            "success"
+        );
+
+
+        await loadEmployees();
+
+
+    } catch (error) {
+
+        console.error(
+            "DELETE EMPLOYEE ERROR:",
+            error
+        );
+
+
+        showMessage(
+            error.message ||
+            t.deleteError,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CLOSE MODAL
+===================================================== */
+
+function closeModal() {
+
+    document.getElementById(
+        "employeeModal"
+    ).classList.remove("show");
+
+}
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function getValue(id) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (!element) {
+
+        return "";
+
+    }
+
+
+    return element.value.trim();
+
+}
+
+
+function setInput(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (!element) {
+
+        return;
+
+    }
+
+
+    element.value =
+        value == null
+            ? ""
+            : value;
+
+}
+
+
+function formatDateForInput(value) {
+
+    if (!value) {
+
+        return "";
+
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "";
+
+    }
+
+
+    return date
+        .toISOString()
+        .split("T")[0];
+
+}
+
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+function showMessage(
+    text,
+    type
+) {
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    message.textContent =
+        text;
+
+
+    message.className =
+        "message " + type;
+
+
+    message.style.display =
+        "block";
+
+
+    setTimeout(
+        function() {
+
+            message.style.display =
+                "none";
+
+        },
+        3000
+    );
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+applyLanguage();
+
+loadEmployees();
+
+async function logoutFromSystem(){try{await fetch('/api/auth/logout',{method:'POST'})}finally{location.href='/login'}}
+</script>
+
+</body>
+
+</html>
