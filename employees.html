@@ -912,8 +912,6 @@
                 type="hidden"
                 id="employeeId">
 
-            <input type="hidden" id="department">
-
 
             <div class="form-grid">
 
@@ -970,70 +968,25 @@
 
                 </div>
 
+                <div class="form-group"><label>تاريخ الميلاد</label><input type="date" id="birth_date"></div>
+                <div class="form-group"><label>الجنس</label><select id="gender"><option value="Male">ذكر</option><option value="Female">أنثى</option></select></div>
+                <div class="form-group"><label>الحالة الاجتماعية</label><select id="marital_status"><option value="Single">أعزب</option><option value="Married">متزوج</option></select></div>
+                <div class="form-group"><label>رقم الهوية</label><input type="text" id="id_number"></div>
+                <div class="form-group"><label>تاريخ بداية الهوية</label><input type="date" id="id_issue_date"></div>
+                <div class="form-group"><label>تاريخ انتهاء الهوية</label><input type="date" id="id_expiry_date"></div>
+                <div class="form-group"><label>رمز الدولة</label><input type="text" id="phone_country_code" placeholder="+971"></div>
+
+
                 <div class="form-group">
 
                     <label id="companyNameLabel">
                         الشركة
                     </label>
 
-                    <select id="company_name">
-                        <option value="IBuild Engineering Contracting">IBuild Engineering Contracting</option>
-                        <option value="__OTHER__">أخرى / Other</option>
-                    </select>
-                    <input type="text" id="other_company_name" placeholder="اسم الشركة الأخرى" style="display:none;margin-top:6px">
+                    <select id="company_name"><option value="IBuild Engineering Contracting">IBuild Engineering Contracting</option><option value="__other__">أخرى</option></select><input type="text" id="company_other" placeholder="اسم الشركة الأخرى" style="display:none;margin-top:7px">
 
                 </div>
-
-
-                <div class="form-group">
-                    <label id="birthDateLabel">تاريخ الميلاد</label>
-                    <input type="date" id="birth_date">
-                </div>
-
-                <div class="form-group">
-                    <label id="genderLabel">الجنس</label>
-                    <select id="gender"><option value="">اختر</option><option value="Male">ذكر</option><option value="Female">أنثى</option></select>
-                </div>
-
-                <div class="form-group">
-                    <label id="maritalLabel">الحالة الاجتماعية</label>
-                    <select id="marital_status"><option value="">اختر</option><option value="Single">أعزب</option><option value="Married">متزوج</option></select>
-                </div>
-
-                <div class="form-group">
-                    <label id="countryCodeLabel">رمز الدولة</label>
-                    <input type="text" id="country_code" placeholder="+971">
-                </div>
-
-                <div class="form-group">
-                    <label id="idNumberLabel">رقم الهوية</label>
-                    <input type="text" id="id_number">
-                </div>
-
-                <div class="form-group">
-                    <label id="idIssueDateLabel">تاريخ بداية الهوية</label>
-                    <input type="date" id="id_issue_date">
-                </div>
-
-                <div class="form-group">
-                    <label id="idExpiryDateLabel">تاريخ انتهاء الهوية</label>
-                    <input type="date" id="id_expiry_date">
-                </div>
-
-                <div class="form-group">
-
-                    <label id="hireDateLabel">
-                        تاريخ التوظيف
-                    </label>
-
-                    <input
-                        type="date"
-                        id="hire_date">
-
-                </div>
-
-
-                <div class="form-group">
+<div class="form-group">
 
                     <label id="phoneLabel">
                         الهاتف
@@ -1147,22 +1100,7 @@
                         id="other_allowance">
 
                 </div>
-
-
-                <div class="form-group">
-
-                    <label id="joiningDateLabel">
-                        تاريخ المباشرة
-                    </label>
-
-                    <input
-                        type="date"
-                        id="joining_date">
-
-                </div>
-
-
-                <div class="form-group">
+<div class="form-group">
 
                     <label id="contractEndLabel">
                         نهاية العقد
@@ -1194,19 +1132,7 @@
                     </select>
 
                 </div>
-
-                <div class="form-group full employee-doc-upload">
-                    <label id="docsUploadLabel">📎 مستندات الموظف</label>
-                    <div class="form-grid" style="margin-top:8px">
-                        <div class="form-group"><label>الهوية / Emirates ID</label><input type="file" id="doc_identity" accept=".pdf,image/*"></div>
-                        <div class="form-group"><label>الباسبور / Passport</label><input type="file" id="doc_passport" accept=".pdf,image/*"></div>
-                        <div class="form-group"><label>العقد / Contract</label><input type="file" id="doc_contract" accept=".pdf,image/*"></div>
-                        <div class="form-group"><label>بطاقة العمل / Work Card</label><input type="file" id="doc_work_card" accept=".pdf,image/*"></div>
-                        <div class="form-group"><label>صورة الموظف / Photo</label><input type="file" id="doc_photo" accept="image/*"></div>
-                        <div class="form-group"><label>مستند آخر / Other</label><input type="file" id="doc_other" accept=".pdf,image/*"></div>
-                    </div>
-                    <small style="color:#64748b">سيتم ربط الملفات بالموظف تلقائياً بعد الحفظ.</small>
-                </div>
+                <div class="form-group full"><label>📎 مستندات الموظف عند الإضافة</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"><label>الهوية <input type="file" id="doc_identity" accept=".pdf,image/*"></label><label>الباسبور <input type="file" id="doc_passport" accept=".pdf,image/*"></label><label>العقد <input type="file" id="doc_contract" accept=".pdf,image/*"></label><label>بطاقة العمل <input type="file" id="doc_work_card" accept=".pdf,image/*"></label><label>صورة الموظف <input type="file" id="doc_photo" accept="image/*"></label><label>مستند آخر <input type="file" id="doc_other" accept=".pdf,image/*"></label></div><small>يمكن رفع المستندات أثناء إنشاء الموظف، وستظهر لاحقاً في ملف الموظف.</small></div>
 
                 <div class="form-group full">
 
@@ -1371,28 +1297,18 @@ const translations = {
         employeeCode:
             "كود الموظف",
 
-        birthDate: "تاريخ الميلاد",
-        gender: "الجنس",
-        marital: "الحالة الاجتماعية",
-        countryCode: "رمز الدولة",
-        idNumber: "رقم الهوية",
-        idIssueDate: "تاريخ بداية الهوية",
-        idExpiryDate: "تاريخ انتهاء الهوية",
-        docsUpload: "📎 مستندات الموظف",
-
         fullName:
             "الاسم الكامل *",
 
         jobTitle:
             "المسمى الوظيفي",
 
+        department:
+            "القسم",
+
         companyName:
             "الشركة",
-
-        hireDate:
-            "تاريخ التوظيف",
-
-        email:
+email:
             "البريد الإلكتروني",
 
         housing:
@@ -1403,29 +1319,14 @@ const translations = {
 
         otherAllowance:
             "بدل آخر",
-
-        joiningDate:
-            "تاريخ المباشرة",
-
-        contractEnd:
+contractEnd:
             "نهاية العقد",
 
-        birthDate:
-            "تاريخ الميلاد",
-        gender:
-            "الجنس",
-        marital:
-            "الحالة الاجتماعية",
-        countryCode:
-            "رمز الدولة",
-        idNumber:
-            "رقم الهوية",
-        idIssueDate:
-            "تاريخ بداية الهوية",
-        idExpiryDate:
-            "تاريخ انتهاء الهوية",
         employmentStatus:
             "حالة التوظيف",
+
+        systemStatus:
+            "حالة النظام",
 
         notes:
             "ملاحظات",
@@ -1570,20 +1471,14 @@ const translations = {
         employeeCode:
             "Employee Code",
 
-        birthDate: "Birth Date",
-        gender: "Gender",
-        marital: "Marital Status",
-        countryCode: "Country Code",
-        idNumber: "ID Number",
-        idIssueDate: "ID Issue Date",
-        idExpiryDate: "ID Expiry Date",
-        docsUpload: "📎 Employee Documents",
-
         fullName:
             "Full Name *",
 
         jobTitle:
             "Job Title",
+
+        department:
+            "Department",
 
         companyName:
             "Company",
@@ -1609,22 +1504,11 @@ const translations = {
         contractEnd:
             "Contract End Date",
 
-        birthDate:
-            "Birth Date",
-        gender:
-            "Gender",
-        marital:
-            "Marital Status",
-        countryCode:
-            "Country Code",
-        idNumber:
-            "ID Number",
-        idIssueDate:
-            "ID Issue Date",
-        idExpiryDate:
-            "ID Expiry Date",
         employmentStatus:
             "Employment Status",
+
+        systemStatus:
+            "System Status",
 
         notes:
             "Notes",
@@ -1790,15 +1674,6 @@ function applyLanguage() {
 
         employeeCode:
             "employeeCodeLabel",
-
-        birthDate: "birthDateLabel",
-        gender: "genderLabel",
-        marital: "maritalLabel",
-        countryCode: "countryCodeLabel",
-        idNumber: "idNumberLabel",
-        idIssueDate: "idIssueDateLabel",
-        idExpiryDate: "idExpiryDateLabel",
-        docsUpload: "docsUploadLabel",
 
         fullName:
             "fullNameLabel",
@@ -2313,8 +2188,6 @@ function openAddModal() {
     document.getElementById(
         "employeeForm"
     ).reset();
-    document.getElementById("company_name").value="IBuild Engineering Contracting";
-    document.getElementById("other_company_name").style.display="none";
 
 
     document.getElementById(
@@ -2400,40 +2273,24 @@ function openEditModal(id) {
         employee.nationality
     );
 
-    setInput("birth_date", formatDateForInput(employee.birth_date));
-    setInput("gender", employee.gender || "");
-    setInput("marital_status", employee.marital_status || "");
-    setInput("country_code", employee.country_code || "");
-    setInput("id_number", employee.id_number || "");
-    setInput("id_issue_date", formatDateForInput(employee.id_issue_date));
-    setInput("id_expiry_date", formatDateForInput(employee.id_expiry_date));
-
 
     setInput(
         "job_title",
         employee.job_title
     );
-
-    setInput("department", employee.department || "");
-
-
-    const companySelect = document.getElementById("company_name");
-    const knownCompany = employee.company_name === "IBuild Engineering Contracting" || !employee.company_name;
-    companySelect.value = knownCompany ? "IBuild Engineering Contracting" : "__OTHER__";
-    const otherCompany = document.getElementById("other_company_name");
-    otherCompany.value = knownCompany ? "" : (employee.company_name || "");
-    otherCompany.style.display = knownCompany ? "none" : "block";
+    setInput("birth_date", formatDateForInput(employee.birth_date));
+    document.getElementById("gender").value = employee.gender || "Male";
+    document.getElementById("marital_status").value = employee.marital_status || "Single";
+    setInput("id_number", employee.id_number);
+    setInput("id_issue_date", formatDateForInput(employee.id_issue_date));
+    setInput("id_expiry_date", formatDateForInput(employee.id_expiry_date));
+    setInput("phone_country_code", employee.phone_country_code || "+971");
 
 
-    setInput(
-        "hire_date",
-        formatDateForInput(
-            employee.hire_date
-        )
-    );
-
-
-    setInput(
+    const companySelect=document.getElementById("company_name");
+    const knownCompany="IBuild Engineering Contracting";
+    if(employee.company_name && employee.company_name!==knownCompany){companySelect.value="__other__";setInput("company_other",employee.company_name);document.getElementById("company_other").style.display="block";}else{companySelect.value=knownCompany;document.getElementById("company_other").style.display="none";}
+setInput(
         "phone",
         employee.phone
     );
@@ -2477,17 +2334,7 @@ function openEditModal(id) {
         "other_allowance",
         employee.other_allowance
     );
-
-
-    setInput(
-        "joining_date",
-        formatDateForInput(
-            employee.joining_date
-        )
-    );
-
-
-    setInput(
+setInput(
         "contract_end_date",
         formatDateForInput(
             employee.contract_end_date
@@ -2529,28 +2376,12 @@ function openEditModal(id) {
 }
 
 
+
+document.getElementById("company_name").addEventListener("change", function(){document.getElementById("company_other").style.display=this.value==="__other__"?"block":"none";});
+
 /* =====================================================
    FORM SUBMIT
 ===================================================== */
-
-document.getElementById("company_name").addEventListener("change", function(){
-    const other=document.getElementById("other_company_name");
-    other.style.display=this.value==="__OTHER__"?"block":"none";
-    if(this.value!=="__OTHER__") other.value="";
-});
-
-async function uploadEmployeeDocuments(employeeId){
-    const docs=[
-        ["doc_identity","هوية / Emirates ID"],["doc_passport","جواز سفر / Passport"],["doc_contract","عقد / Contract"],
-        ["doc_work_card","بطاقة عمل / Work Card"],["doc_photo","صورة الموظف / Employee Photo"],["doc_other","مستند آخر / Other"]
-    ];
-    for(const [inputId,type] of docs){
-        const input=document.getElementById(inputId); const file=input && input.files[0];
-        if(!file) continue;
-        const reader=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)});
-        await fetch(`/api/employees/${employeeId}/documents/upload`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({document_type:type,file_data:reader,original_name:file.name})});
-    }
-}
 
 document.getElementById(
     "employeeForm"
@@ -2600,27 +2431,15 @@ document.getElementById(
 
             job_title:
                 getValue("job_title"),
-
-            department: getValue("department"),
-
-            company_name:
-                getValue("company_name") === "__OTHER__" ? getValue("other_company_name") : "IBuild Engineering Contracting",
-
             birth_date: getValue("birth_date") || null,
             gender: getValue("gender"),
             marital_status: getValue("marital_status"),
-            country_code: getValue("country_code"),
             id_number: getValue("id_number"),
             id_issue_date: getValue("id_issue_date") || null,
             id_expiry_date: getValue("id_expiry_date") || null,
-
-
-            hire_date:
-                getValue("hire_date") ||
-                null,
-
-
-            phone:
+            phone_country_code: getValue("phone_country_code"),
+            company_name: getValue("company_name") === "__other__" ? getValue("company_other") : getValue("company_name"),
+phone:
                 getValue("phone"),
 
 
@@ -2643,14 +2462,7 @@ document.getElementById(
 
             payroll_salary:
                 payrollSalary,
-
-
-            joining_date:
-                getValue("joining_date") ||
-                null,
-
-
-            contract_end_date:
+contract_end_date:
                 getValue("contract_end_date") ||
                 null,
 
@@ -2681,8 +2493,6 @@ document.getElementById(
                 getValue("other_allowance") ||
                 0,
 
-
-            status: editingEmployeeId ? ((employees.find(x => Number(x.id) === Number(editingEmployeeId)) || {}).status || "active") : "active"
 
         };
 
@@ -2748,6 +2558,11 @@ document.getElementById(
             const data =
                 await response.json();
 
+            if (response.ok && data.success && data.employee_id && !editingEmployeeId) {
+                const docs=[['doc_identity','هوية'],['doc_passport','باسبور'],['doc_contract','عقد'],['doc_work_card','بطاقة عمل'],['doc_photo','صورة الموظف'],['doc_other','مستند آخر']];
+                for(const [field,type] of docs){const file=document.getElementById(field)?.files?.[0];if(!file)continue;const reader=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)});await fetch(`/api/employees/${data.employee_id}/documents/upload`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({document_type:type,original_name:file.name,file_data:reader})});}
+            }
+
 
             if (
                 !response.ok ||
@@ -2763,13 +2578,6 @@ document.getElementById(
 
             }
 
-
-            const savedEmployeeId = editingEmployeeId || data.employee_id;
-            try {
-                await uploadEmployeeDocuments(savedEmployeeId);
-            } catch (uploadError) {
-                console.error("DOCUMENT UPLOAD ERROR:", uploadError);
-            }
 
             showMessage(
 

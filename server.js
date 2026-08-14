@@ -1027,6 +1027,13 @@ app.post(
                 full_name,
                 nationality,
                 job_title,
+                birth_date,
+                gender,
+                marital_status,
+                id_number,
+                id_issue_date,
+                id_expiry_date,
+                phone_country_code,
                 department,
                 company_name,
                 hire_date,
@@ -1042,13 +1049,6 @@ app.post(
                 housing_allowance,
                 transport_allowance,
                 other_allowance,
-                birth_date,
-                gender,
-                marital_status,
-                country_code,
-                id_number,
-                id_issue_date,
-                id_expiry_date,
                 status
 
             } = req.body;
@@ -1079,7 +1079,13 @@ app.post(
                         full_name,
                         nationality,
                         job_title,
-                        department,
+                        birth_date,
+                        gender,
+                        marital_status,
+                        id_number,
+                        id_issue_date,
+                        id_expiry_date,
+                        phone_country_code,
                         company_name,
                         hire_date,
                         phone,
@@ -1094,26 +1100,12 @@ app.post(
                         housing_allowance,
                         transport_allowance,
                         other_allowance,
-                        birth_date,
-                        gender,
-                        marital_status,
-                        country_code,
-                        id_number,
-                        id_issue_date,
-                        id_expiry_date,
                         status
 
                     )
 
                     VALUES
-                    (
-
-                        ?, ?, ?, ?, ?, ?,
-                        ?, ?, ?, ?, ?, ?,
-                        ?, ?, ?, ?, ?, ?, ?, ?,
-                        ?, ?, ?, ?, ?, ?, ?, ?
-
-                    )
+                    (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 
                 `, [
 
@@ -1121,7 +1113,13 @@ app.post(
                     String(full_name).trim(),
                     cleanString(nationality),
                     cleanString(job_title),
-                    cleanString(department),
+                    birth_date || null,
+                    cleanString(gender),
+                    cleanString(marital_status),
+                    cleanString(id_number),
+                    id_issue_date || null,
+                    id_expiry_date || null,
+                    cleanString(phone_country_code).replace(/[^0-9+]/g, "").slice(0, 10),
                     cleanString(company_name),
                     hire_date || null,
                     cleanString(phone),
@@ -1136,13 +1134,6 @@ app.post(
                     money(housing_allowance),
                     money(transport_allowance),
                     money(other_allowance),
-                    birth_date || null,
-                    cleanString(gender),
-                    cleanString(marital_status),
-                    cleanString(country_code),
-                    cleanString(id_number),
-                    id_issue_date || null,
-                    id_expiry_date || null,
                     status || "active"
 
                 ]);
@@ -1215,6 +1206,13 @@ app.put(
                 full_name,
                 nationality,
                 job_title,
+                birth_date,
+                gender,
+                marital_status,
+                id_number,
+                id_issue_date,
+                id_expiry_date,
+                phone_country_code,
                 department,
                 company_name,
                 hire_date,
@@ -1230,13 +1228,6 @@ app.put(
                 housing_allowance,
                 transport_allowance,
                 other_allowance,
-                birth_date,
-                gender,
-                marital_status,
-                country_code,
-                id_number,
-                id_issue_date,
-                id_expiry_date,
                 status
 
             } = req.body;
@@ -1268,7 +1259,13 @@ app.put(
                         full_name = ?,
                         nationality = ?,
                         job_title = ?,
-                        department = ?,
+                        birth_date = ?,
+                        gender = ?,
+                        marital_status = ?,
+                        id_number = ?,
+                        id_issue_date = ?,
+                        id_expiry_date = ?,
+                        phone_country_code = ?,
                         company_name = ?,
                         hire_date = ?,
                         phone = ?,
@@ -1283,13 +1280,6 @@ app.put(
                         housing_allowance = ?,
                         transport_allowance = ?,
                         other_allowance = ?,
-                        birth_date = ?,
-                        gender = ?,
-                        marital_status = ?,
-                        country_code = ?,
-                        id_number = ?,
-                        id_issue_date = ?,
-                        id_expiry_date = ?,
                         status = ?
 
                     WHERE id = ?
@@ -1300,7 +1290,13 @@ app.put(
                     String(full_name).trim(),
                     cleanString(nationality),
                     cleanString(job_title),
-                    cleanString(department),
+                    birth_date || null,
+                    cleanString(gender),
+                    cleanString(marital_status),
+                    cleanString(id_number),
+                    id_issue_date || null,
+                    id_expiry_date || null,
+                    cleanString(phone_country_code).replace(/[^0-9+]/g, "").slice(0, 10),
                     cleanString(company_name),
                     hire_date || null,
                     cleanString(phone),
@@ -1315,13 +1311,6 @@ app.put(
                     money(housing_allowance),
                     money(transport_allowance),
                     money(other_allowance),
-                    birth_date || null,
-                    cleanString(gender),
-                    cleanString(marital_status),
-                    cleanString(country_code),
-                    cleanString(id_number),
-                    id_issue_date || null,
-                    id_expiry_date || null,
                     status || "active",
                     id
 
@@ -5709,7 +5698,7 @@ app.get("/api/attendance/monthly", async (req, res) => {
             if (missing.length) {
                 const values = missing.map(e => [e.id, todayString, "Present"]);
                 await db.query(`
-                    INSERT INTO attendance
+                    INSERT IGNORE INTO attendance_records
                         (employee_id, attendance_date, status)
                     VALUES ?
                 `, [values]);
@@ -7204,33 +7193,6 @@ app.post('/api/leaves', requirePermission('leaves.write'), async (req,res)=>{
     }catch(error){return res.status(500).json({success:false,message:'حدث خطأ أثناء تسجيل الإجازة',error:error.message});}
 });
 
-app.post('/api/leaves/:id/attachments', requirePermission('leaves.write'), async (req,res)=>{
-    try {
-        const leaveId=Number(req.params.id);
-        const [leave]=await db.query('SELECT id,employee_id FROM leave_requests WHERE id=? LIMIT 1',[leaveId]);
-        if(!leave.length) return res.status(404).json({success:false,message:'طلب الإجازة غير موجود'});
-        const saveOne=async (data, fieldPath, fieldName)=>{
-            if(!data || !String(data).includes(',')) return null;
-            const match=String(data).match(/^data:([^;]+);base64,(.+)$/s);
-            if(!match) throw new Error('صيغة الملف غير صحيحة');
-            const mime=match[1], buffer=Buffer.from(match[2],'base64');
-            if(buffer.length>15*1024*1024) throw new Error('حجم الملف يجب ألا يتجاوز 15MB');
-            const original=safeFileName(req.body[fieldName]||'attachment');
-            const ext=path.extname(original) || (mime==='application/pdf'?'.pdf':'');
-            const dir=path.join(__dirname,'uploads','leaves',String(leaveId)); fs.mkdirSync(dir,{recursive:true});
-            const stored=`leave_${leaveId}_${fieldPath}_${Date.now()}_${Math.random().toString(36).slice(2,8)}${ext}`;
-            fs.writeFileSync(path.join(dir,stored),buffer);
-            return {path:`/uploads/leaves/${leaveId}/${stored}`,original};
-        };
-        const ticket=await saveOne(req.body.ticket_data,'ticket','ticket_name');
-        const receipt=await saveOne(req.body.receipt_data,'receipt','receipt_name');
-        if(ticket) await db.query('UPDATE leave_requests SET ticket_file_path=?,ticket_original_name=? WHERE id=?',[ticket.path,ticket.original,leaveId]);
-        if(receipt) await db.query('UPDATE leave_requests SET receipt_file_path=?,receipt_original_name=? WHERE id=?',[receipt.path,receipt.original,leaveId]);
-        await audit(req,'ATTACH','leave_requests',leaveId,{ticket:!!ticket,receipt:!!receipt});
-        return res.json({success:true,message:'تم حفظ مرفقات الإجازة'});
-    } catch(e){ return res.status(500).json({success:false,message:'حدث خطأ أثناء حفظ مرفقات الإجازة',error:e.message}); }
-});
-
 app.put('/api/leaves/:id/status', requirePermission('leaves.write'), async (req,res)=>{
     try{const id=Number(req.params.id); const status=String(req.body.status||''); if(!['Approved','Rejected','Cancelled','Pending'].includes(status)) return res.status(400).json({success:false,message:'حالة الإجازة غير صحيحة'}); const [r]=await db.query(`UPDATE leave_requests SET status=?,approved_by=?,approved_at=CASE WHEN ?='Approved' THEN NOW() ELSE approved_at END WHERE id=?`,[status,Number(req.user.sub)||null,status,id]); if(!r.affectedRows)return res.status(404).json({success:false,message:'طلب الإجازة غير موجود'}); await audit(req,'STATUS','leave_requests',id,{status}); return res.json({success:true,message:'تم تحديث حالة الإجازة'});}catch(error){return res.status(500).json({success:false,message:'حدث خطأ أثناء تحديث الإجازة',error:error.message});}
 });
@@ -7424,35 +7386,6 @@ async function ensureDetailSchema() {
     for (const [name, type] of additions) {
         if (!existing.has(name)) await db.query(`ALTER TABLE employee_documents ADD COLUMN ${name} ${type}`);
     }
-
-    // Employee profile extensions: personal identity, contact and demographics.
-    const [empCols] = await db.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='employees'`);
-    const empExisting = new Set(empCols.map(x => x.COLUMN_NAME));
-    const empAdditions = [
-        ['birth_date', 'DATE NULL'],
-        ['gender', "VARCHAR(20) NULL"],
-        ['marital_status', "VARCHAR(30) NULL"],
-        ['country_code', "VARCHAR(10) NULL"],
-        ['id_number', "VARCHAR(100) NULL"],
-        ['id_issue_date', 'DATE NULL'],
-        ['id_expiry_date', 'DATE NULL']
-    ];
-    for (const [name, type] of empAdditions) {
-        if (!empExisting.has(name)) await db.query(`ALTER TABLE employees ADD COLUMN ${name} ${type}`);
-    }
-
-    const [leaveCols] = await db.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='leave_requests'`);
-    const leaveExisting = new Set(leaveCols.map(x => x.COLUMN_NAME));
-    const leaveAdditions = [
-        ['ticket_file_path', 'VARCHAR(500) NULL'],
-        ['ticket_original_name', 'VARCHAR(255) NULL'],
-        ['receipt_file_path', 'VARCHAR(500) NULL'],
-        ['receipt_original_name', 'VARCHAR(255) NULL']
-    ];
-    for (const [name, type] of leaveAdditions) {
-        if (!leaveExisting.has(name)) await db.query(`ALTER TABLE leave_requests ADD COLUMN ${name} ${type}`);
-    }
-
     await db.query(`CREATE TABLE IF NOT EXISTS payment_documents (
         id INT NOT NULL AUTO_INCREMENT,
         payment_id INT NOT NULL,
@@ -7470,76 +7403,18 @@ async function ensureDetailSchema() {
 
 app.get('/api/employees/:id/full', requirePermission('employees.view'), async (req,res)=>{
     try {
-        const id=Number(req.params.id);
-        if(!id) return res.status(400).json({success:false,message:'رقم الموظف غير صحيح'});
-        const year=Math.min(2100,Math.max(2000,Number(req.query.year)||new Date().getFullYear()));
-        const [rows]=await db.query(`
-            SELECT e.*, p.project_name
-            FROM employees e
-            LEFT JOIN projects p ON p.id=e.project_id
-            WHERE e.id=? LIMIT 1
-        `,[id]);
+        const id=Number(req.params.id); if(!id) return res.status(400).json({success:false,message:'رقم الموظف غير صحيح'});
+        const [rows]=await db.query(`SELECT e.*, p.project_name FROM employees e LEFT JOIN projects p ON p.id=e.project_id WHERE e.id=? LIMIT 1`,[id]);
         if(!rows.length) return res.status(404).json({success:false,message:'الموظف غير موجود'});
-
-        const [docs]=await db.query(`
-            SELECT id,document_type,document_number,issue_date,expiry_date,notes,original_name,file_path,mime_type,file_size,created_at
-            FROM employee_documents WHERE employee_id=?
-            ORDER BY expiry_date IS NULL, expiry_date ASC, id DESC
-        `,[id]);
-
-        // Attendance is read from the current attendance_records table, with legacy attendance
-        // rows included only when the same employee/date is not already present there.
-        const [attendanceRows]=await db.query(`
-            SELECT attendance_date, status, check_in, check_out, notes
-            FROM attendance_records
-            WHERE employee_id=? AND YEAR(attendance_date)=?
-            UNION ALL
-            SELECT a.attendance_date, a.status, a.check_in, a.check_out, a.notes
-            FROM attendance a
-            WHERE a.employee_id=? AND YEAR(a.attendance_date)=?
-              AND NOT EXISTS (
-                  SELECT 1 FROM attendance_records ar
-                  WHERE ar.employee_id=a.employee_id AND ar.attendance_date=a.attendance_date
-              )
-            ORDER BY attendance_date ASC
-        `,[id,year,id,year]).catch(()=>[[]]);
-
-        const [payroll]=await db.query(`
-            SELECT payroll_month,payroll_salary,working_days,absent_days,absence_deduction,
-                   overtime_amount,additions,deductions,net_salary,status,notes
-            FROM payroll_records
-            WHERE employee_id=? AND YEAR(payroll_month)=?
-            ORDER BY payroll_month ASC
-        `,[id,year]).catch(()=>[[]]);
-
-        const [allPayrollYears]=await db.query(`
-            SELECT DISTINCT YEAR(payroll_month) AS year
-            FROM payroll_records WHERE employee_id=? ORDER BY year DESC
-        `,[id]).catch(()=>[[]]);
-
-        const [leaves]=await db.query(`
-            SELECT id,leave_type,start_date,end_date,days,status,reason,
-                   ticket_file_path,ticket_original_name,receipt_file_path,receipt_original_name
-            FROM leave_requests
-            WHERE employee_id=?
-            ORDER BY start_date DESC
-            LIMIT 100
-        `,[id]).catch(()=>[[]]);
-
-        return res.json({
-            success:true,
-            year,
-            employee:rows[0],
-            documents:docs,
-            attendanceRows,
-            payroll,
-            payrollYears:allPayrollYears.map(x=>Number(x.year)).filter(Boolean),
-            leaves
-        });
-    } catch(e){
-        console.error('EMPLOYEE FULL ERROR',e);
-        return res.status(500).json({success:false,message:'حدث خطأ أثناء جلب ملف الموظف',error:e.message});
-    }
+        const [docs]=await db.query(`SELECT * FROM employee_documents WHERE employee_id=? ORDER BY expiry_date IS NULL, expiry_date ASC, id DESC`,[id]);
+        const [attRows]=await db.query(`SELECT id,attendance_date,check_in,check_out,status,overtime_hours,notes FROM attendance WHERE employee_id=? ORDER BY attendance_date DESC`,[id]).catch(()=>[[]]);
+        const [payroll]=await db.query(`SELECT payroll_month,payroll_salary,overtime_hours,overtime_amount,additions,absence_deduction,deductions,net_salary FROM payroll_records WHERE employee_id=? ORDER BY payroll_month DESC`,[id]).catch(()=>[[]]);
+        const [leaves]=await db.query(`SELECT lr.id,lr.leave_type,lr.start_date,lr.end_date,lr.days,lr.status,lr.reason,lr.created_at,
+            (SELECT JSON_ARRAYAGG(JSON_OBJECT('document_type',ld.document_type,'original_name',ld.original_name,'file_path',ld.file_path)) FROM leave_documents ld WHERE ld.leave_id=lr.id) AS attachments
+            FROM leave_requests lr WHERE lr.employee_id=? ORDER BY lr.start_date DESC`,[id]).catch(()=>[[]]);
+        const att = {total:attRows.length,present:attRows.filter(x=>x.status==='Present').length,absent:attRows.filter(x=>x.status==='Absent').length,sick:attRows.filter(x=>x.status==='Sick').length,leave_days:attRows.filter(x=>x.status==='Leave').length,off_days:attRows.filter(x=>x.status==='Off').length,late:attRows.filter(x=>x.status==='Late').length};
+        return res.json({success:true,employee:rows[0],documents:docs,attendance:att,attendance_records:attRows,payroll,leaves});
+    } catch(e){ console.error('EMPLOYEE FULL ERROR',e); return res.status(500).json({success:false,message:'حدث خطأ أثناء جلب ملف الموظف',error:e.message}); }
 });
 
 app.post('/api/employees/:id/documents/upload', requirePermission('employees.write'), async (req,res)=>{
@@ -7561,6 +7436,24 @@ app.post('/api/employees/:id/documents/upload', requirePermission('employees.wri
         await audit(req,'CREATE','employee_documents',r.insertId,{employee_id:employeeId,document_type:type,original_name:original});
         res.status(201).json({success:true,message:'تم رفع المستند بنجاح',document_id:r.insertId,file_path:rel});
     }catch(e){console.error('EMP DOC UPLOAD ERROR',e);res.status(500).json({success:false,message:'حدث خطأ أثناء رفع المستند',error:e.message});}
+});
+
+app.post('/api/leaves/:id/documents/upload', requirePermission('leaves.write'), async (req,res)=>{
+    try {
+        const leaveId=Number(req.params.id), data=String(req.body.file_data||'');
+        if(!leaveId || !data.includes(',')) return res.status(400).json({success:false,message:'الإجازة والملف مطلوبان'});
+        const [leave]=await db.query('SELECT id,employee_id FROM leave_requests WHERE id=? LIMIT 1',[leaveId]);
+        if(!leave.length) return res.status(404).json({success:false,message:'الإجازة غير موجودة'});
+        const match=data.match(/^data:([^;]+);base64,(.+)$/s); if(!match) return res.status(400).json({success:false,message:'صيغة الملف غير صحيحة'});
+        const mime=match[1], buffer=Buffer.from(match[2],'base64'); if(buffer.length>15*1024*1024) return res.status(400).json({success:false,message:'حجم الملف يجب ألا يتجاوز 15MB'});
+        const original=safeFileName(req.body.original_name||'leave_document'); const ext=path.extname(original);
+        const stored=`leave_${leaveId}_${Date.now()}_${Math.random().toString(36).slice(2,8)}${ext}`;
+        const dir=path.join(__dirname,'uploads','leaves',String(leaveId)); fs.mkdirSync(dir,{recursive:true}); fs.writeFileSync(path.join(dir,stored),buffer);
+        const rel=`/uploads/leaves/${leaveId}/${stored}`;
+        const [r]=await db.query(`INSERT INTO leave_documents(leave_id,document_type,original_name,stored_name,file_path,mime_type,file_size,notes) VALUES(?,?,?,?,?,?,?,?)`,[leaveId,cleanString(req.body.document_type)||'Attachment',original,stored,rel,mime,buffer.length,cleanString(req.body.notes)]);
+        await audit(req,'CREATE','leave_documents',r.insertId,{leave_id:leaveId,document_type:req.body.document_type,original_name:original});
+        res.status(201).json({success:true,message:'تم رفع المرفق بنجاح',document_id:r.insertId,file_path:rel});
+    }catch(e){console.error('LEAVE DOC UPLOAD ERROR',e);res.status(500).json({success:false,message:'حدث خطأ أثناء رفع المرفق',error:e.message});}
 });
 
 app.get('/api/payments/:id/full', requirePermission('payments.view'), async (req,res)=>{
@@ -8413,6 +8306,23 @@ async function ensureDatabaseCompatibility() {
     if (!progressCols.length) {
         await db.query(`ALTER TABLE projects ADD COLUMN progress_percentage DECIMAL(5,2) NOT NULL DEFAULT 0 AFTER status`);
     }
+
+    // Employee master-data fields (additive; existing data is preserved).
+    const employeeFields = [
+        ['birth_date','DATE NULL'],['gender',"ENUM('Male','Female') NULL"],['marital_status',"ENUM('Single','Married') NULL"],
+        ['id_number','VARCHAR(80) NULL'],['id_issue_date','DATE NULL'],['id_expiry_date','DATE NULL'],['phone_country_code','VARCHAR(10) NULL']
+    ];
+    for (const [field,type] of employeeFields) {
+        const [c]=await db.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='employees' AND COLUMN_NAME=? LIMIT 1`,[field]);
+        if(!c.length) await db.query(`ALTER TABLE employees ADD COLUMN ${field} ${type}`);
+    }
+    // Leave attachments for flight tickets, receipts and supporting documents.
+    await db.query(`CREATE TABLE IF NOT EXISTS leave_documents (
+        id INT NOT NULL AUTO_INCREMENT, leave_id INT NOT NULL, document_type VARCHAR(80) NOT NULL DEFAULT 'Attachment',
+        original_name VARCHAR(255) NULL, stored_name VARCHAR(255) NULL, file_path VARCHAR(500) NULL,
+        mime_type VARCHAR(150) NULL, file_size BIGINT NULL, notes TEXT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY(id), KEY idx_leave_doc_leave(leave_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
 
     // Add a basic leave entitlement column if missing.
     const [leaveCols] = await db.query(`SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='employees' AND COLUMN_NAME='annual_leave_days' LIMIT 1`);

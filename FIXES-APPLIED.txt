@@ -1,0 +1,18 @@
+IBuild System - Fixed Package
+================================
+
+Applied fixes:
+1. Removed Hire Date and Joining/Work Start Date from the employee add/edit flow.
+2. Employee update no longer clears existing hire_date/joining_date values.
+3. Normalized phone country codes to +digits (e.g. +971).
+4. Added a safe database migration for legacy country_code / phone_country_code columns.
+5. Made attendance creation race-safe against duplicate employee/date records.
+6. Employee full profile now reads attendance_records with a legacy attendance fallback.
+7. Fixed the JavaScript syntax error in leaves.html.
+8. Verified server.js with node --check.
+9. Verified JavaScript syntax in attendance.html, employees.html, employee-details.html,
+   payroll.html, leaves.html, and dashboard.html.
+
+Note:
+This package contains the files that were uploaded in the conversation. It does not
+include node_modules, the .git directory, or database backup files.
