@@ -22,19 +22,18 @@ const usernameInput=document.getElementById('username');
 const passwordInput=document.getElementById('password');
 const loginButton=document.getElementById('loginButton');
 const message=document.getElementById('message');
+const API_BASE=(window.location.port==='5500'||window.location.hostname==='127.0.0.1'&&window.location.port==='5500')?'http://localhost:3000':'';
 loginForm.addEventListener('submit',async event=>{
  event.preventDefault();
  const username=usernameInput.value.trim(), password=passwordInput.value;
  message.className='message'; message.textContent=''; loginButton.disabled=true; loginButton.textContent='جاري تسجيل الدخول...';
  try{
-  const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+  const response=await fetch(`${API_BASE}/api/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({username,password})});
   const result=await response.json().catch(()=>({}));
   if(result.success){
    message.className='message success'; message.textContent='تم تسجيل الدخول بنجاح';
-   // Authentication is stored only in the server-side HttpOnly cookie.
-   // Do not store the JWT in localStorage or print authentication data to the console.
    localStorage.setItem('ibuild_user',JSON.stringify(result.user));
-   setTimeout(()=>{window.location.href='/dashboard';},300);
+   setTimeout(()=>{window.location.href=API_BASE+'/dashboard';},300);
   }else{
    message.className='message error'; message.textContent=result.message||'بيانات الدخول غير صحيحة';
   }
