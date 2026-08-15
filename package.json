@@ -1,14 +1,14 @@
 {
   "name": "ibuild-system",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "IBuild company management system",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "node --check server.js",
+    "start": "node -r ./security-hardening.js server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["ibuild", "company-management", "payroll", "attendance"],
+  "author": "IBuild Engineering Contracting",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
