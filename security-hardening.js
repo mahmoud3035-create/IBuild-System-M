@@ -19,9 +19,6 @@ require.cache[corsPath].exports = function hardenedCors(options = {}) {
     });
 };
 
-// Keep one fixed sidebar on every HTML page. The application contains several
-// legacy standalone HTML pages, so inject the shared navigation at the HTTP
-// response layer instead of duplicating the sidebar in every file.
 const express = require('express');
 const sidebarPath = path.join(__dirname, 'shared-sidebar.js');
 let sidebarScript = '';
@@ -39,6 +36,7 @@ function injectSharedSidebar(html) {
     return `${html}\n${script}`;
 }
 
+// Normal Express responses.
 const originalSend = express.response.send;
 express.response.send = function hardenedSend(body) {
     if (typeof body === 'string' && /<html[\s>]/i.test(body)) {
@@ -53,7 +51,7 @@ express.response.sendFile = function hardenedSendFile(filePath, options, callbac
     if (typeof filePath === 'string' && /\.html?$/i.test(filePath)) {
         const response = this;
         const done = typeof callback === 'function' ? callback : function (error) {
-            if (error) return response.next ? response.next(error) : response.status(error.statusCode || 500).end();
+            if (error) return response.status(error.statusCode || 500).end();
         };
         fs.readFile(filePath, 'utf8', function (error, html) {
             if (error) return done(error);
@@ -63,6 +61,35 @@ express.response.sendFile = function hardenedSendFile(filePath, options, callbac
         return this;
     }
     return originalSendFile.call(this, filePath, options, callback);
+};
+
+// serve-static does not use res.send()/res.sendFile(). Buffer HTML at the final
+// response boundary so legacy static pages receive the same sidebar too.
+const originalWrite = express.response.write;
+const originalEnd = express.response.end;
+express.response.write = function hardenedWrite(chunk, encoding, callback) {
+    const contentType = String(this.getHeader('Content-Type') || '').toLowerCase();
+    if (contentType.includes('text/html')) {
+        if (!this.__ibuildHtmlBuffer) this.__ibuildHtmlBuffer = [];
+        if (chunk) this.__ibuildHtmlBuffer.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk), encoding));
+        if (typeof callback === 'function') callback();
+        return true;
+    }
+    return originalWrite.call(this, chunk, encoding, callback);
+};
+
+express.response.end = function hardenedEnd(chunk, encoding, callback) {
+    const contentType = String(this.getHeader('Content-Type') || '').toLowerCase();
+    if (contentType.includes('text/html') || this.__ibuildHtmlBuffer) {
+        if (!this.__ibuildHtmlBuffer) this.__ibuildHtmlBuffer = [];
+        if (chunk) this.__ibuildHtmlBuffer.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk), encoding));
+        const html = Buffer.concat(this.__ibuildHtmlBuffer).toString('utf8');
+        delete this.__ibuildHtmlBuffer;
+        const finalHtml = injectSharedSidebar(html);
+        this.removeHeader('Content-Length');
+        return originalEnd.call(this, finalHtml, 'utf8', callback);
+    }
+    return originalEnd.call(this, chunk, encoding, callback);
 };
 
 // In production, never expose raw database/implementation errors to clients.
