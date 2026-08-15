@@ -1,13 +1,27 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const db = require('../../../database/db');
+
+let developmentSecret = null;
 
 function getSecret() {
   const secret = String(process.env.JWT_SECRET || '').trim();
-  if (!secret || secret.length < 32) {
-    throw new Error('JWT_SECRET must be configured and at least 32 characters long');
+
+  if (secret.length >= 32) return secret;
+
+  // Never provide a predictable fallback in production. For local Visual Studio
+  // Code development only, generate a process-local secret automatically so the
+  // developer can run the system without committing credentials to GitHub.
+  if (String(process.env.NODE_ENV || '').toLowerCase() !== 'production') {
+    if (!developmentSecret) {
+      developmentSecret = crypto.randomBytes(48).toString('hex');
+      console.warn('JWT_SECRET is not configured; using a temporary local development secret.');
+    }
+    return developmentSecret;
   }
-  return secret;
+
+  throw new Error('JWT_SECRET must be configured and at least 32 characters long');
 }
 
 async function login(username, password) {
@@ -20,12 +34,12 @@ async function login(username, password) {
   const [rows] = await db.query(
     `SELECT id, full_name, username, password_hash, role, is_active, created_at
      FROM users
-     WHERE username = ?
+     WHERE LOWER(username) = LOWER(?)
      LIMIT 1`,
     [cleanUsername]
   );
 
-  if (!rows.length || !rows[0].is_active) {
+  if (!rows.length || !rows[0].is_active || !rows[0].password_hash) {
     return { success: false, message: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
   }
 
@@ -51,8 +65,6 @@ async function login(username, password) {
     { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
   );
 
-  // The server needs the token to place it in the HttpOnly cookie, but it must
-  // never be serialized into the JSON response where browser JavaScript can read it.
   const result = { success: true, message: 'تم تسجيل الدخول بنجاح', user: safeUser };
   Object.defineProperty(result, 'token', {
     value: token,
