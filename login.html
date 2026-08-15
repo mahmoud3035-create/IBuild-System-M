@@ -1,283 +1,47 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>IBuild System - Login</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0f172a;
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 420px;
-            padding: 20px;
-        }
-
-        .login-box {
-            background: white;
-            border-radius: 18px;
-            padding: 40px 35px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .logo h1 {
-            color: #0f172a;
-            font-size: 30px;
-        }
-
-        .logo span {
-            color: #2563eb;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #334155;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            font-size: 16px;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            background: #2563eb;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        button:hover {
-            background: #1d4ed8;
-        }
-
-        button:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-        }
-
-        .message {
-            display: none;
-            margin-top: 18px;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .error {
-            display: block;
-            background: #fee2e2;
-            color: #b91c1c;
-        }
-
-        .success {
-            display: block;
-            background: #dcfce7;
-            color: #15803d;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 25px;
-            color: #94a3b8;
-            font-size: 12px;
-        }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBuild System - Login</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a}.login-container{width:100%;max-width:420px;padding:20px}.login-box{background:white;border-radius:18px;padding:40px 35px;box-shadow:0 20px 50px rgba(0,0,0,.3)}.logo{text-align:center;margin-bottom:10px}.logo h1{color:#0f172a;font-size:30px}.logo span{color:#2563eb}.subtitle{text-align:center;color:#64748b;margin-bottom:30px;font-size:14px}.form-group{margin-bottom:20px}label{display:block;margin-bottom:8px;color:#334155;font-weight:bold}input{width:100%;padding:14px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px;outline:none}input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1)}button{width:100%;padding:14px;border:0;border-radius:10px;background:#2563eb;color:white;font-size:16px;font-weight:bold;cursor:pointer}button:disabled{background:#94a3b8;cursor:not-allowed}.message{display:none;margin-top:18px;padding:12px;border-radius:8px;text-align:center;font-size:14px}.error{display:block;background:#fee2e2;color:#b91c1c}.success{display:block;background:#dcfce7;color:#15803d}.footer{text-align:center;margin-top:25px;color:#94a3b8;font-size:12px}</style>
 </head>
-
 <body>
-
-    <div class="login-container">
-
-        <div class="login-box">
-
-            <div class="logo">
-                <h1>IBuild <span>System</span></h1>
-            </div>
-
-            <div class="subtitle">
-                نظام إدارة الشركة
-            </div>
-
-            <form id="loginForm">
-
-                <div class="form-group">
-                    <label for="username">
-                        اسم المستخدم
-                    </label>
-
-                    <input
-                        type="text"
-                        id="username"
-                        placeholder="أدخل اسم المستخدم"
-                        autocomplete="username"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="password">
-                        كلمة المرور
-                    </label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        placeholder="أدخل كلمة المرور"
-                        autocomplete="current-password"
-                        required
-                    >
-                </div>
-
-                <button type="submit" id="loginButton">
-                    تسجيل الدخول
-                </button>
-
-                <div id="message" class="message"></div>
-
-            </form>
-
-            <div class="footer">
-                IBuild Engineering Contracting
-            </div>
-
-        </div>
-
-    </div>
-
-    <script>
-        const loginForm = document.getElementById("loginForm");
-        const usernameInput = document.getElementById("username");
-        const passwordInput = document.getElementById("password");
-        const loginButton = document.getElementById("loginButton");
-        const message = document.getElementById("message");
-
-        loginForm.addEventListener("submit", async function(event) {
-
-            event.preventDefault();
-
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value;
-
-            message.className = "message";
-            message.textContent = "";
-
-            loginButton.disabled = true;
-            loginButton.textContent = "جاري تسجيل الدخول...";
-
-            try {
-
-                const response = await fetch(
-                    "/api/auth/login",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            username: username,
-                            password: password
-                        })
-                    }
-                );
-
-                const result = await response.json();
-
-                console.log("LOGIN RESULT:", result);
-
-                if (result.success) {
-
-                    message.className = "message success";
-                    message.textContent = "تم تسجيل الدخول بنجاح";
-
-                    // حفظ بيانات المستخدم مؤقتًا
-                    localStorage.setItem(
-                        "ibuild_user",
-                        JSON.stringify(result.user)
-                    );
-
-                    if (result.token) {
-                        localStorage.setItem("ibuild_token", result.token);
-                    }
-
-                    // إظهار بيانات المستخدم في Console
-                    console.log("USER:", result.user);
-
-                    setTimeout(() => {
-                    window.location.href = "/dashboard";
-                    }, 1000);
-
-                } else {
-
-                    message.className = "message error";
-                    message.textContent =
-                        result.message || "بيانات الدخول غير صحيحة";
-                }
-
-            } catch (error) {
-
-                console.error("LOGIN ERROR:", error);
-
-                message.className = "message error";
-                message.textContent =
-                    "تعذر الاتصال بالسيرفر";
-            }
-
-            loginButton.disabled = false;
-            loginButton.textContent = "تسجيل الدخول";
-        });
-    </script>
-
-</body>
-</html>
+<div class="login-container"><div class="login-box">
+<div class="logo"><h1>IBuild <span>System</span></h1></div>
+<div class="subtitle">نظام إدارة الشركة</div>
+<form id="loginForm">
+<div class="form-group"><label for="username">اسم المستخدم</label><input type="text" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" required></div>
+<div class="form-group"><label for="password">كلمة المرور</label><input type="password" id="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" required></div>
+<button type="submit" id="loginButton">تسجيل الدخول</button><div id="message" class="message"></div>
+</form>
+<div class="footer">IBuild Engineering Contracting</div>
+</div></div>
+<script>
+const loginForm=document.getElementById('loginForm');
+const usernameInput=document.getElementById('username');
+const passwordInput=document.getElementById('password');
+const loginButton=document.getElementById('loginButton');
+const message=document.getElementById('message');
+loginForm.addEventListener('submit',async event=>{
+ event.preventDefault();
+ const username=usernameInput.value.trim(), password=passwordInput.value;
+ message.className='message'; message.textContent=''; loginButton.disabled=true; loginButton.textContent='جاري تسجيل الدخول...';
+ try{
+  const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+  const result=await response.json().catch(()=>({}));
+  if(result.success){
+   message.className='message success'; message.textContent='تم تسجيل الدخول بنجاح';
+   // Authentication is stored only in the server-side HttpOnly cookie.
+   // Do not store the JWT in localStorage or print authentication data to the console.
+   localStorage.setItem('ibuild_user',JSON.stringify(result.user));
+   setTimeout(()=>{window.location.href='/dashboard';},300);
+  }else{
+   message.className='message error'; message.textContent=result.message||'بيانات الدخول غير صحيحة';
+  }
+ }catch(error){
+  console.error('LOGIN ERROR:',error);
+  message.className='message error'; message.textContent='تعذر الاتصال بالسيرفر';
+ }finally{loginButton.disabled=false;loginButton.textContent='تسجيل الدخول';}
+});
+</script>
+</body></html>
