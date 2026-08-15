@@ -3,7 +3,11 @@ const jwt = require('jsonwebtoken');
 const db = require('../../../database/db');
 
 function getSecret() {
-  return process.env.JWT_SECRET || 'IBuild_System_Secret_Change_Me';
+  const secret = String(process.env.JWT_SECRET || '').trim();
+  if (!secret || secret.length < 32) {
+    throw new Error('JWT_SECRET must be configured and at least 32 characters long');
+  }
+  return secret;
 }
 
 async function login(username, password) {
@@ -47,7 +51,16 @@ async function login(username, password) {
     { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
   );
 
-  return { success: true, message: 'تم تسجيل الدخول بنجاح', user: safeUser, token };
+  // The server needs the token to place it in the HttpOnly cookie, but it must
+  // never be serialized into the JSON response where browser JavaScript can read it.
+  const result = { success: true, message: 'تم تسجيل الدخول بنجاح', user: safeUser };
+  Object.defineProperty(result, 'token', {
+    value: token,
+    enumerable: false,
+    writable: false,
+    configurable: false
+  });
+  return result;
 }
 
 async function getUserById(id) {
