@@ -17,16 +17,22 @@ require.cache[corsPath].exports = function hardenedCors(options = {}) {
 const express = require('express');
 const db = require('./database/db');
 const sidebarPath = path.join(__dirname, 'shared-sidebar.js');
+const payrollEnhancementPath = path.join(__dirname, 'payroll-enhancements.js');
 let sidebarScript = '';
-try { sidebarScript = fs.readFileSync(sidebarPath, 'utf8'); }
-catch (error) { console.error('SHARED SIDEBAR LOAD ERROR:', error.message); }
+let payrollEnhancementScript = '';
+try { sidebarScript = fs.readFileSync(sidebarPath, 'utf8'); } catch (error) { console.error('SHARED SIDEBAR LOAD ERROR:', error.message); }
+try { payrollEnhancementScript = fs.readFileSync(payrollEnhancementPath, 'utf8'); } catch (error) { console.error('PAYROLL ENHANCEMENT LOAD ERROR:', error.message); }
 
 function injectSharedSidebar(html) {
-    if (typeof html !== 'string' || !sidebarScript || !/<html[\s>]/i.test(html)) return html;
-    if (html.includes('id="ibuild-shared-sidebar-style"') || html.includes('shared-sidebar.js')) return html;
-    const script = `<script>\n${sidebarScript}\n</script>`;
-    if (/<\/body>/i.test(html)) return html.replace(/<\/body>/i, `${script}\n</body>`);
-    return `${html}\n${script}`;
+    if (typeof html !== 'string' || !/<html[\s>]/i.test(html)) return html;
+    let output = html;
+    if (sidebarScript && !output.includes('id="ibuild-shared-sidebar-style"') && !output.includes('shared-sidebar.js')) {
+        output = output.replace(/<\/body>/i, `<script>\n${sidebarScript}\n</script>\n</body>`);
+    }
+    if (payrollEnhancementScript && /id=["']payrollMonth["']/i.test(output) && !output.includes('payroll-enhancements.js')) {
+        output = output.replace(/<\/body>/i, `<script>\n${payrollEnhancementScript}\n</script>\n</body>`);
+    }
+    return output;
 }
 
 const originalSend = express.response.send;
@@ -197,10 +203,7 @@ express.application.use = function hardenedUse(...args) {
 if (String(process.env.NODE_ENV || '').toLowerCase() === 'production') {
     const originalJson = express.response.json;
     express.response.json = function secureJson(payload) {
-        if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
-            const sanitized = { ...payload }; delete sanitized.error;
-            return originalJson.call(this, sanitized);
-        }
+        if (payload && typeof payload === 'object' && !Array.isArray(payload)) { const sanitized = { ...payload }; delete sanitized.error; return originalJson.call(this, sanitized); }
         return originalJson.call(this, payload);
     };
 }
