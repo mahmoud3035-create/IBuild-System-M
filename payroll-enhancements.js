@@ -35,6 +35,7 @@
             .payroll-extra-actions{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}
             .payroll-extra-actions button{border:0;border-radius:8px;padding:11px 16px;color:#fff;font-weight:bold;cursor:pointer}
             .pe-overtime{background:#d97706}.pe-advance{background:#0f766e}.pe-deduction{background:#dc2626}
+            .table-card tbody td:last-child .action-btn + .action-btn{display:none!important}
             .pe-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 25px}
             .pe-summary-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px}
             .pe-summary-label{font-size:11px;color:#64748b;margin-bottom:8px}.pe-summary-value{font-size:19px;font-weight:bold}
@@ -55,7 +56,6 @@
 
     function employeeOptions() {
         const employees = window.payrollEmployees || [];
-        const current = monthValue();
         return `<option value="">اختر الموظف</option>` + employees.map(e => `<option value="${e.id}">${esc(e.employee_code || e.id)} - ${esc(e.full_name)}</option>`).join('');
     }
 
@@ -67,7 +67,6 @@
         box.id = 'payrollExtraActions';
         box.className = 'payroll-extra-actions';
         box.innerHTML = `
-            <button type="button" class="pe-overtime" onclick="openOvertimeModal()">⏱️ إضافة أوفر تايم</button>
             <button type="button" class="pe-advance" onclick="openAdvancePanel()">💵 إدارة السلف</button>
             <button type="button" class="pe-deduction" onclick="openOtherDeductionModal()">➖ خصم آخر + السبب</button>`;
         anchor.insertAdjacentElement('afterend', box);
@@ -240,7 +239,7 @@
             const statusText = status === 'paid' ? 'مدفوع' : status === 'approved' ? 'معتمد' : record ? 'مسودة' : 'غير محفوظ';
             const action = record ? `<button class="action-btn" onclick="editPayroll(${record.id})">✏️ تعديل</button>` : `<button class="action-btn" onclick="createPayrollForEmployee(${employee.id})">➕ إضافة</button>`;
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${esc(employee.employee_code || employee.id)}</td><td><strong>${esc(employee.full_name)}</strong></td><td>${moneyText(salary)}</td><td>${record?.working_days || days}</td><td>${absentDays}</td><td>${moneyText(absenceDeduction)}</td><td>${otHours.toFixed(2)}</td><td>${moneyText(otAmount)}</td><td>${moneyText(additions)}</td><td>${moneyText(manual)}</td><td>${moneyText(adj.other)}</td><td>${moneyText(adj.advance)}</td><td class="pe-red"><strong>${moneyText(totalDeductions)}</strong></td><td class="net">${moneyText(net)}</td><td><span class="badge ${status === 'paid' ? 'paid' : status === 'approved' ? 'approved' : 'draft'}">${statusText}</span></td><td>${action} <button class="action-btn" onclick="openOvertimeModal(${employee.id})">⏱️</button></td>`;
+            tr.innerHTML = `<td>${esc(employee.employee_code || employee.id)}</td><td><strong>${esc(employee.full_name)}</strong></td><td>${moneyText(salary)}</td><td>${record?.working_days || days}</td><td>${absentDays}</td><td>${moneyText(absenceDeduction)}</td><td>${otHours.toFixed(2)}</td><td>${moneyText(otAmount)}</td><td>${moneyText(additions)}</td><td>${moneyText(manual)}</td><td>${moneyText(adj.other)}</td><td>${moneyText(adj.advance)}</td><td class="pe-red"><strong>${moneyText(totalDeductions)}</strong></td><td class="net">${moneyText(net)}</td><td><span class="badge ${status === 'paid' ? 'paid' : status === 'approved' ? 'approved' : 'draft'}">${statusText}</span></td><td>${action}</td>`;
             table.appendChild(tr);
         });
     }
