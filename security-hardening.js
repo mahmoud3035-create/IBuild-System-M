@@ -1,10 +1,6 @@
-/*
- * Runtime security hardening loaded before server.js.
- *
- * The legacy server uses cors() with no options and many API handlers include
- * database error details in JSON responses. This preload keeps the existing
- * application code intact while applying safer production defaults.
- */
+/* Runtime security hardening loaded before server.js. */
+require('dotenv').config();
+
 const corsPath = require.resolve('cors');
 const originalCors = require(corsPath);
 const configuredOrigin = String(process.env.CORS_ORIGIN || '').trim();
@@ -22,7 +18,6 @@ require.cache[corsPath].exports = function hardenedCors(options = {}) {
 };
 
 // In production, never expose raw database/implementation errors to clients.
-// Development keeps the existing diagnostics available.
 if (String(process.env.NODE_ENV || '').toLowerCase() === 'production') {
     const expressPath = require.resolve('express');
     const express = require(expressPath);
