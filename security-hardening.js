@@ -13,6 +13,20 @@ require.cache[corsPath].exports = function hardenedCors(options = {}) {
 
 const express = require('express');
 const db = require('./database/db');
+
+// Fix the legacy payroll INSERT which was missing the net_salary placeholder.
+// This keeps the existing server code intact while making startup/payroll creation reliable.
+const originalDbQuery = db.query.bind(db);
+db.query = function patchedDbQuery(...args) {
+    if (typeof args[0] === 'string' && args[0].includes('INSERT INTO payroll_records')) {
+        args[0] = args[0].replace(
+            /\?,\s*\?,\s*\?,\s*\?,\s*\?,\s*\?,\s*\n?\s*\?,\s*\?,\s*\?,\s*\?,\s*'draft',\s*\?/m,
+            '?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, \'draft\', ?'
+        );
+    }
+    return originalDbQuery(...args);
+};
+
 const sidebarPath = path.join(__dirname, 'shared-sidebar.js');
 const payrollEnhancementPath = path.join(__dirname, 'payroll-enhancements.js');
 const payrollBridgePath = path.join(__dirname, 'payroll-bridge.js');
@@ -20,6 +34,61 @@ let sidebarScript = '', payrollEnhancementScript = '', payrollBridgeScript = '';
 try { sidebarScript = fs.readFileSync(sidebarPath, 'utf8'); } catch (e) { console.error('SHARED SIDEBAR LOAD ERROR:', e.message); }
 try { payrollEnhancementScript = fs.readFileSync(payrollEnhancementPath, 'utf8'); } catch (e) { console.error('PAYROLL ENHANCEMENT LOAD ERROR:', e.message); }
 try { payrollBridgeScript = fs.readFileSync(payrollBridgePath, 'utf8'); } catch (e) { console.error('PAYROLL BRIDGE LOAD ERROR:', e.message); }
+
+function injectDeductionReasonTools(html) {
+    if (typeof html !== 'string' || !/id=["']payrollTable["']/i.test(html)) return html;
+    if (html.includes('id="ibuild-deduction-reason-tools"')) return html;
+    const script = `
+<script id="ibuild-deduction-reason-tools">
+(function(){
+  'use strict';
+  const esc=v=>String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
+  const money=v=>'AED '+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const q=id=>document.getElementById(id);
+  async function getAdjustments(employeeId){
+    const month=q('payrollMonth')?.value||'';
+    const r=await fetch('/api/payroll/adjustments?month='+encodeURIComponent(month+'-01'));
+    const d=await r.json();
+    if(!r.ok||d.success===false) throw Error(d.message||'تعذر تحميل أسباب الخصومات');
+    return (d.adjustments||[]).filter(x=>Number(x.employee_id)===Number(employeeId)&&x.type==='deduction');
+  }
+  async function showReason(employeeId,name){
+    let modal=q('ibuildDeductionReasonModal');
+    if(!modal){
+      modal=document.createElement('div');modal.id='ibuildDeductionReasonModal';
+      modal.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+      modal.innerHTML='<div style="background:#fff;width:min(650px,100%);max-height:85vh;overflow:auto;border-radius:14px;padding:20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px"><h3 id="ibuildDeductionReasonTitle" style="margin:0">📋 أسباب الخصومات</h3><button type="button" id="ibuildDeductionReasonClose" style="border:0;background:#f1f5f9;border-radius:8px;font-size:22px;width:38px;height:38px;cursor:pointer">×</button></div><div id="ibuildDeductionReasonList"></div></div>';
+      document.body.appendChild(modal);q('ibuildDeductionReasonClose').onclick=()=>modal.remove();
+    }
+    q('ibuildDeductionReasonTitle').textContent='📋 أسباب خصومات '+(name||'الموظف');
+    q('ibuildDeductionReasonList').innerHTML='<div style="padding:25px;text-align:center;color:#64748b">جاري التحميل...</div>';
+    try{
+      const rows=await getAdjustments(employeeId);
+      q('ibuildDeductionReasonList').innerHTML=rows.length?rows.map(x=>'<div style="border:1px solid #e2e8f0;border-radius:9px;padding:12px;margin-bottom:9px;background:#f8fafc"><div style="display:flex;justify-content:space-between;gap:10px"><strong>'+esc(x.reason||'بدون سبب')+'</strong><strong style="color:#dc2626">'+money(x.amount)+'</strong></div><div style="font-size:11px;color:#64748b;margin-top:6px">'+esc(x.payroll_month||'')+'</div></div>').join(''):'<div style="padding:25px;text-align:center;color:#64748b">لا توجد خصومات أخرى مسجلة لهذا الموظف في هذا الشهر.</div>';
+    }catch(e){q('ibuildDeductionReasonList').innerHTML='<div style="padding:25px;text-align:center;color:#dc2626">'+esc(e.message)+'</div>';}
+  }
+  function addButtons(){
+    const body=q('payrollTable');if(!body)return;
+    [...body.querySelectorAll('tr')].forEach(row=>{
+      if(row.querySelector('.ibuild-reason-btn'))return;
+      const cells=row.querySelectorAll('td');if(!cells.length)return;
+      const employeeCell=cells[1];const actionCell=cells[cells.length-1];
+      if(!employeeCell||!actionCell)return;
+      const name=employeeCell.textContent.trim();
+      const employeeCode=(cells[0]?.textContent||'').trim();
+      const employees=window.payrollEmployees||[];
+      const employee=employees.find(e=>String(e.employee_code||e.id)===employeeCode||String(e.full_name||'').trim()===name);
+      if(!employee)return;
+      const btn=document.createElement('button');btn.type='button';btn.className='action-btn ibuild-reason-btn';btn.textContent='📋 السبب';btn.style.cssText='margin-inline-start:5px;background:#ede9fe;color:#6d28d9';btn.onclick=()=>showReason(employee.id,employee.full_name);actionCell.appendChild(btn);
+    });
+  }
+  const observer=new MutationObserver(addButtons);
+  document.addEventListener('DOMContentLoaded',()=>{addButtons();const b=q('payrollTable');if(b)observer.observe(b,{childList:true,subtree:true});});
+  setInterval(addButtons,1200);
+})();
+</script>`;
+    return html.replace(/<\/body>/i, script + '\n</body>');
+}
 
 function injectSharedSidebar(html) {
     if (typeof html !== 'string' || !/<html[\s>]/i.test(html)) return html;
@@ -29,6 +98,7 @@ function injectSharedSidebar(html) {
         if (!output.includes('id="ibuild-payroll-step1-style"')) output = output.replace(/<\/head>/i, `<style id="ibuild-payroll-step1-style">.form-card{display:none!important}</style>\n</head>`);
         if (payrollEnhancementScript && !output.includes('payroll-enhancements.js')) output = output.replace(/<\/body>/i, `<script>\n${payrollEnhancementScript}\n</script>\n</body>`);
         if (payrollBridgeScript && !output.includes('payroll-bridge.js')) output = output.replace(/<\/body>/i, `<script>\n${payrollBridgeScript}\n</script>\n</body>`);
+        output = injectDeductionReasonTools(output);
     }
     return output;
 }
