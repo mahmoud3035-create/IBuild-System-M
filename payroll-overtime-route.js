@@ -123,16 +123,16 @@ async function handleOvertime(req, res) {
 function injectOvertimeUi(html) {
     if (typeof html !== 'string' || !/id=["']payrollTable["']/i.test(html) || html.includes('id="ibuild-overtime-fix"')) return html;
     const script = `<script id="ibuild-overtime-fix">(function(){'use strict';window.saveOvertimeHours=async function(){const employeeId=Number(document.getElementById('ot_employee_id')?.value);const hoursToAdd=Number(document.getElementById('ot_hours')?.value||0);const month=document.getElementById('payrollMonth')?.value||'';if(!employeeId||!month||hoursToAdd<=0){window.showMessage?.('اختر الموظف وأدخل عدد الساعات','error');return;}const button=document.getElementById('otSaveButton');if(button)button.disabled=true;try{const r=await fetch('/api/payroll/overtime',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({employee_id:employeeId,payroll_month:month+'-01',hours_to_add:hoursToAdd})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.success)throw new Error(d.message||'فشل حفظ الأوفر تايم');if(typeof closeOvertimeModal==='function')closeOvertimeModal();if(typeof loadPayroll==='function')await loadPayroll();window.showMessage?.('تم تسجيل الأوفر تايم في كشف الراتب','success');}catch(e){console.error('OVERTIME UI ERROR:',e);window.showMessage?.(e.message,'error');}finally{if(button)button.disabled=false;}};})();</script>`;
-    return html.replace(/<\\/body>/i, script + '</body>');
+    return html.replace(/<\/body>/i, script + '</body>');
 }
 
 express.response.send = function overtimeSend(body) {
-    if (typeof body === 'string' && /<html[\\s>]/i.test(body) && /id=["']payrollTable["']/i.test(body)) body = injectOvertimeUi(body);
+    if (typeof body === 'string' && /<html[\s>]/i.test(body) && /id=["']payrollTable["']/i.test(body)) body = injectOvertimeUi(body);
     return originalSend.call(this, body);
 };
 
 express.response.sendFile = function overtimeSendFile(filePath, options, callback) {
-    if (typeof filePath === 'string' && /payroll\\.html?$/i.test(filePath)) {
+    if (typeof filePath === 'string' && /payroll\.html?$/i.test(filePath)) {
         const response = this;
         const done = typeof callback === 'function' ? callback : function(error) {
             if (error) response.status(error.statusCode || 500).end();
