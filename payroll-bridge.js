@@ -57,6 +57,18 @@
       if(typeof window.loadPayroll==='function')await window.loadPayroll();
     }catch(error){alert(error.message);}
   }
+  async function deleteEmployeeDeduction(employeeId,name){
+    try{
+      const month=document.getElementById('payrollMonth')?.value||'';
+      const response=await fetch('/api/payroll/adjustments?month='+encodeURIComponent(month+'-01'));
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||data.success===false)throw new Error(data.message||'تعذر تحميل الخصومات');
+      const rows=(data.adjustments||[]).filter(x=>Number(x.employee_id)===Number(employeeId)&&x.type==='deduction');
+      if(!rows.length){alert('لا يوجد خصم آخر لهذا الموظف في هذا الشهر.');return;}
+      if(rows.length===1){await deleteDeduction(Number(rows[0].id),employeeId,name);return;}
+      await showReason(employeeId,name);
+    }catch(error){alert(error.message);}
+  }
   function addReasonButtons(){
     hideManualSummary();
     const table=document.getElementById('payrollTable');
@@ -68,14 +80,22 @@
       if(!employee||cells.length<2)return;
       const actionCell=cells[cells.length-1];
       if(!actionCell)return;
-      const btn=document.createElement('button');
-      btn.type='button';
-      btn.className='action-btn ibuild-reason-btn';
-      btn.textContent='📋 السبب';
-      btn.title='عرض أسباب الخصومات';
-      btn.style.cssText='margin-inline-start:6px;background:#ede9fe;color:#6d28d9';
-      btn.addEventListener('click',()=>showReason(employee.id,employee.full_name));
-      actionCell.appendChild(btn);
+      const reasonBtn=document.createElement('button');
+      reasonBtn.type='button';
+      reasonBtn.className='action-btn ibuild-reason-btn';
+      reasonBtn.textContent='📋 السبب';
+      reasonBtn.title='عرض أسباب الخصومات';
+      reasonBtn.style.cssText='margin-inline-start:6px;background:#ede9fe;color:#6d28d9';
+      reasonBtn.addEventListener('click',()=>showReason(employee.id,employee.full_name));
+      actionCell.appendChild(reasonBtn);
+      const deleteBtn=document.createElement('button');
+      deleteBtn.type='button';
+      deleteBtn.className='action-btn ibuild-delete-deduction-btn';
+      deleteBtn.textContent='🗑️ حذف الخصم';
+      deleteBtn.title='حذف الخصم';
+      deleteBtn.style.cssText='margin-inline-start:6px;background:#fee2e2;color:#b91c1c';
+      deleteBtn.addEventListener('click',()=>deleteEmployeeDeduction(employee.id,employee.full_name));
+      actionCell.appendChild(deleteBtn);
     });
   }
   function sync(){
