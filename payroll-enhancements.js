@@ -69,6 +69,7 @@
         box.id = 'payrollExtraActions';
         box.className = 'payroll-extra-actions';
         box.innerHTML = `
+            <button type="button" class="pe-overtime" onclick="openOvertimeModal()">⏱️ إضافة أوفر تايم</button>
             <button type="button" class="pe-advance" onclick="openAdvancePanel()">💵 إدارة السلف</button>
             <button type="button" class="pe-deduction" onclick="openOtherDeductionModal()">➖ خصم آخر + السبب</button>`;
         anchor.insertAdjacentElement('afterend', box);
