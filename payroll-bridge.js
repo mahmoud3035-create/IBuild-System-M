@@ -40,10 +40,22 @@
       const response=await fetch('/api/payroll/adjustments?month='+encodeURIComponent(month+'-01'));
       const data=await response.json().catch(()=>({}));
       if(!response.ok||data.success===false)throw new Error(data.message||'تعذر تحميل أسباب الخصومات');
-      const rows=(data.adjustments||[]).filter(x=>Number(x.employee_id)===Number(employeeId));
+      const rows=(data.adjustments||[]).filter(x=>Number(x.employee_id)===Number(employeeId)&&x.type==='deduction');
       if(!rows.length){list.innerHTML='<div style="padding:25px;text-align:center;color:#64748b">لا توجد خصومات مسجلة لهذا الموظف في هذا الشهر.</div>';return;}
-      list.innerHTML=rows.map(x=>`<div style="border:1px solid #e2e8f0;border-radius:10px;padding:13px;margin-bottom:9px;background:#f8fafc"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><strong>${esc(x.reason||'بدون سبب')}</strong><strong style="color:#dc2626">${money(x.amount)}</strong></div><div style="font-size:11px;color:#64748b;margin-top:7px">${esc(x.type==='advance'?'سلفة':'خصم آخر')} — ${esc(x.payroll_month||'')}</div></div>`).join('');
+      list.innerHTML=rows.map(x=>`<div style="border:1px solid #e2e8f0;border-radius:10px;padding:13px;margin-bottom:9px;background:#f8fafc"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><strong>${esc(x.reason||'بدون سبب')}</strong><strong style="color:#dc2626">${money(x.amount)}</strong></div><div style="font-size:11px;color:#64748b;margin-top:7px">خصم آخر — ${esc(x.payroll_month||'')}</div><div style="margin-top:10px;text-align:left"><button type="button" data-delete-deduction="${x.id}" style="border:0;background:#fee2e2;color:#b91c1c;border-radius:7px;padding:7px 11px;font-weight:bold;cursor:pointer">🗑️ حذف الخصم</button></div></div>`).join('');
+      list.querySelectorAll('[data-delete-deduction]').forEach(btn=>btn.addEventListener('click',()=>deleteDeduction(Number(btn.dataset.deleteDeduction),employeeId,name)));
     }catch(error){list.innerHTML='<div style="padding:25px;text-align:center;color:#dc2626">'+esc(error.message)+'</div>';}
+  }
+  async function deleteDeduction(id,employeeId,name){
+    if(!id)return;
+    if(!confirm('هل أنت متأكد من حذف هذا الخصم؟'))return;
+    try{
+      const response=await fetch('/api/payroll/adjustments/'+encodeURIComponent(id),{method:'DELETE'});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||data.success===false)throw new Error(data.message||'تعذر حذف الخصم');
+      await showReason(employeeId,name);
+      if(typeof window.loadPayroll==='function')await window.loadPayroll();
+    }catch(error){alert(error.message);}
   }
   function addReasonButtons(){
     hideManualSummary();
