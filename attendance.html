@@ -562,60 +562,6 @@ html[dir="ltr"] th {
 
 
 /* =====================================================
-   MONTH ARCHIVE
-===================================================== */
-function toggleMonthArchive(force) {
-    const panel=document.getElementById("monthArchivePanel");
-    if(!panel) return;
-    const show = typeof force === "boolean" ? force : panel.hidden;
-    panel.hidden=!show;
-    if(show) loadMonthArchive();
-}
-
-function archiveMonthLabel(month) {
-    try {
-        const [y,m]=month.split("-").map(Number);
-        return new Date(y,m-1,1).toLocaleDateString(
-            currentLanguage==="ar" ? "ar-AE" : "en-US",
-            {year:"numeric",month:"long"}
-        );
-    } catch (_) { return month; }
-}
-
-async function loadMonthArchive() {
-    const list=document.getElementById("monthArchiveList");
-    if(!list) return;
-    list.innerHTML=`<div class="monthly-empty">${escapeHtml(translations[currentLanguage].loading)}</div>`;
-    try {
-        const response=await fetch("/api/attendance/months",{headers:{"Accept":"application/json"}});
-        const data=await getJsonResponse(response);
-        const months=data.months||[];
-        if(!months.length){
-            list.innerHTML=`<div class="monthly-empty">${currentLanguage==="ar"?"لا توجد شهور محفوظة":"No saved months"}</div>`;
-            return;
-        }
-        list.innerHTML=months.map(m=>`
-            <button type="button" class="month-archive-item ${m===monthlyMonth?"active":""}" onclick="selectArchiveMonth('${m}')">
-                <div class="month-label">${escapeHtml(archiveMonthLabel(m))}</div>
-                <div class="month-meta">${escapeHtml(m)}</div>
-            </button>
-        `).join("");
-    } catch(error) {
-        list.innerHTML=`<div class="monthly-empty">${escapeHtml(error.message)}</div>`;
-    }
-}
-
-function selectArchiveMonth(month) {
-    monthlyMonth=month;
-    const mm=document.getElementById("matrixMonth");
-    const md=document.getElementById("matrixDate");
-    if(mm) mm.value=month;
-    if(md) md.value=(month===getCurrentMonth() ? getToday() : `${month}-01`);
-    toggleMonthArchive(false);
-    loadMonthlyAttendance();
-}
-
-/* =====================================================
    MONTHLY ATTENDANCE MATRIX
 ===================================================== */
 .monthly-attendance-card { overflow: hidden; }
