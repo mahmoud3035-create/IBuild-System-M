@@ -47,10 +47,31 @@ async function refreshPayrollEmployees(){
   if(typeof window.loadPayroll==='function')await window.loadPayroll();
 }
 
+function syncPayrollGlobals(){
+  try{
+    if(typeof payrollRecords!=='undefined')window.payrollRecords=payrollRecords;
+    if(typeof payrollEmployees!=='undefined')window.payrollEmployees=payrollEmployees;
+  }catch(e){console.warn('Payroll globals sync failed',e);}
+}
+
+function wrapPayrollLoader(){
+  if(window.__ibuildPayrollLoaderWrapped||typeof window.loadPayroll!=='function')return;
+  const original=window.loadPayroll;
+  window.loadPayroll=async function(...args){
+    const result=await original.apply(this,args);
+    syncPayrollGlobals();
+    if(typeof window.renderEnhancedTable==='function')window.renderEnhancedTable();
+    if(typeof window.renderEnhancedSummary==='function')window.renderEnhancedSummary();
+    return result;
+  };
+  window.__ibuildPayrollLoaderWrapped=true;
+}
+
 function watchOvertimeSuccess(){
   if(window.__ibuildOvertimeWatch)return;
   window.__ibuildOvertimeWatch=true;
   const observer=new MutationObserver(()=>{
+    syncPayrollGlobals();
     const text=document.body?.innerText||'';
     if(/تمت إضافة ساعات الأوفر تايم|تم إضافة ساعات الأوفر تايم|تمت إضافة ساعات إضافية/.test(text)&&!window.__ibuildOvertimeReloaded){
       window.__ibuildOvertimeReloaded=true;
@@ -83,8 +104,15 @@ function bindReasonButtons(){
 }
 
 async function init(){
-  hideManualSummary();bindEditButtons();watchOvertimeSuccess();await refreshPayrollEmployees();bindReasonButtons();
-  const table=document.getElementById('payrollTable');if(table)new MutationObserver(()=>{hideManualSummary();bindEditButtons();bindReasonButtons();}).observe(table,{childList:true,subtree:true});
+  hideManualSummary();
+  syncPayrollGlobals();
+  wrapPayrollLoader();
+  watchOvertimeSuccess();
+  await refreshPayrollEmployees();
+  syncPayrollGlobals();
+  wrapPayrollLoader();
+  bindReasonButtons();
+  const table=document.getElementById('payrollTable');if(table)new MutationObserver(()=>{syncPayrollGlobals();hideManualSummary();bindEditButtons();bindReasonButtons();}).observe(table,{childList:true,subtree:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else setTimeout(init,100);
 })();
