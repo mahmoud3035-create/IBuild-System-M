@@ -23,6 +23,10 @@ function daysInMonth(month) {
     return new Date(year, monthNumber, 0).getDate();
 }
 
+function allowed(req) {
+    return !!req.user && ['Admin', 'Accountant', 'HR', 'Manager'].includes(req.user.role);
+}
+
 async function ensureColumn() {
     const [columns] = await db.query(`
         SELECT COLUMN_NAME
@@ -41,70 +45,58 @@ async function ensureColumn() {
     }
 }
 
+async function getPayrollRecord(employeeId, payrollMonth) {
+    const [rows] = await db.query(`
+        SELECT *
+        FROM payroll_records
+        WHERE employee_id = ? AND payroll_month = ?
+        LIMIT 1
+    `, [employeeId, payrollMonth]);
+    return rows[0] || null;
+}
+
+function calculateNet(record, overtimeAmount) {
+    return Number((
+        money(record.payroll_salary) +
+        money(overtimeAmount) +
+        money(record.additions) -
+        money(record.absence_deduction) -
+        money(record.deductions)
+    ).toFixed(2));
+}
+
 async function handleOvertime(req, res) {
     try {
-        if (!req.user || !['Admin', 'Accountant', 'HR', 'Manager'].includes(req.user.role)) {
-            return res.status(403).json({ success: false, message: 'ليس لديك صلاحية لإضافة الأوفر تايم' });
-        }
-
+        if (!allowed(req)) return res.status(403).json({ success: false, message: 'ليس لديك صلاحية لإضافة الأوفر تايم' });
         await ensureColumn();
 
         const employeeId = Number(req.body.employee_id);
         const payrollMonth = monthDate(req.body.payroll_month);
         const hoursToAdd = money(req.body.hours_to_add);
-
         if (!employeeId || !payrollMonth || hoursToAdd <= 0) {
             return res.status(400).json({ success: false, message: 'اختر الموظف والشهر وأدخل عدد ساعات صحيح' });
         }
 
-        const [employees] = await db.query(`
-            SELECT id, full_name, payroll_salary
-            FROM employees
-            WHERE id = ?
-            LIMIT 1
-        `, [employeeId]);
-
-        if (!employees.length) {
-            return res.status(404).json({ success: false, message: 'الموظف غير موجود' });
-        }
+        const [employees] = await db.query(`SELECT id, full_name, payroll_salary FROM employees WHERE id = ? LIMIT 1`, [employeeId]);
+        if (!employees.length) return res.status(404).json({ success: false, message: 'الموظف غير موجود' });
 
         const salary = money(employees[0].payroll_salary);
         const monthDays = daysInMonth(payrollMonth);
         const hourlyRate = monthDays > 0 ? salary / monthDays / 8 : 0;
         const addedAmount = Number((hoursToAdd * hourlyRate).toFixed(2));
+        const record = await getPayrollRecord(employeeId, payrollMonth);
 
-        const [records] = await db.query(`
-            SELECT *
-            FROM payroll_records
-            WHERE employee_id = ? AND payroll_month = ?
-            LIMIT 1
-        `, [employeeId, payrollMonth]);
-
-        if (records.length) {
-            const record = records[0];
+        if (record) {
             const overtimeHours = Number((money(record.overtime_hours) + hoursToAdd).toFixed(2));
             const overtimeAmount = Number((money(record.overtime_amount) + addedAmount).toFixed(2));
-            const netSalary = Number((
-                money(record.payroll_salary || salary) +
-                overtimeAmount +
-                money(record.additions) -
-                money(record.absence_deduction) -
-                money(record.deductions)
-            ).toFixed(2));
-
-            await db.query(`
-                UPDATE payroll_records
-                SET overtime_hours = ?, overtime_amount = ?, net_salary = ?, status = 'draft'
-                WHERE id = ?
-            `, [overtimeHours, overtimeAmount, netSalary, record.id]);
-
+            const netSalary = calculateNet(record, overtimeAmount);
+            await db.query(`UPDATE payroll_records SET overtime_hours = ?, overtime_amount = ?, net_salary = ?, status = 'draft' WHERE id = ?`, [overtimeHours, overtimeAmount, netSalary, record.id]);
             return res.json({ success: true, message: 'تم تسجيل الأوفر تايم في كشف الراتب', record_id: record.id, overtime_hours: overtimeHours, overtime_amount: overtimeAmount, added_amount: addedAmount, net_salary: netSalary });
         }
 
         const overtimeHours = Number(hoursToAdd.toFixed(2));
         const overtimeAmount = addedAmount;
         const netSalary = Number((salary + overtimeAmount).toFixed(2));
-
         const [result] = await db.query(`
             INSERT INTO payroll_records
             (employee_id, payroll_month, payroll_salary, working_days, absent_days,
@@ -112,11 +104,57 @@ async function handleOvertime(req, res) {
              net_salary, status, notes)
             VALUES (?, ?, ?, ?, 0, 0, 0, 0, ?, ?, ?, 'draft', NULL)
         `, [employeeId, payrollMonth, salary, monthDays, overtimeAmount, overtimeHours, netSalary]);
-
         return res.status(201).json({ success: true, message: 'تم تسجيل الأوفر تايم في كشف الراتب', record_id: result.insertId, overtime_hours: overtimeHours, overtime_amount: overtimeAmount, added_amount: addedAmount, net_salary: netSalary });
     } catch (error) {
         console.error('PAYROLL OVERTIME ERROR:', error);
         return res.status(500).json({ success: false, message: 'حدث خطأ أثناء تسجيل الأوفر تايم', error: error.message });
+    }
+}
+
+async function handleOvertimeEdit(req, res) {
+    try {
+        if (!allowed(req)) return res.status(403).json({ success: false, message: 'ليس لديك صلاحية لتعديل الأوفر تايم' });
+        await ensureColumn();
+
+        const employeeId = Number(req.body.employee_id);
+        const payrollMonth = monthDate(req.body.payroll_month);
+        const newHours = money(req.body.hours);
+        if (!employeeId || !payrollMonth || newHours < 0) return res.status(400).json({ success: false, message: 'بيانات تعديل الأوفر تايم غير صحيحة' });
+
+        const record = await getPayrollRecord(employeeId, payrollMonth);
+        if (!record) return res.status(404).json({ success: false, message: 'لا يوجد كشف راتب لهذا الموظف في هذا الشهر' });
+
+        const monthDays = daysInMonth(payrollMonth);
+        const hourlyRate = monthDays > 0 ? money(record.payroll_salary) / monthDays / 8 : 0;
+        const overtimeAmount = Number((newHours * hourlyRate).toFixed(2));
+        const netSalary = calculateNet(record, overtimeAmount);
+
+        await db.query(`UPDATE payroll_records SET overtime_hours = ?, overtime_amount = ?, net_salary = ?, status = 'draft' WHERE id = ?`, [Number(newHours.toFixed(2)), overtimeAmount, netSalary, record.id]);
+        return res.json({ success: true, message: 'تم تعديل الأوفر تايم', record_id: record.id, overtime_hours: Number(newHours.toFixed(2)), overtime_amount: overtimeAmount, net_salary: netSalary });
+    } catch (error) {
+        console.error('PAYROLL OVERTIME EDIT ERROR:', error);
+        return res.status(500).json({ success: false, message: 'حدث خطأ أثناء تعديل الأوفر تايم', error: error.message });
+    }
+}
+
+async function handleOvertimeDelete(req, res) {
+    try {
+        if (!allowed(req)) return res.status(403).json({ success: false, message: 'ليس لديك صلاحية لحذف الأوفر تايم' });
+        await ensureColumn();
+
+        const employeeId = Number(req.body.employee_id);
+        const payrollMonth = monthDate(req.body.payroll_month);
+        if (!employeeId || !payrollMonth) return res.status(400).json({ success: false, message: 'بيانات حذف الأوفر تايم غير صحيحة' });
+
+        const record = await getPayrollRecord(employeeId, payrollMonth);
+        if (!record) return res.status(404).json({ success: false, message: 'لا يوجد كشف راتب لهذا الموظف في هذا الشهر' });
+
+        const netSalary = calculateNet(record, 0);
+        await db.query(`UPDATE payroll_records SET overtime_hours = 0, overtime_amount = 0, net_salary = ?, status = 'draft' WHERE id = ?`, [netSalary, record.id]);
+        return res.json({ success: true, message: 'تم حذف الأوفر تايم', record_id: record.id, overtime_hours: 0, overtime_amount: 0, net_salary: netSalary });
+    } catch (error) {
+        console.error('PAYROLL OVERTIME DELETE ERROR:', error);
+        return res.status(500).json({ success: false, message: 'حدث خطأ أثناء حذف الأوفر تايم', error: error.message });
     }
 }
 
@@ -134,14 +172,8 @@ express.response.send = function overtimeSend(body) {
 express.response.sendFile = function overtimeSendFile(filePath, options, callback) {
     if (typeof filePath === 'string' && /payroll\.html?$/i.test(filePath)) {
         const response = this;
-        const done = typeof callback === 'function' ? callback : function(error) {
-            if (error) response.status(error.statusCode || 500).end();
-        };
-        require('fs').readFile(filePath, 'utf8', (error, html) => {
-            if (error) return done(error);
-            response.type('html').send(injectOvertimeUi(html));
-            done();
-        });
+        const done = typeof callback === 'function' ? callback : function(error) { if (error) response.status(error.statusCode || 500).end(); };
+        require('fs').readFile(filePath, 'utf8', (error, html) => { if (error) return done(error); response.type('html').send(injectOvertimeUi(html)); done(); });
         return this;
     }
     return originalSendFile.call(this, filePath, options, callback);
@@ -152,6 +184,8 @@ express.application.use = function payrollOvertimeUse(...args) {
     if (!registered && typeof args[0] === 'function' && args[0].name === 'requireAuth') {
         registered = true;
         this.post('/api/payroll/overtime', handleOvertime);
+        this.put('/api/payroll/overtime', handleOvertimeEdit);
+        this.delete('/api/payroll/overtime', handleOvertimeDelete);
     }
     return result;
 };
