@@ -47,6 +47,19 @@ async function refreshPayrollEmployees(){
   if(typeof window.loadPayroll==='function')await window.loadPayroll();
 }
 
+function watchOvertimeSuccess(){
+  if(window.__ibuildOvertimeWatch)return;
+  window.__ibuildOvertimeWatch=true;
+  const observer=new MutationObserver(()=>{
+    const text=document.body?.innerText||'';
+    if(/تمت إضافة ساعات الأوفر تايم|تم إضافة ساعات الأوفر تايم|تمت إضافة ساعات إضافية/.test(text)&&!window.__ibuildOvertimeReloaded){
+      window.__ibuildOvertimeReloaded=true;
+      setTimeout(()=>location.reload(),700);
+    }
+  });
+  observer.observe(document.body,{childList:true,subtree:true,characterData:true});
+}
+
 function ensureReasonModal(){
   let m=document.getElementById('ibuildDeductionReasonModal');if(m)return m;
   m=document.createElement('div');m.id='ibuildDeductionReasonModal';m.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.62);z-index:50000;display:none;align-items:center;justify-content:center;padding:20px';
@@ -70,7 +83,7 @@ function bindReasonButtons(){
 }
 
 async function init(){
-  hideManualSummary();bindEditButtons();await refreshPayrollEmployees();bindReasonButtons();
+  hideManualSummary();bindEditButtons();watchOvertimeSuccess();await refreshPayrollEmployees();bindReasonButtons();
   const table=document.getElementById('payrollTable');if(table)new MutationObserver(()=>{hideManualSummary();bindEditButtons();bindReasonButtons();}).observe(table,{childList:true,subtree:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else setTimeout(init,100);
