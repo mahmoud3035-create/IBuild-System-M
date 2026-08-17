@@ -11,6 +11,11 @@
     const employees=window.payrollEmployees||[];
     return employees.find(e=>String(e.id)===code||String(e.employee_code||'')===code||String(e.full_name||'').trim()===name)||null;
   }
+  function hideManualSummary(){
+    const el=document.getElementById('peManual');
+    const card=el?.closest('.pe-summary-card');
+    if(card)card.style.display='none';
+  }
   function ensureReasonModal(){
     let modal=document.getElementById('ibuildDeductionReasonModal');
     if(modal)return modal;
@@ -41,6 +46,7 @@
     }catch(error){list.innerHTML='<div style="padding:25px;text-align:center;color:#dc2626">'+esc(error.message)+'</div>';}
   }
   function addReasonButtons(){
+    hideManualSummary();
     const table=document.getElementById('payrollTable');
     if(!table)return;
     table.querySelectorAll('tr').forEach(row=>{
@@ -70,6 +76,7 @@
         const html='<option value="">اختر الموظف</option>'+employees.map(e=>`<option value="${e.id}">${esc(e.employee_code||e.id)} - ${esc(e.full_name)}</option>`).join('');
         ['peAdvanceEmployee','peDeductionEmployee'].forEach(id=>{const el=document.getElementById(id);if(el){const old=el.value;el.innerHTML=html;if(old)el.value=old;}});
       }
+      hideManualSummary();
       addReasonButtons();
       if(!refreshed && typeof window.loadPayroll==='function' && (employees.length || records.length)){
         refreshed=true;
@@ -77,11 +84,12 @@
         if(month) month.dispatchEvent(new Event('change',{bubbles:true}));
       }
     }catch(_){ }
+    hideManualSummary();
     addReasonButtons();
   }
   sync();
   const table=document.getElementById('payrollTable');
   if(table)new MutationObserver(addReasonButtons).observe(table,{childList:true,subtree:true});
-  setInterval(addReasonButtons,800);
   const timer=setInterval(()=>{sync();if(refreshed)clearInterval(timer);},500);
+  setInterval(hideManualSummary,800);
 })();
