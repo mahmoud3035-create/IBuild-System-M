@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "node --check server.js",
-    "start": "node -r ./security-hardening.js server.js"
+    "start": "node -r ./security-hardening.js -r ./payroll-delete-route.js server.js"
   },
   "keywords": ["ibuild", "company-management", "payroll", "attendance"],
   "author": "IBuild Engineering Contracting",
