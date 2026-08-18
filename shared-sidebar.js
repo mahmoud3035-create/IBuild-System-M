@@ -1,54 +1,32 @@
 (function () {
   "use strict";
-
-  function logout() {
-    fetch("/api/auth/logout", { method: "POST" }).finally(function () {
-      window.location.href = "/login";
-    });
-  }
-
-  function installSidebar() {
-    var sidebar = document.querySelector(".sidebar");
-    if (!sidebar) return;
-    var path = window.location.pathname.replace(/\/$/, "") || "/dashboard";
-    var links = [
-      ["/dashboard", "🏠", "لوحة التحكم"],
-      ["/employees", "👥", "الموظفين"],
-      ["/attendance", "🕐", "الحضور والانصراف"],
-      ["/payroll", "💰", "الرواتب"],
-      ["/payroll-advances", "💵", "السلف"],
-      ["/invoices", "📄", "الفواتير"],
-      ["/payments", "💳", "المدفوعات"],
-      ["/projects", "🏗️", "المشاريع"],
-      ["/reports", "📊", "التقارير"],
-      ["/leaves", "📅", "الإجازات"],
-      ["/end-of-service", "🧮", "نهاية الخدمة"],
-      ["/users", "🔐", "المستخدمون"],
-      ["/audit-log", "📝", "سجل العمليات"],
-      ["/settings", "⚙️", "الإعدادات"]
+  function logout(){fetch("/api/auth/logout",{method:"POST"}).finally(function(){window.location.href="/login";});}
+  function installSidebar(){
+    var sidebar=document.querySelector(".sidebar"); if(!sidebar)return;
+    var path=window.location.pathname.replace(/\/$/,"")||"/dashboard";
+    var links=[
+      ["/dashboard","🏠","لوحة التحكم"],["/employees","👥","الموظفين"],["/attendance","🕐","الحضور والانصراف"],
+      ["/payroll","💰","الرواتب"],["/payroll-advances.html","💵","السلف"],["/invoices","📄","الفواتير"],["/payments","💳","المدفوعات"],
+      ["/projects","🏗️","المشاريع"],["/reports","📊","التقارير"],["/leaves","📅","الإجازات"],["/end-of-service","🧮","نهاية الخدمة"],
+      ["/users","🔐","المستخدمون"],["/audit-log","📝","سجل العمليات"],["/settings","⚙️","الإعدادات"]
     ];
-    var html = '<div class="logo"><h1>IBuild <span>System</span></h1><p>نظام إدارة الشركة</p></div>';
-    html += '<nav class="menu" aria-label="القائمة الرئيسية">';
-    links.forEach(function (item, index) {
-      if (index === 1) html += '<div class="menu-title">إدارة الشركة</div>';
-      if (index === 7) html += '<div class="menu-title projects-menu-title">المشاريع</div>';
-      if (index === 10) html += '<div class="menu-title">الموارد والنظام</div>';
-      var active = path === item[0] || path.indexOf(item[0] + "/") === 0;
-      html += '<a class="menu-item' + (active ? " active" : "") + '" href="' + item[0] + '"><span class="menu-icon">' + item[1] + '</span><span>' + item[2] + '</span></a>';
+    var html='<div class="logo"><h1>IBuild <span>System</span></h1><p>نظام إدارة الشركة</p></div><nav class="menu" aria-label="القائمة الرئيسية">';
+    links.forEach(function(item,index){
+      if(index===1)html+='<div class="menu-title">إدارة الشركة</div>';
+      if(index===7)html+='<div class="menu-title projects-menu-title">المشاريع</div>';
+      if(index===10)html+='<div class="menu-title">الموارد والنظام</div>';
+      var active=path===item[0]||path.indexOf(item[0]+"/")===0;
+      html+='<a class="menu-item'+(active?' active':'')+'" href="'+item[0]+'"><span class="menu-icon">'+item[1]+'</span><span>'+item[2]+'</span></a>';
     });
-    html += "</nav>";
-    html += '<button type="button" class="logout" id="sharedLogout">🚪 <span>تسجيل الخروج</span></button>';
-    sidebar.innerHTML = html;
-    var logoutButton = document.getElementById("sharedLogout");
-    if (logoutButton) logoutButton.addEventListener("click", logout);
-    document.documentElement.setAttribute("dir", document.documentElement.getAttribute("dir") || "rtl");
+    html+='</nav><button type="button" class="logout" id="sharedLogout">🚪 <span>تسجيل الخروج</span></button>';
+    sidebar.innerHTML=html;
+    var logoutButton=document.getElementById("sharedLogout"); if(logoutButton)logoutButton.addEventListener("click",logout);
+    document.documentElement.setAttribute("dir",document.documentElement.getAttribute("dir")||"rtl");
   }
-
-  function installStyles() {
-    if (document.getElementById("ibuild-shared-sidebar-style")) return;
-    var style = document.createElement("style");
-    style.id = "ibuild-shared-sidebar-style";
-    style.textContent = `
+  function installStyles(){
+    if(document.getElementById("ibuild-shared-sidebar-style"))return;
+    var style=document.createElement("style"); style.id="ibuild-shared-sidebar-style";
+    style.textContent=`
       .sidebar{position:fixed!important;top:0!important;right:0!important;left:auto!important;width:260px!important;height:100vh!important;z-index:10000!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;padding:25px 18px!important;background:#0f172a!important}
       .sidebar .menu{display:flex!important;flex-direction:column!important;flex:1!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding:0 2px 85px!important;margin-top:25px!important}
       .sidebar .menu-title{flex:0 0 auto!important;color:#64748b!important;font-size:11px!important;margin:20px 10px 10px!important}
