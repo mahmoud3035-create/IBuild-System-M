@@ -1,8 +1,7 @@
 'use strict';
 
-// IMPORTANT: this module is preloaded before server.js creates its Express app.
-// We wrap the express factory so the real app instance receives the advances
-// routes. We intentionally do not patch express.application.get/post/delete.
+// Preloaded before server.js creates its Express app. We wrap only the Express
+// factory so the real app can register the advance routes at the correct time.
 const Module = require('module');
 const expressModuleId = require.resolve('express');
 const originalExpress = require('express');
@@ -11,14 +10,18 @@ const registerPayrollAdvanceRoutes = require('./payroll-advances-routes');
 if (!originalExpress.__ibuildPayrollAdvancesFactoryWrapped) {
   function wrappedExpress(...args) {
     const app = originalExpress(...args);
-    try {
-      registerPayrollAdvanceRoutes(app);
-    } catch (error) {
-      console.error('PAYROLL ADVANCES ROUTE REGISTRATION ERROR:', error.message);
-    }
+    const originalListen = app.listen;
+    let registered = false;
+    app.listen = function listenWithPayrollAdvances(...listenArgs) {
+      if (!registered) {
+        registered = true;
+        try { registerPayrollAdvanceRoutes(app); }
+        catch (error) { console.error('PAYROLL ADVANCES ROUTE REGISTRATION ERROR:', error.message); }
+      }
+      return originalListen.apply(this, listenArgs);
+    };
     return app;
   }
-
   Object.setPrototypeOf(wrappedExpress, Object.getPrototypeOf(originalExpress));
   Object.assign(wrappedExpress, originalExpress);
   wrappedExpress.__ibuildPayrollAdvancesFactoryWrapped = true;
@@ -28,13 +31,9 @@ if (!originalExpress.__ibuildPayrollAdvancesFactoryWrapped) {
   Module._cache[expressModuleId].exports = wrappedExpress;
 }
 
-// Add the management dialog to the existing payroll page without touching
-// Express route registration. This is safe to preload because response.send
-// belongs to the Express response prototype and is called with the real response.
 const response = originalExpress.response;
 if (!response.__ibuildPayrollAdvanceUiWrapped) {
   const originalSend = response.send;
-
   response.send = function sendWithPayrollAdvances(body) {
     if (this.req && this.req.path === '/payroll' && typeof body === 'string' && /text\/html/i.test(String(this.req.headers.accept || ''))) {
       const script = `
