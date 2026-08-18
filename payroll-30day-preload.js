@@ -1,8 +1,8 @@
 'use strict';
 
 // Payroll rule: every payroll month uses a fixed 30-day base.
-// Attendance is the source of truth for absence days. This preload runs
-// before server.js registers its routes.
+// Attendance source of truth: attendance_records.
+// Payroll source of truth: payroll_records.
 const express = require('express');
 const db = require('./database/db');
 
@@ -12,7 +12,7 @@ const originalDelete = express.application.delete;
 const originalSend = express.response.send;
 
 function forcePayrollBase(req) {
-  if (req.body && typeof req.body === 'object') {
+  if (req.body && typeof req.body === 'object' && req.path === '/api/payroll') {
     req.body.working_days = 30;
   }
 }
@@ -21,8 +21,18 @@ function monthRange(month) {
   const value = String(month || '').slice(0, 7);
   if (!/^\d{4}-\d{2}$/.test(value)) return null;
   const [year, mon] = value.split('-').map(Number);
-  const next = mon === 12 ? `${year + 1}-01-01` : `${year}-${String(mon + 1).padStart(2, '0')}-01`;
+  const next = mon === 12
+    ? `${year + 1}-01-01`
+    : `${year}-${String(mon + 1).padStart(2, '0')}-01`;
   return { month: value, start: `${value}-01`, end: next };
+}
+
+function recordMonth(value) {
+  if (!value) return '';
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 7);
+  }
+  return String(value).slice(0, 7);
 }
 
 async function getAbsentCounts(month) {
@@ -31,18 +41,39 @@ async function getAbsentCounts(month) {
 
   const [rows] = await db.query(`
     SELECT employee_id, COUNT(*) AS absent_days
-    FROM attendance
+    FROM attendance_records
     WHERE status = 'Absent'
       AND attendance_date >= ?
       AND attendance_date < ?
     GROUP BY employee_id
   `, [range.start, range.end]);
 
-  return new Map(rows.map(row => [Number(row.employee_id), Number(row.absent_days || 0)]));
+  return new Map(
+    rows.map(row => [Number(row.employee_id), Number(row.absent_days || 0)])
+  );
+}
+
+async function getAllAbsentCounts() {
+  const [rows] = await db.query(`
+    SELECT
+      employee_id,
+      DATE_FORMAT(attendance_date, '%Y-%m') AS month,
+      COUNT(*) AS absent_days
+    FROM attendance_records
+    WHERE status = 'Absent'
+    GROUP BY employee_id, DATE_FORMAT(attendance_date, '%Y-%m')
+  `);
+
+  return new Map(
+    rows.map(row => [
+      `${Number(row.employee_id)}_${String(row.month).slice(0, 7)}`,
+      Number(row.absent_days || 0)
+    ])
+  );
 }
 
 function applyAttendanceToPayrollRecord(record, absentDays) {
-  const salary = Number(record.payroll_salary || 0);
+  const salary = Number(record.payroll_salary || record.employee_payroll_salary || 0);
   const overtime = Number(record.overtime_amount || 0);
   const additions = Number(record.additions || 0);
   const deductions = Number(record.deductions || 0);
@@ -51,6 +82,7 @@ function applyAttendanceToPayrollRecord(record, absentDays) {
 
   return {
     ...record,
+    payroll_salary: salary,
     absent_days: absentDays,
     working_days: Math.max(0, 30 - absentDays),
     absence_deduction: Number(absenceDeduction.toFixed(2)),
@@ -68,8 +100,9 @@ async function syncPayrollRecord(employeeId, month) {
 
   const [rows] = await db.query(`
     SELECT id, payroll_salary, overtime_amount, additions, deductions
-    FROM payroll
-    WHERE employee_id = ? AND DATE_FORMAT(payroll_month, '%Y-%m') = ?
+    FROM payroll_records
+    WHERE employee_id = ?
+      AND DATE_FORMAT(payroll_month, '%Y-%m') = ?
     LIMIT 1
   `, [employeeId, range.month]);
 
@@ -84,13 +117,19 @@ async function syncPayrollRecord(employeeId, month) {
   const net = Math.max(0, salary + overtime + additions - absenceDeduction - deductions);
 
   await db.query(`
-    UPDATE payroll
+    UPDATE payroll_records
     SET working_days = ?,
         absent_days = ?,
         absence_deduction = ?,
         net_salary = ?
     WHERE id = ?
-  `, [Math.max(0, 30 - absentDays), absentDays, absenceDeduction.toFixed(2), net.toFixed(2), record.id]);
+  `, [
+    Math.max(0, 30 - absentDays),
+    absentDays,
+    Number(absenceDeduction.toFixed(2)),
+    Number(net.toFixed(2)),
+    record.id
+  ]);
 }
 
 function wrapJsonWithAttendanceSync(res, syncPromiseFactory) {
@@ -110,11 +149,12 @@ function normalizePayrollResponse(res) {
   res.json = async function payrollJson(payload) {
     try {
       if (payload && payload.success && Array.isArray(payload.records)) {
-        const month = this.req?.query?.month;
-        const absentMap = await getAbsentCounts(month);
-        payload.records = payload.records.map(record =>
-          applyAttendanceToPayrollRecord(record, absentMap.get(Number(record.employee_id)) || 0)
-        );
+        const absentMap = await getAllAbsentCounts();
+        payload.records = payload.records.map(record => {
+          const month = recordMonth(record.payroll_month);
+          const key = `${Number(record.employee_id)}_${month}`;
+          return applyAttendanceToPayrollRecord(record, absentMap.get(key) || 0);
+        });
       }
     } catch (error) {
       console.error('PAYROLL RESPONSE SYNC ERROR:', error.message);
@@ -124,74 +164,6 @@ function normalizePayrollResponse(res) {
   return res;
 }
 
-function normalizePayrollSummaryResponse(res) {
-  const originalJson = res.json;
-  res.json = async function payrollSummaryJson(payload) {
-    try {
-      if (payload && payload.success) {
-        const month = this.req?.query?.month;
-        const range = monthRange(month);
-        if (range) {
-          const [rows] = await db.query(`
-            SELECT
-              p.employee_id,
-              p.payroll_salary,
-              p.overtime_amount,
-              p.additions,
-              p.deductions,
-              COALESCE(a.absent_days, 0) AS attendance_absent_days
-            FROM payroll p
-            LEFT JOIN (
-              SELECT employee_id, COUNT(*) AS absent_days
-              FROM attendance
-              WHERE status = 'Absent'
-                AND attendance_date >= ?
-                AND attendance_date < ?
-              GROUP BY employee_id
-            ) a ON a.employee_id = p.employee_id
-            WHERE DATE_FORMAT(p.payroll_month, '%Y-%m') = ?
-          `, [range.start, range.end, range.month]);
-
-          let totalSalary = 0;
-          let totalOvertime = 0;
-          let totalAdditions = 0;
-          let totalDeductions = 0;
-          let totalAbsence = 0;
-          let totalNet = 0;
-
-          rows.forEach(row => {
-            const salary = Number(row.payroll_salary || 0);
-            const overtime = Number(row.overtime_amount || 0);
-            const additions = Number(row.additions || 0);
-            const deductions = Number(row.deductions || 0);
-            const absentDays = Number(row.attendance_absent_days || 0);
-            const absenceDeduction = salary > 0 ? (salary / 30) * absentDays : 0;
-            const net = Math.max(0, salary + overtime + additions - absenceDeduction - deductions);
-
-            totalSalary += salary;
-            totalOvertime += overtime;
-            totalAdditions += additions;
-            totalDeductions += deductions;
-            totalAbsence += absenceDeduction;
-            totalNet += net;
-          });
-
-          payload.total_records = rows.length;
-          payload.total_payroll_salary = Number(totalSalary.toFixed(2));
-          payload.total_overtime = Number(totalOvertime.toFixed(2));
-          payload.total_additions = Number(totalAdditions.toFixed(2));
-          payload.total_deductions = Number(totalDeductions.toFixed(2));
-          payload.total_absence_deduction = Number(totalAbsence.toFixed(2));
-          payload.total_net_salary = Number(totalNet.toFixed(2));
-        }
-      }
-    } catch (error) {
-      console.error('PAYROLL SUMMARY SYNC ERROR:', error.message);
-    }
-    return originalJson.call(this, payload);
-  };
-}
-
 function injectPayroll30DayClientRule(body, req) {
   if (typeof body !== 'string' || !req || req.path !== '/payroll') return body;
   if (!/text\/html/i.test(String(req.headers.accept || ''))) return body;
@@ -199,12 +171,9 @@ function injectPayroll30DayClientRule(body, req) {
   const script = `
 <script id="ibuild-30-day-payroll-rule">
 (function () {
-  function fixed30() { return 30; }
-  function fixedDailyWage(salary) { return Number(salary || 0) / 30; }
-  function fixedHourlyWage(salary) { return fixedDailyWage(salary) / 8; }
-  window.getMonthDays = fixed30;
-  window.calculateDailyWage = fixedDailyWage;
-  window.calculateHourlyWage = fixedHourlyWage;
+  window.getMonthDays = function () { return 30; };
+  window.calculateDailyWage = function (salary) { return Number(salary || 0) / 30; };
+  window.calculateHourlyWage = function (salary) { return Number(salary || 0) / 30 / 8; };
 
   window.setWorkingDaysFromMonth = function () {
     var working = document.getElementById('working_days');
@@ -230,19 +199,12 @@ function injectPayroll30DayClientRule(body, req) {
     if (net) net.value = Math.max(0, salary + overtime + additions - absenceDeduction - deductions).toFixed(2);
   };
 
-  function applyFixed30Rule() {
-    var working = document.getElementById('working_days');
-    var absent = document.getElementById('absent_days');
-    if (!working || !absent) return;
-    var absentDays = Math.max(0, Number(absent.value) || 0);
-    working.value = Math.max(0, 30 - absentDays);
-    window.calculatePayroll();
-  }
-
   document.addEventListener('input', function (event) {
-    if (event.target && event.target.id === 'absent_days') applyFixed30Rule();
+    if (event.target && event.target.id === 'absent_days') {
+      window.setWorkingDaysFromMonth();
+      window.calculatePayroll();
+    }
   }, true);
-  document.addEventListener('DOMContentLoaded', applyFixed30Rule);
 })();
 </script>`;
 
@@ -291,17 +253,6 @@ if (!express.application.__ibuildPayroll30DayPatched) {
         };
       });
     }
-
-    if (path === '/api/payroll/stats/summary') {
-      handlers = handlers.map(handler => {
-        if (typeof handler !== 'function') return handler;
-        return function payrollSummaryGetHandler(req, res, next) {
-          normalizePayrollSummaryResponse(res);
-          return handler(req, res, next);
-        };
-      });
-    }
-
     return originalGet.call(this, path, ...handlers);
   };
 
@@ -311,20 +262,19 @@ if (!express.application.__ibuildPayroll30DayPatched) {
         if (typeof handler !== 'function') return handler;
         return function attendanceDeleteHandler(req, res, next) {
           const recordId = Number(req.params?.id || 0);
-          let before;
-          try {
-            const promise = db.query(
-              'SELECT employee_id, attendance_date FROM attendance WHERE id = ? LIMIT 1',
-              [recordId]
-            ).then(([rows]) => { before = rows[0] || null; });
+          let before = null;
+          const lookup = db.query(
+            'SELECT employee_id, attendance_date FROM attendance_records WHERE id = ? LIMIT 1',
+            [recordId]
+          ).then(([rows]) => { before = rows[0] || null; });
 
-            wrapJsonWithAttendanceSync(res, async () => {
-              await promise;
-              if (before) await syncPayrollRecord(before.employee_id, String(before.attendance_date).slice(0, 7));
-            });
-          } catch (error) {
-            console.error('ATTENDANCE DELETE PRELOAD ERROR:', error.message);
-          }
+          wrapJsonWithAttendanceSync(res, async () => {
+            await lookup;
+            if (before) {
+              await syncPayrollRecord(before.employee_id, recordMonth(before.attendance_date));
+            }
+          });
+
           return handler(req, res, next);
         };
       });
