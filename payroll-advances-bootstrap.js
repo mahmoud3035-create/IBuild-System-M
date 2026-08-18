@@ -10,22 +10,21 @@ const registerPayrollAdvanceRoutes = require('./payroll-advances-routes');
 if (!originalExpress.__ibuildPayrollAdvancesFactoryWrapped) {
   function wrappedExpress(...args) {
     const app = originalExpress(...args);
-    const originalListen = app.listen;
-    let registered = false;
 
-    app.listen = function listenWithPayrollAdvances(...listenArgs) {
-      if (!registered) {
-        registered = true;
-        app.get('/payroll-advances.html', (req, res) => {
-          res.sendFile(path.join(__dirname, 'payroll-advances.html'));
-        });
-        app.get('/payroll-advances', (req, res) => {
-          res.redirect('/payroll-advances.html');
-        });
-        registerPayrollAdvanceRoutes(app);
-      }
-      return originalListen.apply(this, listenArgs);
-    };
+    // Register immediately when the Express app is created. This is important:
+    // server.js may install its 404 handler before app.listen(), so registering
+    // the page only at listen-time can still result in a 404.
+    if (!app.__ibuildPayrollAdvancesRegistered) {
+      app.__ibuildPayrollAdvancesRegistered = true;
+      app.get('/payroll-advances.html', (req, res) => {
+        res.sendFile(path.join(__dirname, 'payroll-advances.html'));
+      });
+      app.get('/payroll-advances', (req, res) => {
+        res.redirect('/payroll-advances.html');
+      });
+      registerPayrollAdvanceRoutes(app);
+    }
+
     return app;
   }
 
@@ -38,9 +37,8 @@ if (!originalExpress.__ibuildPayrollAdvancesFactoryWrapped) {
   Module._cache[expressModuleId].exports = wrappedExpress;
 }
 
-// Apply the selected monthly advance installment to payroll responses. The
-// calculation uses the payroll components directly, so a saved installment is
-// never subtracted twice even if net_salary was already updated when it was saved.
+// Apply the selected monthly advance installment to payroll API responses.
+// Payroll page itself contains no advance-management UI.
 const response = originalExpress.response;
 if (!response.__ibuildPayrollAdvancePayrollResponseWrapped) {
   const originalJson = response.json;
