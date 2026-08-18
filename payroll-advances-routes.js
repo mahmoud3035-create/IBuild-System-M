@@ -41,9 +41,18 @@ function registerPayrollAdvanceRoutes(app) {
   });
 
   app.post('/api/payroll/advances', async (req,res) => {
-    try { await ensureSchema(); const employeeId=numberValue(req.body?.employee_id),amount=numberValue(req.body?.amount),reason=String(req.body?.reason||'').trim(),advanceDate=String(req.body?.advance_date||new Date().toISOString().slice(0,10)).slice(0,10);
-      if(!employeeId||amount<=0||!reason)return res.status(400).json({success:false,message:'الموظف وقيمة السلفة وسبب السلفة مطلوبة'}); const [employee]=await db.query('SELECT id FROM employees WHERE id=? LIMIT 1',[employeeId]); if(!employee.length)return res.status(404).json({success:false,message:'الموظف غير موجود'});
-      const [result]=await db.query('INSERT INTO payroll_advances(employee_id,advance_date,amount,reason) VALUES(?,?,?,?)',[employeeId,advanceDate,amount.toFixed(2),reason]); return res.status(201).json({success:true,id:result.insertId,message:'تمت إضافة السلفة بنجاح'});
+    try {
+      await ensureSchema();
+      const body = req.body || {};
+      const employeeId = numberValue(body.employee_id ?? body.employeeId ?? body.employee ?? body.staff_id);
+      const amount = numberValue(body.amount ?? body.advance_amount ?? body.advanceAmount ?? body.value);
+      const reason = String(body.reason ?? body.advance_reason ?? body.advanceReason ?? '').trim();
+      const advanceDate = String(body.advance_date ?? body.advanceDate ?? new Date().toISOString().slice(0,10)).slice(0,10);
+      if(!employeeId || amount<=0 || !reason) return res.status(400).json({success:false,message:'الموظف وقيمة السلفة وسبب السلفة مطلوبة'});
+      const [employee]=await db.query('SELECT id FROM employees WHERE id=? LIMIT 1',[employeeId]);
+      if(!employee.length) return res.status(404).json({success:false,message:'الموظف غير موجود'});
+      const [result]=await db.query('INSERT INTO payroll_advances(employee_id,advance_date,amount,reason) VALUES(?,?,?,?)',[employeeId,advanceDate,amount.toFixed(2),reason]);
+      return res.status(201).json({success:true,id:result.insertId,message:'تمت إضافة السلفة بنجاح'});
     } catch(error){console.error('ADD PAYROLL ADVANCE ERROR:',error);return res.status(500).json({success:false,message:'تعذر إضافة السلفة',error:error.message});}
   });
 
