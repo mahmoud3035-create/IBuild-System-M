@@ -1,6 +1,19 @@
 (function () {
   "use strict";
   function logout(){fetch("/api/auth/logout",{method:"POST"}).finally(function(){window.location.href="/login";});}
+  function removePayrollAdvanceManagerButton(){
+    if(window.location.pathname.replace(/\/$/,"") !== "/payroll") return;
+    function remove(){
+      document.querySelectorAll("button,a,[role='button']").forEach(function(el){
+        var text=String(el.textContent||"").replace(/\s+/g," ").trim();
+        if(text.indexOf("إدارة السلف") !== -1) el.remove();
+      });
+    }
+    remove();
+    var observer=new MutationObserver(remove);
+    observer.observe(document.body,{childList:true,subtree:true});
+    setTimeout(function(){observer.disconnect();},15000);
+  }
   function installSidebar(){
     var sidebar=document.querySelector(".sidebar"); if(!sidebar)return;
     var path=window.location.pathname.replace(/\/$/,"")||"/dashboard";
@@ -42,6 +55,6 @@
     `;
     document.head.appendChild(style);
   }
-  function start(){installStyles();installSidebar();}
+  function start(){installStyles();installSidebar();removePayrollAdvanceManagerButton();}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
 })();
