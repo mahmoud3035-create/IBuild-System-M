@@ -1,68 +1,822 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>IBuild System - السلف</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#0f172a}.sidebar{position:fixed;top:0;right:0;width:260px;height:100vh;z-index:10000;display:flex;flex-direction:column;overflow:hidden;padding:25px 18px;background:#0f172a;color:#fff}.sidebar .logo{text-align:right;border-bottom:1px solid #334155;padding:0 8px 20px}.sidebar .logo h1{margin:0;font-size:24px}.sidebar .logo h1 span{color:#3b82f6}.sidebar .logo p{margin:7px 0 0;color:#94a3b8;font-size:11px}.sidebar .menu{display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 2px 85px;margin-top:20px}.sidebar .menu-title{color:#64748b;font-size:11px;margin:18px 10px 9px}.sidebar .menu-item{display:flex;align-items:center;gap:9px;width:100%;text-decoration:none;border:0;background:transparent;color:#cbd5e1;padding:12px 14px;margin-bottom:4px;border-radius:8px;text-align:right;font-size:14px;cursor:pointer}.sidebar .menu-item:hover,.sidebar .menu-item.active{background:#2563eb;color:#fff}.sidebar .menu-icon{width:22px;display:inline-flex;justify-content:center;flex:0 0 22px}.sidebar .logout{position:absolute;bottom:18px;right:18px;left:18px;width:calc(100% - 36px);z-index:10001;border:1px solid #475569;background:#172033;color:#fff;padding:12px;border-radius:9px;cursor:pointer}.sidebar .logout:hover{background:#dc2626;border-color:#dc2626}.main{margin-right:260px;min-height:100vh}.content{padding:30px 35px}.head,.card{background:#fff;border:1px solid #e2e8f0;border-radius:13px}.head{padding:22px;margin-bottom:20px}.head h2{margin:0 0 7px}.head p{margin:0;color:#64748b;font-size:13px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}.stat{padding:22px}.label{color:#64748b;font-size:12px;margin-bottom:8px}.value{font-size:24px;font-weight:bold}.blue{color:#2563eb}.green{color:#16a34a}.orange{color:#d97706}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}.card{padding:20px}.card h3{margin:0 0 18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}.group{display:flex;flex-direction:column;gap:7px}.group label{font-size:12px;font-weight:bold;color:#475569}.group input,.group select,.group textarea{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}.group textarea{min-height:75px}.actions{display:flex;gap:8px;margin-top:14px}.btn{border:0;border-radius:8px;padding:10px 15px;color:#fff;font-weight:bold;cursor:pointer}.bluebtn{background:#2563eb}.greenbtn{background:#0f766e}.graybtn{background:#64748b}.table{padding:20px;margin-top:20px;overflow:hidden}.wrap{overflow:auto}table{width:100%;min-width:1150px;border-collapse:collapse}th{background:#f8fafc;color:#475569;font-size:12px;padding:13px;text-align:right;white-space:nowrap}td{padding:13px;border-top:1px solid #e2e8f0;font-size:13px;white-space:nowrap}.muted{color:#64748b}.badge{padding:5px 9px;border-radius:15px;background:#fef3c7;color:#92400e;font-weight:bold}.message{display:none;position:fixed;top:18px;left:18px;z-index:60000;padding:12px 18px;border-radius:8px;color:#fff}.success{background:#16a34a}.error{background:#dc2626}@media(max-width:900px){.stats,.grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.main{margin-right:220px}.sidebar{width:220px}.content{padding:18px}}
-</style></head>
-<body>
-<aside class="sidebar">
-<div class="logo"><h1>IBuild <span>System</span></h1><p>نظام إدارة الشركة</p></div>
-<nav class="menu" aria-label="القائمة الرئيسية">
-<div class="menu-title">إدارة الشركة</div>
-<a class="menu-item" href="/dashboard"><span class="menu-icon">🏠</span><span>لوحة التحكم</span></a>
-<a class="menu-item" href="/employees"><span class="menu-icon">👥</span><span>الموظفين</span></a>
-<a class="menu-item" href="/attendance"><span class="menu-icon">🕐</span><span>الحضور والانصراف</span></a>
-<a class="menu-item" href="/payroll"><span class="menu-icon">💰</span><span>الرواتب</span></a>
-<a class="menu-item active" href="/payroll-advances.html"><span class="menu-icon">💵</span><span>السلف</span></a>
-<a class="menu-item" href="/invoices"><span class="menu-icon">📄</span><span>الفواتير</span></a>
-<a class="menu-item" href="/payments"><span class="menu-icon">💳</span><span>المدفوعات</span></a>
-<div class="menu-title">المشاريع</div>
-<a class="menu-item" href="/projects"><span class="menu-icon">🏗️</span><span>المشاريع</span></a>
-<a class="menu-item" href="/reports"><span class="menu-icon">📊</span><span>التقارير</span></a>
-<a class="menu-item" href="/leaves"><span class="menu-icon">📅</span><span>الإجازات</span></a>
-<a class="menu-item" href="/end-of-service"><span class="menu-icon">🧮</span><span>نهاية الخدمة</span></a>
-<div class="menu-title">الموارد والنظام</div>
-<a class="menu-item" href="/users"><span class="menu-icon">🔐</span><span>المستخدمون</span></a>
-<a class="menu-item" href="/audit-log"><span class="menu-icon">📝</span><span>سجل العمليات</span></a>
-<a class="menu-item" href="/settings"><span class="menu-icon">⚙️</span><span>الإعدادات</span></a>
-</nav>
-<button type="button" class="logout" id="sharedLogout">🚪 <span>تسجيل الخروج</span></button>
-</aside>
-<main class="main"><div class="content">
-<section class="head"><h2>💰 إدارة السلف</h2><p>إدارة سلف الموظفين وتجميعها وتحديد قيمة القسط الشهري وربط الخصم تلقائيًا بكشف الرواتب.</p><div class="actions"><button type="button" class="btn bluebtn" onclick="focusEmployeeSelect()">👥 إضافة موظف</button></div></section>
-<section class="stats">
-<div class="card stat"><div class="label">جميع السلف</div><div id="totalAdvances" class="value blue">AED 0.00</div></div>
-<div class="card stat"><div class="label">المدفوع / المخصوم</div><div id="totalRepaid" class="value green">AED 0.00</div></div>
-<div class="card stat"><div class="label">المتبقي</div><div id="totalBalance" class="value orange">AED 0.00</div></div>
-</section>
-<section class="grid">
-<div class="card"><h3>➕ إضافة سلفة</h3><div class="form-grid">
-<div class="group full"><label>الموظف</label><select id="advanceEmployee"><option value="">اختر الموظف</option></select></div>
-<div class="group"><label>تاريخ السلفة</label><input id="advanceDate" type="date"></div>
-<div class="group"><label>مبلغ السلفة</label><input id="advanceAmount" type="number" min="0" step="0.01" placeholder="0.00"></div>
-<div class="group full"><label>سبب السلفة</label><textarea id="advanceReason" placeholder="سبب السلفة"></textarea></div>
-</div><div class="actions"><button class="btn bluebtn" onclick="addAdvance()">حفظ السلفة</button></div></div>
-<div class="card"><h3>📉 تحديد خصم الشهر</h3><div class="form-grid">
-<div class="group full"><label>الموظف</label><select id="deductionEmployee"><option value="">اختر الموظف</option></select></div>
-<div class="group"><label>شهر الراتب</label><input id="deductionMonth" type="month"></div>
-<div class="group"><label>مبلغ الخصم في الشهر</label><input id="deductionAmount" type="number" min="0" step="0.01" placeholder="مثال: 500"></div>
-<div class="group full"><label>سبب الخصم</label><textarea id="deductionReason" placeholder="مثال: قسط السلفة الشهري"></textarea></div>
-</div><div class="actions"><button class="btn greenbtn" onclick="saveDeduction()">حفظ القسط الشهري</button></div></div>
-</section>
-<section class="card table"><h3>👥 الموظفون الذين عليهم سلف</h3><div class="wrap"><table><thead><tr><th>الموظف</th><th>إجمالي السلف</th><th>المدفوع</th><th>المتبقي</th><th>خصم الشهر</th><th>سبب الخصم</th><th>الأقساط المتبقية</th><th>تفاصيل</th></tr></thead><tbody id="summaryRows"></tbody></table></div></section>
-<section class="card table"><h3>🧾 تفاصيل السلف وأسبابها</h3><div class="wrap"><table><thead><tr><th>الموظف</th><th>التاريخ</th><th>المبلغ</th><th>سبب السلفة</th></tr></thead><tbody id="advanceRows"></tbody></table></div></section>
-</div></main><div id="message" class="message"></div>
-<script src="/shared-sidebar.js"></script><script>
-const $=id=>document.getElementById(id);const money=v=>'AED '+Number(v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});const esc=v=>String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));let employees=[];
-function msg(t,type='success'){const e=$('message');e.textContent=t;e.className='message '+type;e.style.display='block';setTimeout(()=>e.style.display='none',2500)}
-async function api(url,opt){const r=await fetch(url,opt),d=await r.json().catch(()=>({}));if(r.status===401){location='/login';return null}if(!r.ok||d.success===false)throw Error(d.message||'حدث خطأ');return d}
-function focusEmployeeSelect(){const select=$('advanceEmployee');select.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>select.focus(),350)}
-async function loadEmployees(){const d=await api('/api/attendance/employees');employees=d?.employees||[];const html='<option value="">اختر الموظف</option>'+employees.map(e=>`<option value="${e.id}">${esc(e.full_name)} - ${esc(e.employee_code||'')}</option>`).join('');$('advanceEmployee').innerHTML=html;$('deductionEmployee').innerHTML=html}
-async function load(){const month=$('deductionMonth').value||new Date().toISOString().slice(0,7);const [s,a]=await Promise.all([api('/api/payroll/advance-summary?month='+encodeURIComponent(month)),api('/api/payroll/advances')]);const rows=s?.summary||[],adv=a?.advances||[];$('totalAdvances').textContent=money(rows.reduce((n,x)=>n+Number(x.total_advance||0),0));$('totalRepaid').textContent=money(rows.reduce((n,x)=>n+Number(x.total_repaid||0),0));$('totalBalance').textContent=money(rows.reduce((n,x)=>n+Number(x.balance||0),0));$('summaryRows').innerHTML=rows.map(x=>{const balance=Number(x.balance||0),monthly=Number(x.current_deduction||0),installments=monthly>0?Math.ceil(balance/monthly):0;return `<tr><td><b>${esc(x.full_name)}</b><br><span class="muted">${esc(x.employee_code||'')}</span></td><td>${money(x.total_advance)}</td><td>${money(x.total_repaid)}</td><td><span class="badge">${money(balance)}</span></td><td>${money(monthly)}</td><td>${esc(x.current_deduction_reason||'—')}</td><td>${installments||'—'}</td><td><button class="btn graybtn" style="padding:7px 11px" onclick="showDetails(${x.employee_id})">عرض التفاصيل</button></td></tr>`}).join('')||'<tr><td colspan="8" class="muted">لا يوجد موظفون عليهم سلف</td></tr>';$('advanceRows').innerHTML=adv.map(x=>{const e=employees.find(y=>Number(y.id)===Number(x.employee_id));return `<tr><td>${esc(e?.full_name||('ID '+x.employee_id))}</td><td>${esc(String(x.advance_date||'').slice(0,10))}</td><td>${money(x.amount)}</td><td>${esc(x.reason||'—')}</td></tr>`}).join('')||'<tr><td colspan="4" class="muted">لا توجد سلف</td></tr>'}
-async function addAdvance(){try{const employee_id=Number($('advanceEmployee').value),amount=Number($('advanceAmount').value),reason=$('advanceReason').value.trim();if(!employee_id||amount<=0||!reason)return msg('اختر الموظف وأدخل المبلغ والسبب','error');await api('/api/payroll/advances',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({employee_id,amount,reason,advance_date:$('advanceDate').value||new Date().toISOString().slice(0,10)})});msg('تمت إضافة السلفة');$('advanceAmount').value='';$('advanceReason').value='';await load()}catch(e){msg(e.message,'error')}}
-async function saveDeduction(){try{const employee_id=Number($('deductionEmployee').value),payroll_month=$('deductionMonth').value,amount=Number($('deductionAmount').value||0),reason=$('deductionReason').value.trim();if(!employee_id||!payroll_month||amount<0)return msg('أدخل الموظف والشهر ومبلغ الخصم','error');if(amount>0&&!reason)return msg('اكتب سبب الخصم','error');await api('/api/payroll/advance-deduction',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({employee_id,payroll_month,amount,reason})});msg('تم حفظ مبلغ الخصم الشهري وربطه بالرواتب');await load()}catch(e){msg(e.message,'error')}}
-async function showDetails(id){const rows=(await api('/api/payroll/advances?employee_id='+id))?.advances||[];const e=employees.find(x=>Number(x.id)===Number(id));alert((e?.full_name||'الموظف')+'\n\n'+(rows.map(x=>`${String(x.advance_date).slice(0,10)} — ${money(x.amount)} — ${x.reason||'بدون سبب'}`).join('\n')||'لا توجد سلف'))}
-$('deductionMonth').value=new Date().toISOString().slice(0,7);$('advanceDate').value=new Date().toISOString().slice(0,10);$('deductionMonth').addEventListener('change',load);$('deductionEmployee').addEventListener('change',async()=>{const id=Number($('deductionEmployee').value),m=$('deductionMonth').value;if(!id)return;const d=await api('/api/payroll/advance-summary?month='+m);const x=(d.summary||[]).find(r=>Number(r.employee_id)===id);if(x){$('deductionAmount').value=x.current_deduction||'';$('deductionReason').value=x.current_deduction_reason||''}});document.getElementById('sharedLogout')?.addEventListener('click',()=>{fetch('/api/auth/logout',{method:'POST'}).finally(()=>location='/login')});(async()=>{try{await loadEmployees();await load()}catch(e){msg(e.message,'error')}})();
-</script></body></html>
+'use strict';
+
+const express = require('express');
+const db = require('./database/db');
+
+/*
+ * إنشاء جداول السلف والأقساط الشهرية إذا لم تكن موجودة
+ */
+async function ensureSchema() {
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS payroll_advances (
+      id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      employee_id INT NOT NULL,
+      advance_date DATE NOT NULL,
+      amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+      reason VARCHAR(500) NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_pa_emp (employee_id),
+      KEY idx_pa_date (advance_date)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS payroll_advance_deductions (
+      id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+      employee_id INT NOT NULL,
+      payroll_month DATE NOT NULL,
+      amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+      reason VARCHAR(500) NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      UNIQUE KEY uq_pad_emp_month (employee_id, payroll_month),
+      KEY idx_pad_emp (employee_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+}
+
+/*
+ * تحويل الشهر إلى YYYY-MM
+ */
+function monthValue(value) {
+  const month = String(value || '').slice(0, 7);
+
+  if (/^\d{4}-\d{2}$/.test(month)) {
+    return month;
+  }
+
+  return null;
+}
+
+/*
+ * تحويل الرقم بشكل آمن
+ */
+function numberValue(value) {
+  const number = Number(value);
+
+  return Number.isFinite(number) ? number : 0;
+}
+
+/*
+ * تسجيل Routes الخاصة بالسلف
+ */
+function registerPayrollAdvanceRoutes(app) {
+
+  /*
+   * مهم جداً:
+   *
+   * payroll-advances-bootstrap.js يقوم بتسجيل Routes
+   * السلف أثناء إنشاء Express App.
+   *
+   * لذلك نضع Parser هنا قبل Routes السلف حتى req.body
+   * يكون متاحاً حتى لو express.json() في server.js
+   * تم تسجيله بعد ذلك.
+   */
+  app.use(
+    '/api/payroll',
+    express.json({ limit: '10mb' })
+  );
+
+  app.use(
+    '/api/payroll',
+    express.urlencoded({ extended: true })
+  );
+
+
+  // =====================================================
+  // GET - جميع السلف
+  // =====================================================
+
+  app.get('/api/payroll/advances', async (req, res) => {
+    try {
+
+      await ensureSchema();
+
+      const employeeId = numberValue(
+        req.query.employee_id
+      );
+
+      let query = `
+        SELECT
+          id,
+          employee_id,
+          advance_date,
+          amount,
+          reason,
+          created_at
+        FROM payroll_advances
+      `;
+
+      const params = [];
+
+      if (employeeId) {
+        query += ` WHERE employee_id = ? `;
+        params.push(employeeId);
+      }
+
+      query += `
+        ORDER BY advance_date DESC, id DESC
+      `;
+
+      const [rows] = await db.query(
+        query,
+        params
+      );
+
+      return res.json({
+        success: true,
+        advances: rows
+      });
+
+    } catch (error) {
+
+      console.error(
+        'GET PAYROLL ADVANCES ERROR:',
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: 'تعذر تحميل سلف الموظف',
+        error: error.message
+      });
+    }
+  });
+
+
+  // =====================================================
+  // GET - ملخص السلف
+  // =====================================================
+
+  app.get('/api/payroll/advance-summary', async (req, res) => {
+
+    try {
+
+      await ensureSchema();
+
+      const payrollMonth = monthValue(
+        req.query.month
+      );
+
+      const params = [];
+
+      let monthFilter = '';
+
+      if (payrollMonth) {
+        monthFilter = `
+          AND d.payroll_month = ?
+        `;
+
+        params.push(
+          `${payrollMonth}-01`
+        );
+      }
+
+      const [rows] = await db.query(`
+        SELECT
+
+          e.id AS employee_id,
+
+          e.employee_code,
+
+          e.full_name,
+
+          COALESCE(
+            a.total_advance,
+            0
+          ) AS total_advance,
+
+          COALESCE(
+            p.total_repaid,
+            0
+          ) AS total_repaid,
+
+          GREATEST(
+            0,
+            COALESCE(a.total_advance, 0)
+            -
+            COALESCE(p.total_repaid, 0)
+          ) AS balance,
+
+          COALESCE(
+            d.current_deduction,
+            0
+          ) AS current_deduction,
+
+          COALESCE(
+            d.current_reason,
+            ''
+          ) AS current_deduction_reason
+
+        FROM employees e
+
+        INNER JOIN (
+
+          SELECT
+            employee_id,
+            SUM(amount) AS total_advance
+
+          FROM payroll_advances
+
+          GROUP BY employee_id
+
+        ) a
+          ON a.employee_id = e.id
+
+        LEFT JOIN (
+
+          SELECT
+            employee_id,
+            SUM(amount) AS total_repaid
+
+          FROM payroll_advance_deductions
+
+          GROUP BY employee_id
+
+        ) p
+          ON p.employee_id = e.id
+
+        LEFT JOIN (
+
+          SELECT
+            employee_id,
+            SUM(amount) AS current_deduction,
+            MAX(reason) AS current_reason
+
+          FROM payroll_advance_deductions
+
+          WHERE 1 = 1
+          ${monthFilter}
+
+          GROUP BY employee_id
+
+        ) d
+          ON d.employee_id = e.id
+
+        ORDER BY e.full_name
+      `, params);
+
+
+      const summary = rows.map(row => ({
+        ...row,
+
+        total_advance: Number(
+          Number(row.total_advance || 0).toFixed(2)
+        ),
+
+        total_repaid: Number(
+          Number(row.total_repaid || 0).toFixed(2)
+        ),
+
+        balance: Number(
+          Number(row.balance || 0).toFixed(2)
+        ),
+
+        current_deduction: Number(
+          Number(row.current_deduction || 0).toFixed(2)
+        )
+      }));
+
+
+      return res.json({
+        success: true,
+        summary
+      });
+
+    } catch (error) {
+
+      console.error(
+        'GET PAYROLL ADVANCE SUMMARY ERROR:',
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: 'تعذر تحميل ملخص السلف',
+        error: error.message
+      });
+    }
+  });
+
+
+  // =====================================================
+  // POST - إضافة سلفة
+  // =====================================================
+
+  app.post('/api/payroll/advances', async (req, res) => {
+
+    try {
+
+      await ensureSchema();
+
+      /*
+       * نقرأ البيانات بأكثر من اسم احتياطياً
+       * حتى لا تحصل مشكلة إذا تغير اسم الحقل في الواجهة.
+       */
+
+      const body = req.body || {};
+
+
+      const employeeId = numberValue(
+        body.employee_id ??
+        body.employeeId ??
+        body.employee ??
+        body.staff_id
+      );
+
+
+      const amount = numberValue(
+        body.amount ??
+        body.advance_amount ??
+        body.advanceAmount ??
+        body.value
+      );
+
+
+      const reason = String(
+        body.reason ??
+        body.advance_reason ??
+        body.advanceReason ??
+        ''
+      ).trim();
+
+
+      const advanceDate = String(
+        body.advance_date ??
+        body.advanceDate ??
+        new Date().toISOString().slice(0, 10)
+      ).slice(0, 10);
+
+
+      /*
+       * التحقق من الموظف
+       */
+
+      if (!employeeId) {
+
+        return res.status(400).json({
+          success: false,
+          message: 'اختر الموظف'
+        });
+
+      }
+
+
+      /*
+       * التحقق من المبلغ
+       */
+
+      if (amount <= 0) {
+
+        return res.status(400).json({
+          success: false,
+          message: 'أدخل مبلغ السلفة'
+        });
+
+      }
+
+
+      /*
+       * التحقق من السبب
+       */
+
+      if (!reason) {
+
+        return res.status(400).json({
+          success: false,
+          message: 'أدخل سبب السلفة'
+        });
+
+      }
+
+
+      /*
+       * التأكد أن الموظف موجود
+       */
+
+      const [employee] = await db.query(
+        `
+          SELECT id
+          FROM employees
+          WHERE id = ?
+          LIMIT 1
+        `,
+        [employeeId]
+      );
+
+
+      if (!employee.length) {
+
+        return res.status(404).json({
+          success: false,
+          message: 'الموظف غير موجود'
+        });
+
+      }
+
+
+      /*
+       * إضافة السلفة
+       */
+
+      const [result] = await db.query(
+        `
+          INSERT INTO payroll_advances
+          (
+            employee_id,
+            advance_date,
+            amount,
+            reason
+          )
+          VALUES (?, ?, ?, ?)
+        `,
+        [
+          employeeId,
+          advanceDate,
+          amount.toFixed(2),
+          reason
+        ]
+      );
+
+
+      return res.status(201).json({
+        success: true,
+        id: result.insertId,
+        message: 'تمت إضافة السلفة بنجاح'
+      });
+
+    } catch (error) {
+
+      console.error(
+        'ADD PAYROLL ADVANCE ERROR:',
+        error
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: 'تعذر إضافة السلفة',
+        error: error.message
+      });
+    }
+  });
+
+
+  // =====================================================
+  // POST - حفظ القسط / الخصم الشهري
+  // =====================================================
+
+  app.post(
+    '/api/payroll/advance-deduction',
+    async (req, res) => {
+
+      try {
+
+        await ensureSchema();
+
+
+        const body = req.body || {};
+
+
+        const employeeId = numberValue(
+          body.employee_id ??
+          body.employeeId ??
+          body.employee ??
+          body.staff_id
+        );
+
+
+        const amount = numberValue(
+          body.amount ??
+          body.deduction_amount ??
+          body.deductionAmount
+        );
+
+
+        const payrollMonth = monthValue(
+          body.payroll_month ??
+          body.payrollMonth ??
+          body.month
+        );
+
+
+        const reason = String(
+          body.reason ??
+          body.deduction_reason ??
+          body.deductionReason ??
+          ''
+        ).trim();
+
+
+        /*
+         * التحقق من البيانات
+         */
+
+        if (
+          !employeeId ||
+          !payrollMonth ||
+          amount < 0
+        ) {
+
+          return res.status(400).json({
+            success: false,
+            message: 'بيانات خصم السلفة غير صحيحة'
+          });
+
+        }
+
+
+        /*
+         * إذا كان هناك خصم لازم يكون له سبب
+         */
+
+        if (
+          amount > 0 &&
+          !reason
+        ) {
+
+          return res.status(400).json({
+            success: false,
+            message: 'سبب خصم السلفة مطلوب'
+          });
+
+        }
+
+
+        /*
+         * إجمالي السلف
+         */
+
+        const [advanceRows] = await db.query(
+          `
+            SELECT
+              COALESCE(SUM(amount), 0) AS total
+
+            FROM payroll_advances
+
+            WHERE employee_id = ?
+          `,
+          [employeeId]
+        );
+
+
+        /*
+         * إجمالي الخصومات السابقة
+         * باستثناء الشهر الحالي
+         */
+
+        const [paidRows] = await db.query(
+          `
+            SELECT
+              COALESCE(SUM(amount), 0) AS total
+
+            FROM payroll_advance_deductions
+
+            WHERE employee_id = ?
+
+            AND payroll_month <> ?
+          `,
+          [
+            employeeId,
+            `${payrollMonth}-01`
+          ]
+        );
+
+
+        const totalAdvance = numberValue(
+          advanceRows[0]?.total
+        );
+
+
+        const totalPaid = numberValue(
+          paidRows[0]?.total
+        );
+
+
+        const balance = Math.max(
+          0,
+          totalAdvance - totalPaid
+        );
+
+
+        /*
+         * لا تسمح بخصم أكبر من المتبقي
+         */
+
+        if (
+          amount > balance + 0.005
+        ) {
+
+          return res.status(400).json({
+            success: false,
+            message:
+              `قيمة الخصم أكبر من رصيد السلف المتبقي (${balance.toFixed(2)} AED)`
+          });
+
+        }
+
+
+        /*
+         * حفظ القسط للشهر
+         *
+         * إذا كان موجوداً لنفس الموظف ونفس الشهر
+         * يتم تحديثه بدلاً من إنشاء سجل جديد.
+         */
+
+        await db.query(
+          `
+            INSERT INTO payroll_advance_deductions
+            (
+              employee_id,
+              payroll_month,
+              amount,
+              reason
+            )
+            VALUES (?, ?, ?, ?)
+
+            ON DUPLICATE KEY UPDATE
+
+              amount = VALUES(amount),
+              reason = VALUES(reason)
+          `,
+          [
+            employeeId,
+            `${payrollMonth}-01`,
+            amount.toFixed(2),
+            reason || null
+          ]
+        );
+
+
+        /*
+         * البحث عن سجل راتب الموظف لنفس الشهر
+         */
+
+        const [payrollRows] = await db.query(
+          `
+            SELECT
+              id,
+              payroll_salary,
+              overtime_amount,
+              additions,
+              deductions,
+              absence_deduction
+
+            FROM payroll_records
+
+            WHERE employee_id = ?
+
+            AND DATE_FORMAT(
+              payroll_month,
+              '%Y-%m'
+            ) = ?
+
+            LIMIT 1
+          `,
+          [
+            employeeId,
+            payrollMonth
+          ]
+        );
+
+
+        /*
+         * إذا كان كشف الراتب موجوداً
+         * يتم تطبيق الخصم تلقائياً.
+         */
+
+        if (payrollRows.length) {
+
+          const row = payrollRows[0];
+
+
+          const baseNet =
+            numberValue(row.payroll_salary) +
+            numberValue(row.overtime_amount) +
+            numberValue(row.additions) -
+            numberValue(row.deductions) -
+            numberValue(row.absence_deduction);
+
+
+          const netSalary = Math.max(
+            0,
+            baseNet - amount
+          );
+
+
+          await db.query(
+            `
+              UPDATE payroll_records
+
+              SET net_salary = ?
+
+              WHERE id = ?
+            `,
+            [
+              netSalary.toFixed(2),
+              row.id
+            ]
+          );
+
+        }
+
+
+        return res.json({
+          success: true,
+          message: 'تم حفظ خصم السلفة لهذا الشهر وربطه بالراتب',
+          amount: Number(
+            amount.toFixed(2)
+          )
+        });
+
+      } catch (error) {
+
+        console.error(
+          'SAVE PAYROLL ADVANCE DEDUCTION ERROR:',
+          error
+        );
+
+        return res.status(500).json({
+          success: false,
+          message: 'تعذر حفظ خصم السلفة',
+          error: error.message
+        });
+      }
+    }
+  );
+
+
+  // =====================================================
+  // DELETE - حذف سلفة
+  // =====================================================
+
+  app.delete(
+    '/api/payroll/advances/:id',
+    async (req, res) => {
+
+      try {
+
+        await ensureSchema();
+
+
+        const id = numberValue(
+          req.params.id
+        );
+
+
+        if (!id) {
+
+          return res.status(400).json({
+            success: false,
+            message: 'رقم السلفة غير صحيح'
+          });
+
+        }
+
+
+        const [result] = await db.query(
+          `
+            DELETE FROM payroll_advances
+
+            WHERE id = ?
+          `,
+          [id]
+        );
+
+
+        if (!result.affectedRows) {
+
+          return res.status(404).json({
+            success: false,
+            message: 'السلفة غير موجودة'
+          });
+
+        }
+
+
+        return res.json({
+          success: true,
+          message: 'تم حذف السلفة'
+        });
+
+      } catch (error) {
+
+        console.error(
+          'DELETE PAYROLL ADVANCE ERROR:',
+          error
+        );
+
+        return res.status(500).json({
+          success: false,
+          message: 'تعذر حذف السلفة',
+          error: error.message
+        });
+      }
+    }
+  );
+}
+
+
+module.exports = registerPayrollAdvanceRoutes;
