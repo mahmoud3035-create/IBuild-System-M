@@ -4,8 +4,8 @@
   "description": "IBuild company management system",
   "main": "server.js",
   "scripts": {
-    "test": "node --check server.js",
-    "start": "node -r ./security-hardening.js -r ./payroll-delete-route.js -r ./payroll-overtime-route.js -r ./payroll-overtime-controls.js -r ./payroll-hide-edit-button.js -r ./payroll-30day-preload.js -r ./payroll-advances.js -r ./payroll-advances-routes.js server.js"
+    "test": "node --check server.js && node --check payroll-advances-bootstrap.js && node --check payroll-advances-routes.js",
+    "start": "node -r ./security-hardening.js -r ./payroll-delete-route.js -r ./payroll-overtime-route.js -r ./payroll-overtime-controls.js -r ./payroll-hide-edit-button.js -r ./payroll-30day-preload.js -r ./payroll-advances-bootstrap.js server.js"
   },
   "keywords": ["ibuild-system", "company-management", "payroll", "attendance"],
   "author": "IBuild Engineering Contracting",
