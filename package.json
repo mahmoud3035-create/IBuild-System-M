@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "node --check server.js",
-    "start": "node -r ./security-hardening.js -r ./payroll-delete-route.js -r ./payroll-overtime-route.js -r ./payroll-overtime-controls.js -r ./payroll-hide-edit-button.js -r ./payroll-30day-preload.js -r ./payroll-advances.js server.js"
+    "start": "node -r ./security-hardening.js -r ./payroll-delete-route.js -r ./payroll-overtime-route.js -r ./payroll-overtime-controls.js -r ./payroll-hide-edit-button.js -r ./payroll-30day-preload.js -r ./payroll-advances.js -r ./payroll-advances-routes.js server.js"
   },
   "keywords": ["ibuild-system", "company-management", "payroll", "attendance"],
   "author": "IBuild Engineering Contracting",
@@ -16,7 +16,6 @@
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.23.2"
   }
